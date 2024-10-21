@@ -3,6 +3,8 @@
 
 int main()
 {
-	std::cout << "HELLO WORLD!";
+	std::string name;
+	std::cin >> name;
+	std::cout << "HELLO WORLD!HELLO "<<name ;
 	return 0;
 }
