@@ -12,5 +12,7 @@ private:
 	std::pair<uint16_t, uint16_t>m_location;
 	std::uint16_t m_health;
 	double m_movespeed;
+	int points;
+	int score;
 
 };
