@@ -1,4 +1,5 @@
 #include "Bomb.h"
+#include<cmath>
 
 Bomb::Bomb(uint8_t x, uint8_t y, uint16_t radius, bool isArmed):
 	m_x(x),m_y(y),m_radius(radius),m_isArmed(isArmed)
@@ -42,4 +43,11 @@ void Bomb::setRadius(uint16_t radius)
 void Bomb::setIsArmed(bool isArmed)
 {
 	this->m_isArmed = isArmed;
+}
+
+bool Bomb::isWithinRange(int playerX, int playerY) const
+{
+	int dx = playerX - m_x;
+	int dy = playerY - m_y;
+	return (std::sqrt(dx * dx + dy * dy) <= m_radius);
 }

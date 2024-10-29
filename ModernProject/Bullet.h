@@ -2,11 +2,6 @@
 #include<cstdint>
 
 class Bullet {
-private:
-    double m_x, m_y; 
-    uint8_t m_direction;     
-    double m_speed;
-    bool m_active;
 public:
     Bullet(double, double, uint8_t, double, bool);
     double getX();
@@ -17,5 +12,10 @@ public:
     void setY(double);
     void setDirection(double);
     void setSpeed(double);
+private:
+    double m_x, m_y;
+    uint8_t m_direction;
+    double m_speed;
+    bool m_active;
 
 };

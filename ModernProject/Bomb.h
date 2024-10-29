@@ -12,7 +12,7 @@ public:
     void setY(uint8_t);
     void setRadius(uint16_t);
     void setIsArmed(bool);
-
+    bool isWithinRange(int, int) const;
 
 private:
     uint8_t m_x, m_y;
