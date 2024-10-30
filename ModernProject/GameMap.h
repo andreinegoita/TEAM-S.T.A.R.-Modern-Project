@@ -2,6 +2,7 @@
 #include<iostream>
 #include<cstdint>
 #include<vector>
+#include<ctime>
 #include"CellType.h"
 class GameMap
 {
@@ -12,6 +13,8 @@ public:
 	CellType getCellType(uint16_t row, uint16_t col) const;
 
 	void setCellType(uint16_t row, uint16_t col, CellType type);
+
+	void generateMap();
 
 private:
 

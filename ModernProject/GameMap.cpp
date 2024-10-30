@@ -20,3 +20,14 @@ void GameMap::setCellType(uint16_t row, uint16_t col, CellType type)
 		throw("Cell coordinates are out of bounds");
 }
 
+void GameMap::generateMap()
+{
+	srand(time(0));
+	for (int i = 0;i < rows;i++) {
+		for (int j = 0;j < cols;j++) {
+			uint16_t randomVal = rand() % 3;
+			setCellType(i, j, static_cast<CellType>(randomVal));
+		}
+	}
+}
+
