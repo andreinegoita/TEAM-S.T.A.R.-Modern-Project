@@ -31,3 +31,22 @@ void GameMap::generateMap()
 	}
 }
 
+void GameMap::displayMap() const
+{
+	for(const auto& line:map)
+	{
+		for(const auto& cell:line)
+		{
+			switch (cell)
+			{
+			case CellType::EMPTY: std::cout << ".";
+				break;
+			case CellType::BREAKABLE_WALL: std::cout << "#";
+				break;
+			case CellType::UNBREAKABLE_WALL: std::cout << "X";
+			}
+		}
+		std::cout << "\n";
+	}
+}
+

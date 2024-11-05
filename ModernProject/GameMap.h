@@ -16,6 +16,8 @@ public:
 
 	void generateMap();
 
+	void displayMap() const;
+
 private:
 
 	const uint16_t rows;
