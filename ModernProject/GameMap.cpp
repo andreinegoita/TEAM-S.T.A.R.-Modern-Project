@@ -39,11 +39,11 @@ void GameMap::displayMap() const
 		{
 			switch (cell)
 			{
-			case CellType::EMPTY: std::cout << ".";
+			case CellType::EMPTY: std::cout << " . ";
 				break;
-			case CellType::BREAKABLE_WALL: std::cout << "#";
+			case CellType::BREAKABLE_WALL: std::cout << " # ";
 				break;
-			case CellType::UNBREAKABLE_WALL: std::cout << "X";
+			case CellType::UNBREAKABLE_WALL: std::cout << " X ";
 			}
 		}
 		std::cout << "\n";
