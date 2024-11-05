@@ -6,6 +6,15 @@ GameObject{ position, velocity }, m_health{ 3 }, m_points(0), m_score{0}
 {
 }
 
+void Player::Shoot(uint8_t direction)
+{
+	auto newBullet = m_weapon.fire(m_position.first, m_position.second,m_direction);
+	if (newBullet)
+	{
+		m_bullets.push_back(std::move(newBullet));
+	}
+}
+
 void Player::Display()
 {
 	std::cout << "Player " << m_name << "located at {" << m_position.first << ' ' << m_position.second << "} with velocity "

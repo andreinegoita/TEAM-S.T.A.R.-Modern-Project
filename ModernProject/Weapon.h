@@ -1,11 +1,13 @@
 #pragma once
 #include<chrono>
+#include"Bullet.h"
+#include<memory>
 class Weapon
 {
 public:
 	Weapon();
 	Weapon(double x, double y, double fireRate, double bulletSpeed, uint8_t direction);
-	bool fire();
+	std::unique_ptr<Bullet> fire(uint16_t x, uint16_t y, uint8_t direction);
 	void upgradeBulletSpeed(double increment);
 	void reduceFireRate(double factor);
 	double getFireRate() const;
