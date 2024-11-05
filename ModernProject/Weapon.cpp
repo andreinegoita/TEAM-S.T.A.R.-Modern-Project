@@ -4,6 +4,11 @@ Weapon::Weapon():m_fireRate(4.0),m_bulletSpeed(0.25),m_lastFire(std::chrono::ste
 {
 }
 
+Weapon::Weapon(double x, double y, double fireRate, double bulletSpeed, uint8_t direction):
+    m_x(x),m_y(y),m_fireRate(fireRate),m_bulletSpeed(bulletSpeed),m_direction(direction)
+{
+}
+
 bool Weapon::fire()
 {
     auto currentTime = std::chrono::steady_clock::now();
