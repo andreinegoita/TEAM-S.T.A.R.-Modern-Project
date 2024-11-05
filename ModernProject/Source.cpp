@@ -1,5 +1,5 @@
 #include<iostream>
-
+#include"GameMap.h"
 
 int main()
 {
