@@ -2,18 +2,9 @@
 #include<cmath>
 
 Bomb::Bomb(uint8_t x, uint8_t y, uint16_t radius, bool isActivated):
-	m_x(x),m_y(y),m_radius(radius),m_isActivated(isActivated)
+	GameObject({ x,y },0), m_radius(radius), m_isActivated(isActivated)
 {}
 
-uint8_t Bomb::getX() const
-{
-    return m_x;
-}
-
-uint8_t Bomb::getY() const
-{
-	return m_y;
-}
 
 uint16_t Bomb::getRadius() const
 {
@@ -25,15 +16,6 @@ bool Bomb::getIsActivated() const
 	return m_isActivated;
 }
 
-void Bomb::setX(uint8_t x)
-{
-	this->m_x = x;
-}
-
-void Bomb::setY(uint8_t y)
-{
-	this->m_y=y;
-}
 
 void Bomb::setRadius(uint16_t radius)
 {
