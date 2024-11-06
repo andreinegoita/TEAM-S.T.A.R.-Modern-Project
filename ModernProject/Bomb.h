@@ -4,10 +4,10 @@
 class Bomb {
 public:
     Bomb(uint8_t, uint8_t, uint16_t, bool);
-    uint8_t getX();
-    uint8_t getY();
-    uint16_t getRadius();
-    bool getIsArmed();
+    uint8_t getX() const;
+    uint8_t getY() const;
+    uint16_t getRadius() const;
+    bool getIsActivated() const;
     void setX(uint8_t);
     void setY(uint8_t);
     void setRadius(uint16_t);
@@ -17,6 +17,6 @@ public:
 private:
     uint8_t m_x, m_y;
     uint16_t m_radius;
-    bool m_isArmed;
+    bool m_isActivated;
     const uint8_t m_DETONATION_RADIUS = 10;
 };

@@ -1,28 +1,28 @@
 #include "Bomb.h"
 #include<cmath>
 
-Bomb::Bomb(uint8_t x, uint8_t y, uint16_t radius, bool isArmed):
-	m_x(x),m_y(y),m_radius(radius),m_isArmed(isArmed)
+Bomb::Bomb(uint8_t x, uint8_t y, uint16_t radius, bool isActivated):
+	m_x(x),m_y(y),m_radius(radius),m_isActivated(isActivated)
 {}
 
-uint8_t Bomb::getX()
+uint8_t Bomb::getX() const
 {
     return m_x;
 }
 
-uint8_t Bomb::getY()
+uint8_t Bomb::getY() const
 {
 	return m_y;
 }
 
-uint16_t Bomb::getRadius()
+uint16_t Bomb::getRadius() const
 {
 	return m_radius;
 }
 
-bool Bomb::getIsArmed()
+bool Bomb::getIsActivated() const
 {
-	return m_isArmed;
+	return m_isActivated;
 }
 
 void Bomb::setX(uint8_t x)
@@ -40,14 +40,14 @@ void Bomb::setRadius(uint16_t radius)
 	this->m_radius = radius;
 }
 
-void Bomb::setIsArmed(bool isArmed)
+void Bomb::setIsArmed(bool isActivated)
 {
-	this->m_isArmed = isArmed;
+	this->m_isActivated = isActivated;
 }
 
 bool Bomb::isWithinRange(int playerX, int playerY) const
 {
-	int dx = playerX - m_x;
-	int dy = playerY - m_y;
-	return (std::sqrt(dx * dx + dy * dy) <= m_radius);
+	int dx = static_cast<int>(m_x) - playerX;
+	int dy = static_cast<int>(m_y) - playerY;
+	return (dx * dx + dy * dy) <= (m_radius * m_radius);
 }
