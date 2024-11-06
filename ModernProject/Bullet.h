@@ -10,6 +10,8 @@ public:
     double getSpeed() const;
     void setX(double);
     void setY(double);
+    bool isActive() const;
+    void deactivate();
 private:
     double m_x, m_y;
     uint8_t m_direction;

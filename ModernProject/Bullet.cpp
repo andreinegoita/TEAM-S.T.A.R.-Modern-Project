@@ -34,5 +34,15 @@ void Bullet::setY(double y)
 	this->m_y = y;
 }
 
+bool Bullet::isActive() const
+{
+	return m_active;
+}
+
+void Bullet::deactivate()
+{
+	m_active = false;
+}
+
 
 
