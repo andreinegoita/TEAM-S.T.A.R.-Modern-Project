@@ -9,9 +9,8 @@ int main()
 	map.displayMap();
 
 	Player player("Hero", {2, 5}, 1);
-	std::cout << "Player speed :"<< player.GetSpeed()<<std::endl;
-	std::cout<<"Position on matrix (X) :"<<player.GetX()<<std::endl;
-	std::cout<<"Position on matrix (Y) :"<<player.GetY()<<std::endl;
 	player.Display();
+	Weapon weapon(23,54,4.3,2.4,1);
+	weapon.Display();
 	return 0;
 }

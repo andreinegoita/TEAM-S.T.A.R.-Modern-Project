@@ -4,20 +4,6 @@ GameObject::GameObject(std::pair<uint16_t,uint16_t>position,double speed):m_posi
 {
 }
 
-uint16_t GameObject::GetX()
-{
-	return m_position.first;
-}
-
-uint16_t GameObject::GetY()
-{
-	return  m_position.second;
-}
-
-double GameObject::GetSpeed()
-{
-	return m_speed;
-}
 
 
 

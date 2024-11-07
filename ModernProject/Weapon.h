@@ -2,7 +2,7 @@
 #include<chrono>
 #include"Bullet.h"
 #include<memory>
-class Weapon
+class Weapon: public GameObject
 {
 public:
 	Weapon();
@@ -12,8 +12,8 @@ public:
 	void reduceFireRate(double factor);
 	double getFireRate() const;
 	double getBulletSpeed()const;
+	void Display() override;
 private:
-	double m_x,m_y;
 	double m_fireRate;
 	double m_bulletSpeed;
 	uint8_t m_direction;

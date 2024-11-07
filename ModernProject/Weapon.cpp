@@ -1,11 +1,11 @@
 #include "Weapon.h"
 
-Weapon::Weapon():m_fireRate(4.0),m_bulletSpeed(0.25),m_lastFire(std::chrono::steady_clock::now()),m_x(0),m_y(0),m_direction(0)
+Weapon::Weapon() :m_fireRate(4.0), m_bulletSpeed(m_speed + 0.25), m_lastFire(std::chrono::steady_clock::now()), m_direction(0), GameObject({0,0},0)
 {
 }
 
 Weapon::Weapon(double x, double y, double fireRate, double bulletSpeed, uint8_t direction):
-    m_x(x),m_y(y),m_fireRate(fireRate),m_bulletSpeed(bulletSpeed),m_direction(direction)
+    m_fireRate(fireRate), m_bulletSpeed(bulletSpeed), m_direction(direction), GameObject({x,y},m_speed)
 {
 }
 
@@ -41,4 +41,9 @@ double Weapon::getFireRate() const
 double Weapon::getBulletSpeed() const
 {
     return m_bulletSpeed;
+}
+
+void Weapon::Display()
+{
+    std::cout << "Weapon at coordinates{" << m_position.first << ',' << m_position.second << "} with bullet speed " << m_bulletSpeed << " and fire rate" << m_fireRate << "\n";
 }
