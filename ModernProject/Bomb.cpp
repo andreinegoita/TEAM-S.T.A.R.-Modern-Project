@@ -29,7 +29,7 @@ void Bomb::setIsArmed(bool isActivated)
 
 bool Bomb::isWithinRange(int playerX, int playerY) const
 {
-	int dx = static_cast<int>(m_x) - playerX;
-	int dy = static_cast<int>(m_y) - playerY;
+	int dx = static_cast<int>(m_position.first) - playerX;
+	int dy = static_cast<int>(m_position.second) - playerY;
 	return (dx * dx + dy * dy) <= (m_radius * m_radius);
 }

@@ -21,5 +21,10 @@ void Bullet::deactivate()
 	m_active = false;
 }
 
+void Bullet::Display()
+{
+	std::cout << 0;
+}
+
 
 

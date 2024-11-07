@@ -7,6 +7,8 @@ public:
     uint8_t getDirection() const;
     bool isActive() const;
     void deactivate();
+    void Display() override;
+
 private:
     uint8_t m_direction;
     bool m_active;
