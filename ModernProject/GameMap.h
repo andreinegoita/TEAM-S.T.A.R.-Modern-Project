@@ -16,15 +16,13 @@ public:
 
 	void generateMap();
 
-	void displayMap() const;
-
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
 
 private:
 
-	const uint16_t rows;
-	const uint16_t cols;
-	std::vector<std::vector<CellType>> map;
+	const uint16_t m_rows;
+	const uint16_t m_cols;
+	std::vector<std::vector<CellType>> m_map;
 
 };
 

@@ -6,7 +6,7 @@ int main()
 {	
 	GameMap map(20, 20);
 	map.generateMap();
-	map.displayMap();
+	std::cout << map;
 
 	Player player("Hero", {2, 5}, 1);
 	player.Display();
