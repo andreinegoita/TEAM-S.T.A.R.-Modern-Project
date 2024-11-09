@@ -18,6 +18,8 @@ public:
 
 	void displayMap() const;
 
+	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
+
 private:
 
 	const uint16_t rows;

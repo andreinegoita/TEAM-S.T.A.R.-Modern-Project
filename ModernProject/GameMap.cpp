@@ -50,3 +50,22 @@ void GameMap::displayMap() const
 	}
 }
 
+std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)
+{
+	for (const auto& line : gameMap.map)
+	{
+		for (const auto& cell : line)
+		{
+			switch (cell)
+			{
+			case CellType::EMPTY: os << " . ";
+				break;
+			case CellType::BREAKABLE_WALL: os << " # ";
+				break;
+			case CellType::UNBREAKABLE_WALL: os << " X ";
+			}
+		}
+		os << "\n";
+	}
+	return os;
+}
