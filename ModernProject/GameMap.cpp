@@ -7,7 +7,7 @@ GameMap::GameMap(uint16_t rows, uint16_t cols)
 
 CellType GameMap::getCellType(uint16_t row, uint16_t col) const
 {
-	if (row < m_rows && col < m_cols)
+	if (row >= m_rows && col >= m_cols)
 		throw std::out_of_range("Cell coordinates are out of bounds");
 	return m_map[row][col];
 }
@@ -29,6 +29,11 @@ void GameMap::generateMap()
 			setCellType(i, j, static_cast<CellType>(randomVal));
 		}
 	}
+}
+
+GameMap::GameMap(const GameMap& other):m_rows(other.m_rows),m_cols(other.m_cols), m_map(other.m_map)
+{
+	//Empty
 }
 
 std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)

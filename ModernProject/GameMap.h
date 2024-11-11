@@ -17,6 +17,8 @@ public:
 
 	void generateMap();
 
+	GameMap(const GameMap& other);
+
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
 
 private:
