@@ -12,5 +12,6 @@ int main()
 	player.Display();
 	Weapon weapon(23,54,4.3,2.4,1);
 	weapon.Display();
+	player.GetStartPosition();
 	return 0;
 }
