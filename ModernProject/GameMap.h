@@ -4,6 +4,7 @@
 #include<vector>
 #include<ctime>
 #include"CellType.h"
+#include "Player.h"
 class GameMap
 {
 public:
