@@ -30,5 +30,24 @@ void Bullet::Draw()
 {
 }
 
+bool Bullet::collide(const GameObject& other)
+{
+	auto bulletPosition = this->getPosition();
+	auto objectPosition = other.getPosition();
+
+	double distance = std::sqrt(std::pow(bulletPosition.first - objectPosition.first, 2) +
+		std::pow(bulletPosition.second - objectPosition.second, 2));
+
+	double bulletRadius = this->getRadius();
+	double objectRadius = other.getRadius();
+
+	const double collisionThreshold = bulletRadius + objectRadius;;
+	if (distance < collisionThreshold) {
+		return true;
+	}
+
+	return false;
+}
+
 
 
