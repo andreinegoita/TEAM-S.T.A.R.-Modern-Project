@@ -14,6 +14,7 @@ public:
 	void Display() override;
 	std::pair<uint16_t, uint16_t>GetStartPosition();
 	void DisplayPosition();
+	void Draw() override;
 
 private:
 	std::string_view m_name;

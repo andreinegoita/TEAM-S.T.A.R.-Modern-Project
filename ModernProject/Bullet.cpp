@@ -26,5 +26,9 @@ void Bullet::Display()
 	std::cout << 0;
 }
 
+void Bullet::Draw()
+{
+}
+
 
 

@@ -13,6 +13,7 @@ public:
 	double getFireRate() const;
 	double getBulletSpeed()const;
 	void Display() override;
+	void Draw() override;
 private:
 	double m_fireRate;
 	double m_bulletSpeed;

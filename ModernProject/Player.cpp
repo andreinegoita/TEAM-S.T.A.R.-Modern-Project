@@ -34,4 +34,10 @@ void Player::DisplayPosition()
 	std::cout << "StartPoint:{" << m_startPosition.first << ',' << m_startPosition.second << "}\n";
 }
 
+void Player::Draw()
+{
+	char character = (char)2;
+	printColored(character, Color::YELLOW);
+}
+
 

@@ -8,6 +8,7 @@ public:
     bool isActive() const;
     void deactivate();
     void Display() override;
+    void Draw() override;
 
 private:
     uint8_t m_direction;
