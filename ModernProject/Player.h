@@ -8,8 +8,8 @@
 class Player:public GameObject
 {
 public:
-	Player( std::string_view name,std::pair<uint16_t,uint16_t>position,double velocity);
-	void Shoot(uint8_t direction);
+	Player( std::string_view name,std::pair<uint16_t,uint16_t>position,double velocity,DirectionType direction);
+	void Shoot();
 	void ResetPosition();
 	void Display() override;
 	std::pair<uint16_t, uint16_t>GetStartPosition();
@@ -24,5 +24,4 @@ private:
 	Weapon m_weapon;
 	std::vector<std::unique_ptr<Bullet>> m_bullets;
 	std::pair<uint16_t, uint16_t>m_startPosition = m_position;
-	uint8_t m_direction;
 };

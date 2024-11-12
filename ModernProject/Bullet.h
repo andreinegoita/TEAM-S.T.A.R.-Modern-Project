@@ -3,15 +3,15 @@
 #include "GameObject.h"
 class Bullet:public GameObject {
 public:
-    Bullet(double, double, uint8_t, double, bool);
-    uint8_t getDirection() const;
+    Bullet(double, double, DirectionType,double, bool);
+    DirectionType getDirection() const;
     bool isActive() const;
     void deactivate();
     void Display() override;
     void Draw() override;
 
 private:
-    uint8_t m_direction;
+    DirectionType m_direction;
     bool m_active;
 
 };

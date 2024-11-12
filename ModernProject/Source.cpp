@@ -8,9 +8,9 @@ int main()
 	map.generateMap();
 	std::cout << map;
 
-	Player player("Hero", {2, 5}, 1);
+	Player player("Hero", {2, 5}, 1,DirectionType::Up);
 	player.Display();
-	Weapon weapon(23,54,4.3,2.4,1);
+	Weapon weapon(23,54,4.3,2.4,DirectionType::Up);
 	weapon.Display();
 	player.GetStartPosition();
 	player.Draw();

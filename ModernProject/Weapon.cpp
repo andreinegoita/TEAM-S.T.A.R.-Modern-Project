@@ -1,15 +1,15 @@
 #include "Weapon.h"
 
-Weapon::Weapon() :m_fireRate(4.0), m_bulletSpeed(m_speed + 0.25), m_lastFire(std::chrono::steady_clock::now()), m_direction(0), GameObject({0,0},0)
+Weapon::Weapon() :m_fireRate(4.0), m_bulletSpeed(m_speed + 0.25), m_lastFire(std::chrono::steady_clock::now()), GameObject({ 0,0 }, 0,DirectionType::Up)
 {
 }
 
-Weapon::Weapon(double x, double y, double fireRate, double bulletSpeed, uint8_t direction):
-    m_fireRate(fireRate), m_bulletSpeed(bulletSpeed), m_direction(direction), GameObject({x,y},m_speed)
+Weapon::Weapon(double x, double y, double fireRate, double bulletSpeed,DirectionType direction):
+    m_fireRate{ fireRate }, m_bulletSpeed{ bulletSpeed }, GameObject{ { x,y }, m_speed, direction }
 {
 }
 
-std::unique_ptr<Bullet> Weapon::fire(uint16_t x,uint16_t y, uint8_t direction)
+std::unique_ptr<Bullet> Weapon::fire(uint16_t x,uint16_t y, DirectionType direction)
 {
     auto currentTime = std::chrono::steady_clock::now();
     double timeSinceLastFire = std::chrono::duration<double>(currentTime - m_lastFire).count();

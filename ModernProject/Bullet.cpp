@@ -1,11 +1,11 @@
 #include "Bullet.h"
 
-Bullet::Bullet(double x, double y, uint8_t direction, double speed, bool active):
-	GameObject({x,y},speed), m_direction(direction), m_active(active)
+Bullet::Bullet(double x, double y, DirectionType direction, double speed, bool active):
+	GameObject({x,y},speed,direction), m_direction(direction), m_active(active)
 {}
 
 
-uint8_t Bullet::getDirection() const
+DirectionType Bullet::getDirection() const
 {
 	return m_direction;
 }

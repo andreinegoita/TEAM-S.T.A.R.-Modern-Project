@@ -2,7 +2,7 @@
 #include<cmath>
 
 Bomb::Bomb(uint8_t x, uint8_t y, uint16_t radius, bool isActivated):
-	GameObject({ x,y },0), m_radius(radius), m_isActivated(isActivated)
+	GameObject({ x,y },0,DirectionType::Up), m_radius(radius), m_isActivated(isActivated)
 {}
 
 
