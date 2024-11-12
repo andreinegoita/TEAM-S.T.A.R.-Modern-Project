@@ -4,6 +4,11 @@ GameObject::GameObject(std::pair<uint16_t, uint16_t>position, double speed, Dire
 {
 }
 
+std::pair<uint16_t, uint16_t> GameObject::GetPosition() const
+{
+	return m_position;
+}
+
 
 
 

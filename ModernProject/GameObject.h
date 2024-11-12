@@ -24,6 +24,8 @@ public:
 		std::cout << "\033[" << static_cast<int>(color) << "m" << character << "\033[0m" << std::endl;
 	}
 
+	std::pair<uint16_t, uint16_t>GetPosition() const;
+
 
 protected:
 	DirectionType m_direction;

@@ -10,6 +10,7 @@ public:
     void setIsArmed(bool);
     bool isWithinRange(int, int) const;
     void Draw() override;
+    uint8_t GetRadius() const;
 
 private:
     uint16_t m_radius;

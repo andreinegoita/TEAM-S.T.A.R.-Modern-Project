@@ -37,3 +37,10 @@ bool Bomb::isWithinRange(int playerX, int playerY) const
 void Bomb::Draw()
 {
 }
+
+uint8_t Bomb::GetRadius() const
+{
+	return m_DETONATION_RADIUS;
+}
+
+

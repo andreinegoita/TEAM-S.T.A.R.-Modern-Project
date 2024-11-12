@@ -35,7 +35,7 @@ void Player::DisplayPosition()
 
 void Player::Draw()
 {
-	char character = (char)2;
+	char character =char(30);
 	printColored(character, Color::YELLOW);
 }
 
