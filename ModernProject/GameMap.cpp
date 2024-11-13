@@ -27,10 +27,18 @@ void GameMap::setCellType(uint16_t row, uint16_t col, CellType type)
 void GameMap::generateMap()
 {
 	srand(time(0));
+	int middleRow = (m_rows - 1) / 2;
 	for (int i = 0;i < m_rows;i++) {
 		for (int j = 0;j < m_cols;j++) {
-			uint16_t randomVal = rand() % 3;
-			setCellType(i, j, static_cast<CellType>(randomVal));
+			if (i == 0 || i == m_rows - 1 || j == 0 || j == m_cols - 1)
+				setCellType(i, j, static_cast<CellType>(0));
+			else{
+				uint16_t randomVal = rand() % 3;
+				setCellType(i, j, static_cast<CellType>(randomVal));
+			}
+			if ((j == 0 || j == m_cols - 1) && i == (m_rows - 1) / 2) {
+				setCellType(i, j, static_cast<CellType>(2));
+			}
 		}
 	}
 }

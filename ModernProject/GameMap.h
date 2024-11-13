@@ -14,6 +14,10 @@ public:
 
 	CellType getCellType(uint16_t row, uint16_t col) const;
 
+	uint16_t getRows() const;
+	
+	uint16_t getCols() const;
+	
 	void setCellType(uint16_t row, uint16_t col, CellType type);
 
 	void generateMap();
@@ -21,9 +25,6 @@ public:
 	GameMap(const GameMap& other);
 
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
-	uint16_t getRows() const;
-
-	uint16_t getCols() const;
 private:
 
 	const uint16_t m_rows;
