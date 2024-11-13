@@ -47,9 +47,21 @@ bool Bullet::collide(const GameObject& other)
 	return false;
 }
 
+void Bullet::moveAndCheck(const GameMap& gameMap, std::vector<GameObject*>& objects)
+{
+	if (isOutOfBounds(gameMap,m_position.first,m_position.second)) {
+		std::cout<<"Bullet is out of bounds"<<std::endl;
+		deactivate();
+		return;
+	}
 
+	move(gameMap);
 
-
-
-
-
+	for (auto& obj : objects) {
+		if (this != obj && collide(*obj)) {
+			std::cout << "Bullet collided with another object!" << "\n";
+			deactivate();
+			break;
+		}
+	}
+}

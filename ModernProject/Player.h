@@ -18,6 +18,7 @@ public:
 	void DisplayPosition();
 	void Draw() override;
 	void handleInput(const GameMap& gameMap);
+	int  getNoOfBullets();
 private:
 	std::string_view m_name;
 	std::uint16_t m_health;

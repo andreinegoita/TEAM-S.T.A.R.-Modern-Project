@@ -58,6 +58,7 @@ void Player::handleInput(const GameMap& gameMap)
                 break;
             case ' ': 
                 Shoot();
+                std::cout<<this->getNoOfBullets()<<"\n";
             default:
                 return; 
             }
@@ -66,6 +67,11 @@ void Player::handleInput(const GameMap& gameMap)
             std::cout << "Position: (" << m_position.first << ", " << m_position.second << ")\n";
         }
     
+}
+
+int Player::getNoOfBullets()
+{
+    return m_bullets.size();
 }
 
 
