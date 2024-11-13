@@ -31,25 +31,23 @@ void Bullet::Draw()
 	
 }
 
-//bool Bullet::collide(const GameObject& other)
-//{
-//	auto bulletPosition = this->GetPosition();
-//	auto objectPosition = other.GetPosition();
-//
-//	double distance = std::sqrt(std::pow(bulletPosition.first - objectPosition.first, 2) +
-//		std::pow(bulletPosition.second - objectPosition.second, 2));
-//}
-//
-//	//double bulletRadius = this->GetRadius();
-//	//double objectRadius = other.getRadius();
-//
-//	//const double collisionThreshold = bulletRadius + objectRadius;;
-//	/*if (distance < collisionThreshold) {
-//		return true;
-//	}
-//
-//	return false;
-//}*/
+bool Bullet::collide(const GameObject& other)
+{
+	auto bulletPosition = this->GetPosition();
+	auto objectPosition = other.GetPosition();
+
+	double distance = std::sqrt(std::pow(bulletPosition.first - objectPosition.first, 2) +
+		std::pow(bulletPosition.second - objectPosition.second, 2));
+
+	const double collisionThreshold = 4.0;
+	if (distance < collisionThreshold) {
+		return true;
+	}
+
+	return false;
+}
+
+
 
 
 

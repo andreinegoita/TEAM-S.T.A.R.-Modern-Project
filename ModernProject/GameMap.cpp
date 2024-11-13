@@ -36,6 +36,16 @@ GameMap::GameMap(const GameMap& other):m_rows(other.m_rows),m_cols(other.m_cols)
 	//Empty
 }
 
+uint16_t GameMap::getRows() const
+{
+	return m_rows;
+}
+
+uint16_t GameMap::getCols() const
+{
+	return m_cols;
+}
+
 std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)
 {
 	for (const auto& line : gameMap.m_map)

@@ -2,6 +2,8 @@
 
 #include<iostream>
 #include "Direction.h"
+#include "Game.h"
+
 class GameObject
 {
 
@@ -26,6 +28,7 @@ public:
 
 	std::pair<uint16_t, uint16_t>GetPosition() const;
 	void move();
+	bool isOutOfBounds(const GameMap& gameMap);
 
 protected:
 	DirectionType m_direction;

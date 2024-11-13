@@ -17,6 +17,17 @@ void GameObject::move()
     m_position.second += static_cast<uint16_t>(offset.second * m_speed);
 }
 
+bool GameObject::isOutOfBounds(const GameMap& gameMap)
+{
+    const auto [rows, cols] = std::make_pair(gameMap.getRows(), gameMap.getCols());
+
+    if (m_position.first >= rows || m_position.second >= cols 
+        || m_position.first < 0 || m_position.second < 0) {
+        return true;
+    }
+    return false;
+}
+
 
 
 

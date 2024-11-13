@@ -20,7 +20,9 @@ public:
 	GameMap(const GameMap& other);
 
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
+	uint16_t getRows() const;
 
+	uint16_t getCols() const;
 private:
 
 	const uint16_t m_rows;

@@ -9,7 +9,7 @@ public:
     void deactivate();
     void Display() override;
     void Draw() override;
-    //bool collide(const GameObject& other);
+    bool collide(const GameObject& other);
 
 private:
     DirectionType m_direction;
