@@ -16,7 +16,7 @@ int main()
 	player.Draw();
 	while (true)
 	{
-		player.handleInput();
+		player.handleInput(map);
 	}
 	return 0;
 }

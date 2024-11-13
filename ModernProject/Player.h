@@ -17,7 +17,7 @@ public:
 	std::pair<uint16_t, uint16_t>GetStartPosition();
 	void DisplayPosition();
 	void Draw() override;
-	void handleInput();
+	void handleInput(const GameMap& gameMap);
 private:
 	std::string_view m_name;
 	std::uint16_t m_health;

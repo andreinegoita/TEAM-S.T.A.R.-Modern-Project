@@ -39,7 +39,7 @@ void Player::Draw()
 	printColored(character, Color::YELLOW);
 }
 
-void Player::handleInput()
+void Player::handleInput(const GameMap& gameMap)
 {
         if (_kbhit()) {
             char key = _getch(); 
@@ -56,11 +56,13 @@ void Player::handleInput()
             case 'D': case 'd':
                 m_direction = DirectionType::Right;
                 break;
+            case ' ': 
+                Shoot();
             default:
                 return; 
             }
 
-            move();
+            move(gameMap);
             std::cout << "Position: (" << m_position.first << ", " << m_position.second << ")\n";
         }
     
