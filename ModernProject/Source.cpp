@@ -14,5 +14,9 @@ int main()
 	weapon.Display();
 	player.GetStartPosition();
 	player.Draw();
+	while (true)
+	{
+		player.handleInput();
+	}
 	return 0;
 }

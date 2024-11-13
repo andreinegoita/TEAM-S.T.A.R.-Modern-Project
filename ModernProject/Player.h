@@ -2,6 +2,7 @@
 #include<iostream>
 #include<string_view>
 #include<cstdint>
+#include <conio.h>
 #include"GameObject.h"
 #include"Weapon.h"
 
@@ -15,7 +16,7 @@ public:
 	std::pair<uint16_t, uint16_t>GetStartPosition();
 	void DisplayPosition();
 	void Draw() override;
-
+	void handleInput();
 private:
 	std::string_view m_name;
 	std::uint16_t m_health;

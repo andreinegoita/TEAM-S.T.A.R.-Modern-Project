@@ -25,10 +25,20 @@ public:
 	}
 
 	std::pair<uint16_t, uint16_t>GetPosition() const;
-
+	void move();
 
 protected:
 	DirectionType m_direction;
 	std::pair<uint16_t, uint16_t>m_position;
 	double m_speed;
+
+	std::pair<int, int> getMovementOffset() const {
+		switch (m_direction) {
+		case DirectionType::Up:    return { -1, 0 };
+		case DirectionType::Down:  return { 1, 0 };
+		case DirectionType::Left:  return { 0, -1 };
+		case DirectionType::Right: return { 0, 1 };
+		default:                   return { 0, 0 };
+		}
+	}
 };

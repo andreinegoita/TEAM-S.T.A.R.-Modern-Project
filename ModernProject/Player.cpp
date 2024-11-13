@@ -39,4 +39,31 @@ void Player::Draw()
 	printColored(character, Color::YELLOW);
 }
 
+void Player::handleInput()
+{
+        if (_kbhit()) {
+            char key = _getch(); 
+            switch (key) {
+            case 'W': case 'w':
+                m_direction = DirectionType::Up;
+                break;
+            case 'A': case 'a':
+                m_direction = DirectionType::Left;
+                break;
+            case 'S': case 's':
+                m_direction = DirectionType::Down;
+                break;
+            case 'D': case 'd':
+                m_direction = DirectionType::Right;
+                break;
+            default:
+                return; 
+            }
+
+            move();
+            std::cout << "Position: (" << m_position.first << ", " << m_position.second << ")\n";
+        }
+    
+}
+
 
