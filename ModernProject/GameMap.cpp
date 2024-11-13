@@ -1,5 +1,9 @@
 #include "GameMap.h"
 
+GameMap::GameMap():m_rows{0},m_cols{0}
+{
+}
+
 GameMap::GameMap(uint16_t rows, uint16_t cols)
 	:m_rows(rows), m_cols(cols), m_map(rows, std::vector<CellType>(cols, CellType::EMPTY))
 {

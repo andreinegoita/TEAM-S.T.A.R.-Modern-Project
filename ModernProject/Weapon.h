@@ -2,6 +2,7 @@
 #include<chrono>
 #include"Bullet.h"
 #include<memory>
+#include"GameObject.h"
 class Weapon: public GameObject
 {
 public:

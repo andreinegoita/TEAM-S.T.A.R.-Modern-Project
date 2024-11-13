@@ -4,11 +4,12 @@
 #include<vector>
 #include<ctime>
 #include"CellType.h"
-#include "Player.h"
+
 class GameMap
 {
 public:
 
+	GameMap();
 	GameMap(uint16_t rows, uint16_t cols);
 
 	CellType getCellType(uint16_t row, uint16_t col) const;

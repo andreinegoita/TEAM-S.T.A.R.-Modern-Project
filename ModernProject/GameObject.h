@@ -2,7 +2,7 @@
 
 #include<iostream>
 #include "Direction.h"
-#include "Game.h"
+#include"GameMap.h"
 
 class GameObject
 {

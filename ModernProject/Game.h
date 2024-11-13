@@ -1,6 +1,8 @@
 #pragma once
-#include"GameMap.h"
+#include<iostream>
+#include<vector>
 #include"Player.h"
+#include"GameMap.h"
 class Game
 {
 	Game(const GameMap& map, std::vector<Player*>players);

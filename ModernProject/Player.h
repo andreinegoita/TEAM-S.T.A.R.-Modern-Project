@@ -3,6 +3,7 @@
 #include<string_view>
 #include<cstdint>
 #include <conio.h>
+#include"GameMap.h"
 #include"GameObject.h"
 #include"Weapon.h"
 
@@ -24,5 +25,5 @@ private:
 	int m_points;
 	Weapon m_weapon;
 	std::vector<std::unique_ptr<Bullet>> m_bullets;
-	std::pair<uint16_t, uint16_t>m_startPosition = m_position;
+	std::pair<uint16_t, uint16_t>m_startPosition=m_position;
 };

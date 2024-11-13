@@ -50,4 +50,5 @@ void Weapon::Display()
 
 void Weapon::Draw()
 {
+    return;
 }
