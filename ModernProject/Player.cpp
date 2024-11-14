@@ -9,6 +9,8 @@ void Player::Shoot()
 	if (newBullet)
 	{
 		m_bullets.push_back(std::move(newBullet));
+        std::cout << this->getNoOfBullets() << "\n";
+
 	}
 }
 
@@ -58,7 +60,6 @@ void Player::handleInput(const GameMap& gameMap)
                 break;
             case ' ': 
                 Shoot();
-                std::cout<<this->getNoOfBullets()<<"\n";
             default:
                 return; 
             }

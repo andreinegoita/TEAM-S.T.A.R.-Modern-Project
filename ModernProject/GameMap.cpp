@@ -26,14 +26,14 @@ void GameMap::setCellType(uint16_t row, uint16_t col, CellType type)
 
 void GameMap::generateMap()
 {
-	srand(time(0));
+	std::mt19937 mt(time(nullptr));
 	int middleRow = (m_rows - 1) / 2;
 	for (int i = 0;i < m_rows;i++) {
 		for (int j = 0;j < m_cols;j++) {
 			if (i == 0 || i == m_rows - 1 || j == 0 || j == m_cols - 1)
 				setCellType(i, j, static_cast<CellType>(0));
 			else{
-				uint16_t randomVal = rand() % 3;
+				uint16_t randomVal = mt() % 3;
 				setCellType(i, j, static_cast<CellType>(randomVal));
 			}
 			if ((j == 0 || j == m_cols - 1) && i == (m_rows - 1) / 2) {
@@ -66,11 +66,11 @@ std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)
 		{
 			switch (cell)
 			{
-			case CellType::EMPTY: os << " . ";
+			case CellType::EMPTY: os << ' ' << "\033[34m" << "-" << "\033[0m" << ' ';
 				break;
-			case CellType::BREAKABLE_WALL: os << " # ";
+			case CellType::BREAKABLE_WALL: os << ' ' << "\033[33m" << "#" << "\033[0m" << ' ';
 				break;
-			case CellType::UNBREAKABLE_WALL: os << " X ";
+			case CellType::UNBREAKABLE_WALL: os << ' ' << "\033[31m" << "X" << "\033[0m" << ' ';
 			}
 		}
 		os << "\n";

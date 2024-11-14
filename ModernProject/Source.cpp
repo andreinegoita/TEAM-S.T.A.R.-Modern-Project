@@ -1,10 +1,15 @@
 #include<iostream>
+#include<random>
 #include"GameMap.h"
 #include"Player.h"
 
 int main()
 {	
-	GameMap map(20, 20);
+	std::mt19937 mt(time(nullptr));
+	int randValRows = 10 + mt() % 10;
+	int randValCols = 10 + mt() % 10;
+	GameMap map(randValRows,randValCols);
+
 	map.generateMap();
 	std::cout << map;
 
