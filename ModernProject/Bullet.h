@@ -11,7 +11,7 @@ public:
     void Display() override;
     void Draw() override;
     bool collide(const GameObject& other);
-    void moveAndCheck(const GameMap& gameMap, std::vector<GameObject*>& objects);
+    void moveAndCheck(GameMap& gameMap, std::vector<GameObject*>& objects);
 private:
     DirectionType m_direction;
     bool m_active;

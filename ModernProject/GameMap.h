@@ -26,7 +26,7 @@ public:
 
 	bool isInBounds(int x, int y) const
 	{
-		return x >= 0 && x < m_cols && y >= 0 && y < m_rows;
+		return x >= 0 && x < m_map[0].size() && y >= 0 && y < m_map.size();
 	}
 	void drawCell(int x, int y, CellType type)
 	{
@@ -39,8 +39,8 @@ public:
 	{
 		if (isInBounds(newX, newY) && m_map[newY][newX] == CellType::EMPTY)
 		{
-			playerX = newX;
-			playerY = newY;
+			m_playerX = newX;
+			m_playerY = newY;
 			drawCell(newX, newY, CellType::EMPTY);
 		}
 	}
@@ -52,7 +52,7 @@ private:
 	const uint16_t m_rows;
 	const uint16_t m_cols; 
 	std::vector<std::vector<CellType>> m_map;
-	uint16_t playerX;
-	uint16_t playerY;
+	uint16_t m_playerX;
+	uint16_t m_playerY;
 };
 

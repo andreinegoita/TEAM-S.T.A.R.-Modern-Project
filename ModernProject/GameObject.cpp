@@ -28,7 +28,7 @@ void GameObject::move(GameMap& gameMap)
     std::pair<int,int>offset = getMovementOffset();
     int newX = m_position.first + offset.first;
     int newY = m_position.second + offset.second;
-    if (isOutOfBounds(gameMap, newX, newY) && gameMap.getCellType(newX, newY) == CellType::EMPTY)
+    if (!isOutOfBounds(gameMap, newX, newY) && gameMap.getCellType(newX, newY) == CellType::EMPTY)
     {
         gameMap.setCellType(oldX, oldY, CellType::EMPTY);
         m_position.first = newX;

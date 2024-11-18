@@ -1,13 +1,12 @@
 #include "GameMap.h"
 
-GameMap::GameMap():m_rows{0},m_cols{0}
+GameMap::GameMap() :m_rows{ 0 }, m_cols{ 0 }, m_playerX{ 0 }, m_playerY{ 0 }
 {
 }
 
 GameMap::GameMap(uint16_t rows, uint16_t cols)
-	:m_rows(rows), m_cols(cols), m_map(rows, std::vector<CellType>(cols, CellType::EMPTY))
-{
-}
+	:m_rows(rows), m_cols(cols), m_map(rows, std::vector<CellType>(cols, CellType::EMPTY)), m_playerX{ 0 }, m_playerY{ 0 } {}
+
 
 CellType GameMap::getCellType(uint16_t row, uint16_t col) const
 {
@@ -43,7 +42,7 @@ void GameMap::generateMap()
 	}
 }
 
-GameMap::GameMap(const GameMap& other):m_rows(other.m_rows),m_cols(other.m_cols), m_map(other.m_map)
+GameMap::GameMap(const GameMap& other) :m_rows(other.m_rows), m_cols(other.m_cols), m_playerX{ 0 }, m_playerY{ 0 } ,m_map(other.m_map)
 {
 	//Empty
 }
@@ -60,20 +59,23 @@ uint16_t GameMap::getCols() const
 
 std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)
 {
-	for (const auto& line : gameMap.m_map)
+	for (int y = 0; y < gameMap.m_rows; y++)
 	{
-		for (const auto& cell : line)
+		for (int x = 0; x < gameMap.m_cols; ++x)
 		{
-			switch (cell)
+			switch (gameMap.m_map[y][x])
 			{
 			case CellType::EMPTY: os << ' ' << "\033[34m" << "-" << "\033[0m" << ' ';
 				break;
 			case CellType::BREAKABLE_WALL: os << ' ' << "\033[33m" << "#" << "\033[0m" << ' ';
 				break;
 			case CellType::UNBREAKABLE_WALL: os << ' ' << "\033[31m" << "X" << "\033[0m" << ' ';
+				break;
+			case CellType::Player: os << ' ' << "\033[35m" << "P" << "\033[0m" << ' ';
+				break;
 			}
 		}
-		os << "\n";
+			os << "\n";
 	}
 	return os;
 }

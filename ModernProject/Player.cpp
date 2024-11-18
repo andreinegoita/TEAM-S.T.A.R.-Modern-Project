@@ -37,7 +37,7 @@ void Player::DisplayPosition()
 
 void Player::Draw()
 {
-	char character ='P';
+    char character = 'P';
 	printColored(character, Color::YELLOW);
 }
 
@@ -60,8 +60,6 @@ void Player::handleInput( GameMap& gameMap)
                 break;
             case ' ': 
                 Shoot();
-            default:
-                return; 
             }
 
             move(gameMap);

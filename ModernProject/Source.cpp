@@ -2,6 +2,9 @@
 #include<random>
 #include"GameMap.h"
 #include"Player.h"
+#include<chrono>
+#include<thread>
+#include<cstdlib>
 
 int main()
 {	
@@ -12,16 +15,21 @@ int main()
 
 	map.generateMap();
 	std::cout << map;
-
-	Player player("Hero", {2, 5}, 1,DirectionType::Up);
+	Player player("Hero", {0, 0}, 1,DirectionType::Up);
 	player.Display();
 	Weapon weapon(23,54,4.3,2.4,DirectionType::Up);
-	weapon.Display();
 	player.GetStartPosition();
-	player.Draw();
+
 	while (true)
 	{
-		player.handleInput(map);
+		if (_kbhit())
+		{
+			player.handleInput(map);
+			system("cls");
+			std::cout << map;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	
 	return 0;
 }

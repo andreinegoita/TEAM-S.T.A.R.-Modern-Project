@@ -47,7 +47,7 @@ bool Bullet::collide(const GameObject& other)
 	return false;
 }
 
-void Bullet::moveAndCheck(const GameMap& gameMap, std::vector<GameObject*>& objects)
+void Bullet::moveAndCheck(GameMap& gameMap, std::vector<GameObject*>& objects)
 {
 	if (isOutOfBounds(gameMap,m_position.first,m_position.second)) {
 		std::cout<<"Bullet is out of bounds"<<std::endl;
