@@ -41,7 +41,7 @@ void Player::Draw()
 	printColored(character, Color::YELLOW);
 }
 
-void Player::handleInput(const GameMap& gameMap)
+void Player::handleInput( GameMap& gameMap)
 {
         if (_kbhit()) {
             char key = _getch(); 

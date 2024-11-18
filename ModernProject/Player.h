@@ -17,7 +17,7 @@ public:
 	std::pair<uint16_t, uint16_t>GetStartPosition();
 	void DisplayPosition();
 	void Draw() override;
-	void handleInput(const GameMap& gameMap);
+	void handleInput(GameMap& gameMap);
 	int  getNoOfBullets();
 private:
 	std::string_view m_name;
