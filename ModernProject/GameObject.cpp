@@ -20,13 +20,20 @@ bool GameObject::isOutOfBounds(const GameMap& gameMap,uint16_t first, uint16_t s
     return false;
 }
 
-void GameObject::move(const GameMap& gameMap)
+void GameObject::move(GameMap& gameMap)
 {   
-        std::pair<int, int> offset = getMovementOffset();
-    if (!isOutOfBounds(gameMap,m_position.first+offset.first,m_position.second+offset.second))
+    int oldX = m_position.first;
+    int oldY = m_position.second;
+
+    std::pair<int,int>offset = getMovementOffset();
+    int newX = m_position.first + offset.first;
+    int newY = m_position.second + offset.second;
+    if (isOutOfBounds(gameMap, newX, newY) && gameMap.getCellType(newX, newY) == CellType::EMPTY)
     {
-        m_position.first += offset.first * m_speed;
-        m_position.second += offset.second * m_speed;
+        gameMap.setCellType(oldX, oldY, CellType::EMPTY);
+        m_position.first = newX;
+        m_position.second = newY;
+        gameMap.setCellType(newX, newY, CellType::Player);
     }
 }
 

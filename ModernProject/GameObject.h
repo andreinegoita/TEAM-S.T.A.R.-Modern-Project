@@ -27,7 +27,7 @@ public:
 	}
 
 	std::pair<uint16_t, uint16_t>GetPosition() const;
-	void move(const GameMap& gameMap);
+	void move(GameMap& gameMap);
 	bool isOutOfBounds(const GameMap& gameMap,uint16_t first, uint16_t second);
 
 protected:
