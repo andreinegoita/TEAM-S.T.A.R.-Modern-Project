@@ -1,6 +1,6 @@
 #include "Bullet.h"
 
-Bullet::Bullet(double x, double y, DirectionType direction, double speed, bool active):
+Bullet::Bullet(uint16_t x, uint16_t y, DirectionType direction, double speed, bool active):
 	GameObject({x,y},speed,direction), m_direction(direction), m_active(active)
 {}
 
@@ -80,6 +80,23 @@ void Bullet::handleOutOfBounds(GameMap& gameMap)
 		auto [oldX, oldY] = m_position;
 		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
 		deactivate();
+}
+
+void Bullet::destroyBreakableWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+{
+	gameMap.setCellType(m_position.first, m_position.second, CellType::EMPTY);
+	if (gameMap.getCellType(oldX, oldY) == CellType::Bullet) {
+		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
+	}
+	deactivate();
+}
+
+void Bullet::stopAtWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+{
+	if (gameMap.getCellType(oldX, oldY) == CellType::Bullet) {
+		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
+	}
+	deactivate();
 }
 
 void Bullet::handleCellInteraction(GameMap& gameMap)

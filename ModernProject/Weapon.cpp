@@ -4,7 +4,7 @@ Weapon::Weapon() :m_fireRate(4.0), m_bulletSpeed(m_speed + 0.25), m_lastFire(std
 {
 }
 
-Weapon::Weapon(double x, double y, double fireRate, double bulletSpeed,DirectionType direction):
+Weapon::Weapon(uint16_t x, uint16_t y, double fireRate, double bulletSpeed,DirectionType direction):
     m_fireRate{ fireRate }, m_bulletSpeed{ bulletSpeed }, GameObject{ { x,y }, m_speed, direction }
 {
 }

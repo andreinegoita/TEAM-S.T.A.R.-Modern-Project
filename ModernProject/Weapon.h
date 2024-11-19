@@ -7,7 +7,7 @@ class Weapon: public GameObject
 {
 public:
 	Weapon();
-	Weapon(double x, double y, double fireRate, double bulletSpeed, DirectionType direction);
+	Weapon(uint16_t x, uint16_t y, double fireRate, double bulletSpeed, DirectionType direction);
 	std::unique_ptr<Bullet> fire(uint16_t x, uint16_t y, DirectionType direction);
 	void upgradeBulletSpeed(double increment);
 	void reduceFireRate(double factor);
