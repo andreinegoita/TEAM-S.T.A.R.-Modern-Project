@@ -65,3 +65,19 @@ void Bullet::moveAndCheck(GameMap& gameMap, std::vector<GameObject*>& objects)
 		}
 	}
 }
+
+void Bullet::updatePosition(const std::pair<uint16_t, uint16_t>& offset)
+{
+	
+		m_position.first += offset.first;
+		m_position.second += offset.second;
+		std::cout << "Bullet moved to: (" << m_position.first << ", " << m_position.second << ")\n";
+	
+}
+
+void Bullet::handleOutOfBounds(GameMap& gameMap)
+{
+		auto [oldX, oldY] = m_position;
+		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
+		deactivate();
+}

@@ -60,6 +60,8 @@ void Player::handleInput( GameMap& gameMap)
                 break;
             case ' ': 
                 Shoot();
+            default:
+                return;
             }
 
             move(gameMap);
