@@ -14,6 +14,8 @@ public:
     void moveAndCheck(GameMap& gameMap, std::vector<GameObject*>& objects);
     void updatePosition(const std::pair<uint16_t, uint16_t>& offset);
     void handleOutOfBounds(GameMap& gameMap);
+    void handleCellInteraction(GameMap& gameMap);
+    void moveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY);
 private:
     DirectionType m_direction;
     bool m_active;

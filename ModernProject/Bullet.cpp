@@ -81,3 +81,31 @@ void Bullet::handleOutOfBounds(GameMap& gameMap)
 		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
 		deactivate();
 }
+
+void Bullet::handleCellInteraction(GameMap& gameMap)
+{
+	uint16_t oldX = m_position.first - getMovementOffset().first;
+	uint16_t oldY = m_position.second - getMovementOffset().second;
+
+	CellType cellType = gameMap.getCellType(m_position.first, m_position.second);
+
+	switch (cellType) {
+	case CellType::EMPTY:
+		moveBullet(gameMap, oldX, oldY);
+		break;
+	case CellType::BREAKABLE_WALL:
+		destroyBreakableWall(gameMap, oldX, oldY);
+		break;
+	case CellType::UNBREAKABLE_WALL:
+		stopAtWall(gameMap, oldX, oldY);
+		break;
+	default:
+		break;
+	}
+}
+
+void Bullet::moveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+{
+	gameMap.setCellType(oldX, oldY, CellType::EMPTY);
+	gameMap.setCellType(m_position.first, m_position.second, CellType::Bullet);
+}
