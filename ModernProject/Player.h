@@ -20,6 +20,7 @@ public:
 	void handleInput(GameMap& gameMap);
 	int  getNoOfBullets();
 private:
+	std::chrono::steady_clock::time_point m_lastShootTime;
 	std::string_view m_name;
 	std::uint16_t m_health;
 	int m_score;

@@ -20,15 +20,6 @@ void Direction::updateDirection(char key) {
     }
 }
 
-std::pair<int, int> Direction::getMovementOffset() const {
-    switch (m_currentDirection) {
-    case DirectionType::Up:    return { 0, -1 };
-    case DirectionType::Down:  return { 0, 1 };
-    case DirectionType::Left:  return { -1, 0 };
-    case DirectionType::Right: return { 1, 0 };
-    }
-    return { 0, 0 };
-}
 Direction::Direction():m_currentDirection(DirectionType::Up)
 {
 }

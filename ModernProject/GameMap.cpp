@@ -73,6 +73,8 @@ std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)
 				break;
 			case CellType::Player: os << ' ' << "\033[35m" << "P" << "\033[0m" << ' ';
 				break;
+			case CellType::Bullet: os << ' ' << "*" << ' ';
+				break;
 			}
 		}
 			os << "\n";

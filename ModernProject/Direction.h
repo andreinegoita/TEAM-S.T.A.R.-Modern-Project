@@ -12,6 +12,5 @@ public:
     DirectionType m_currentDirection;
     Direction();
     void updateDirection(char key);
-    std::pair<int, int> getMovementOffset() const;
 };
 
