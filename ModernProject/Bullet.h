@@ -11,7 +11,7 @@ public:
     void Display() override;
     void Draw() override;
     bool collide(const GameObject& other);
-    void moveAndCheck(GameMap& gameMap, std::vector<GameObject*>& objects);
+    void moveAndCheck(GameMap& gameMap);
     void updatePosition(const std::pair<uint16_t, uint16_t>& offset);
     void handleOutOfBounds(GameMap& gameMap);
     void handleCellInteraction(GameMap& gameMap);

@@ -1,4 +1,6 @@
 #include "Bullet.h"
+#include<chrono>
+#include<thread>
 
 Bullet::Bullet(uint16_t x, uint16_t y, DirectionType direction, double speed, bool active):
 	GameObject({x,y},speed,direction), m_direction(direction), m_active(active)
@@ -47,24 +49,27 @@ bool Bullet::collide(const GameObject& other)
 	return false;
 }
 
-void Bullet::moveAndCheck(GameMap& gameMap, std::vector<GameObject*>& objects)
+void Bullet::moveAndCheck(GameMap& gameMap)
 {
-	if (isOutOfBounds(gameMap,m_position.first,m_position.second)) {
-		std::cout<<"Bullet is out of bounds"<<std::endl;
-		deactivate();
-		return;
-	}
+	static auto lastUpdateTime = std::chrono::steady_clock::now();
+	auto updateInterval = std::chrono::seconds(1);
+	auto currentTime = std::chrono::steady_clock::now();
 
-	move(gameMap);
+	if (currentTime - lastUpdateTime >= updateInterval) {
+		lastUpdateTime = currentTime;
 
-	for (auto& obj : objects) {
-		if (this != obj && collide(*obj)) {
-			std::cout << "Bullet collided with another object!" << "\n";
-			deactivate();
-			break;
+		auto offset = getMovementOffset();
+		if (!isOutOfBounds(gameMap, m_position.first + offset.first, m_position.second + offset.second)) {
+			updatePosition(offset);
+			handleCellInteraction(gameMap);
 		}
+		else {
+			handleOutOfBounds(gameMap);
+		}
+
 	}
 }
+
 
 void Bullet::updatePosition(const std::pair<uint16_t, uint16_t>& offset)
 {
