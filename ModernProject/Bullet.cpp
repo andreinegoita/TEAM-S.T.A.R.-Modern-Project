@@ -74,9 +74,8 @@ void Bullet::moveAndCheck(GameMap& gameMap)
 void Bullet::updatePosition(const std::pair<uint16_t, uint16_t>& offset)
 {
 	
-		m_position.first += offset.first;
-		m_position.second += offset.second;
-		std::cout << "Bullet moved to: (" << m_position.first << ", " << m_position.second << ")\n";
+	m_position.first += offset.first;
+	m_position.second += offset.second;
 	
 }
 

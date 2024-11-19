@@ -19,6 +19,7 @@ public:
 	void Draw() override;
 	void handleInput(GameMap& gameMap);
 	int  getNoOfBullets();
+	void updateBullets(GameMap& gameMap);
 private:
 	std::chrono::steady_clock::time_point m_lastShootTime;
 	std::string_view m_name;
