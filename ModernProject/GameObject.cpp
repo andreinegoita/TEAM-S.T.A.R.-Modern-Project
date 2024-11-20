@@ -5,6 +5,11 @@ GameObject::GameObject(std::pair<uint16_t, uint16_t>position, double speed, Dire
 {
 }
 
+void GameObject::printColored(char character, Color color)
+{
+    std::cout << "\033[" << static_cast<int>(color) << "m" << character << "\033[0m" << std::endl;
+}
+
 std::pair<uint16_t, uint16_t> GameObject::GetPosition() const
 {
 	return m_position;
@@ -18,6 +23,17 @@ bool GameObject::isOutOfBounds(const GameMap& gameMap,uint16_t first, uint16_t s
         return true;
     }
     return false;
+}
+
+std::pair<int, int> GameObject::getMovementOffset() const
+{
+    switch (m_direction) {
+    case DirectionType::Up:    return { -1, 0 };
+    case DirectionType::Down:  return { 1, 0 };
+    case DirectionType::Left:  return { 0, -1 };
+    case DirectionType::Right: return { 0, 1 };
+    default:                   return { 0, 0 };
+    }
 }
 
 void GameObject::move(GameMap& gameMap)
