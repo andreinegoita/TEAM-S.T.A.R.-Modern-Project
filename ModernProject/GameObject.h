@@ -3,6 +3,7 @@
 #include<iostream>
 #include "Direction.h"
 #include"GameMap.h"
+#include"Color.h"
 
 class GameObject
 {
@@ -12,15 +13,6 @@ public:
 	virtual void Display() = 0;
 	virtual ~GameObject() = default;
 	virtual void Draw() = 0;
-	enum class Color
-	{
-		RED = 31,
-		GREEN = 32,
-		YELLOW = 33,
-		BLUE = 34,
-		DEFAULT = 0
-	};
-
 
 	void printColored(char character, Color color);
 

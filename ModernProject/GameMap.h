@@ -24,26 +24,12 @@ public:
 	
 	void setCellType(uint16_t row, uint16_t col, CellType type);
 
-	bool isInBounds(int x, int y) const
-	{
-		return x >= 0 && x < m_map[0].size() && y >= 0 && y < m_map.size();
-	}
-	void drawCell(int x, int y, CellType type)
-	{
-		if (isInBounds(x, y))
-		{
-			m_map[y][x] = type;
-		}
-	}
-	void updatePlayerPosition(uint16_t row, uint16_t col, int newX,int newY)
-	{
-		if (isInBounds(newX, newY) && m_map[newY][newX] == CellType::EMPTY)
-		{
-			m_playerX = newX;
-			m_playerY = newY;
-			drawCell(newX, newY, CellType::EMPTY);
-		}
-	}
+	bool isInBounds(int x, int y) const;
+
+	void drawCell(int x, int y, CellType type);
+
+	void updatePlayerPosition(uint16_t row, uint16_t col, int newX, int newY);
+
 	void generateMap();
 
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);

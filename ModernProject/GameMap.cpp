@@ -23,6 +23,29 @@ void GameMap::setCellType(uint16_t row, uint16_t col, CellType type)
 		throw("Cell coordinates are out of bounds");
 }
 
+bool GameMap::isInBounds(int x, int y) const
+{
+	return x >= 0 && x < m_map[0].size() && y >= 0 && y < m_map.size();
+}
+
+void GameMap::drawCell(int x, int y, CellType type)
+{
+	if (isInBounds(x, y))
+	{
+		m_map[y][x] = type;
+	}
+}
+
+void GameMap::updatePlayerPosition(uint16_t row, uint16_t col, int newX, int newY)
+{
+	if (isInBounds(newX, newY) && m_map[newY][newX] == CellType::EMPTY)
+	{
+		m_playerX = newX;
+		m_playerY = newY;
+		drawCell(newX, newY, CellType::EMPTY);
+	}
+}
+
 void GameMap::generateMap()
 {
 	std::mt19937 mt(time(nullptr));
