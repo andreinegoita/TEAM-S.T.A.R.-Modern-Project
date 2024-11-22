@@ -16,7 +16,6 @@ int main()
 	map.generateMap();
 	std::cout << map;
 	Player player("Hero", {0, 0}, 1,DirectionType::Up);
-	player.Display();
 	system("cls");
 	Weapon weapon(23,54,4.3,2.4,DirectionType::Up);
 	player.GetStartPosition();

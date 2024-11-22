@@ -33,26 +33,9 @@ void Player::ResetPosition()
 	m_position = m_startPosition;
 }
 
-void Player::Display()
-{
-	std::cout << "Player " << m_name << " located at {" << m_position.first << ',' << m_position.second << "} with velocity "
-		<< m_speed << " health " << m_health << " points " << m_points << " score " << m_score << std::endl;
-}
-
 std::pair<uint16_t, uint16_t> Player::GetStartPosition()
 {
 	return m_startPosition;
-}
-
-void Player::DisplayPosition()
-{
-	std::cout << "StartPoint:{" << m_startPosition.first << ',' << m_startPosition.second << "}\n";
-}
-
-void Player::Draw()
-{
-    char character = 'P';
-	printColored(character, Color::YELLOW);
 }
 
 void Player::handleInput( GameMap& gameMap)
@@ -90,12 +73,6 @@ void Player::handleInput( GameMap& gameMap)
         }
     
 }
-
-int Player::getNoOfBullets()
-{
-    return m_bullets.size();
-}
-
 
 void Player::updateBullets(GameMap& gameMap) {
 

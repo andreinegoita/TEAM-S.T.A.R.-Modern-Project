@@ -23,16 +23,6 @@ void Bullet::deactivate()
 	m_active = false;
 }
 
-void Bullet::Display()
-{
-	std::cout << 0;
-}
-
-void Bullet::Draw()
-{
-	
-}
-
 bool Bullet::collide(const GameObject& other)
 {
 	auto bulletPosition = this->GetPosition();

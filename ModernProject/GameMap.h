@@ -33,6 +33,7 @@ public:
 	void generateMap();
 
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
+
 private:
 
 	const uint16_t m_rows;

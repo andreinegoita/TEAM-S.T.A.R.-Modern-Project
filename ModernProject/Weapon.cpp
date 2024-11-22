@@ -44,12 +44,3 @@ double Weapon::getBulletSpeed() const
     return m_bulletSpeed;
 }
 
-void Weapon::Display()
-{
-    std::cout << "Weapon at coordinates{" << m_position.first << ',' << m_position.second << "} with bullet speed " << m_bulletSpeed << " and fire rate " << m_fireRate << "\n";
-}
-
-void Weapon::Draw()
-{
-    return;
-}

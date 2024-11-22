@@ -8,8 +8,6 @@ public:
     DirectionType getDirection() const;
     bool isActive() const;
     void deactivate();
-    void Display() override;
-    void Draw() override;
     bool collide(const GameObject& other);
     void moveAndCheck(GameMap& gameMap);
     void updatePosition(const std::pair<uint16_t, uint16_t>& offset);
@@ -18,6 +16,7 @@ public:
     void stopAtWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY);
     void destroyBreakableWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY);
     void moveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY);
+
 private:
     DirectionType m_direction;
     bool m_active;

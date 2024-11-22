@@ -12,14 +12,15 @@ class Player:public GameObject
 public:
 	Player( std::string_view name,std::pair<uint16_t,uint16_t>position,double velocity,DirectionType direction);
 	void Shoot();
+
 	void ResetPosition();
-	void Display() override;
+
 	std::pair<uint16_t, uint16_t>GetStartPosition();
-	void DisplayPosition();
-	void Draw() override;
+
 	void handleInput(GameMap& gameMap);
-	int  getNoOfBullets();
+
 	void updateBullets(GameMap& gameMap);
+
 private:
 	std::chrono::steady_clock::time_point m_lastShootTime;
 	std::string_view m_name;

@@ -34,9 +34,7 @@ bool Bomb::isWithinRange(int playerX, int playerY) const
 	return (dx * dx + dy * dy) <= (m_radius * m_radius);
 }
 
-void Bomb::Draw()
-{
-}
+
 
 uint8_t Bomb::GetRadius() const
 {
