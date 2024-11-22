@@ -9,8 +9,6 @@
 class GameMap
 {
 public:
-
-	GameMap();
 	
 	GameMap(uint16_t rows, uint16_t cols);
 

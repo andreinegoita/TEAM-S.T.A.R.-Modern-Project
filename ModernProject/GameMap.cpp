@@ -1,9 +1,5 @@
 #include "GameMap.h"
 
-GameMap::GameMap() :m_rows{ 0 }, m_cols{ 0 }, m_playerX{ 0 }, m_playerY{ 0 }
-{
-}
-
 GameMap::GameMap(uint16_t rows, uint16_t cols)
 	:m_rows(rows), m_cols(cols), m_map(rows, std::vector<CellType>(cols, CellType::EMPTY)), m_playerX{ 0 }, m_playerY{ 0 } {}
 
@@ -49,16 +45,22 @@ void GameMap::updatePlayerPosition(uint16_t row, uint16_t col, int newX, int new
 void GameMap::generateMap()
 {
 	std::mt19937 mt(time(nullptr));
-	int middleRow = (m_rows - 1) / 2;
+	std::uniform_int_distribution<int> dist(1, 100);
+
 	for (int i = 0;i < m_rows;i++) {
 		for (int j = 0;j < m_cols;j++) {
 			if (i == 0 || i == m_rows - 1 || j == 0 || j == m_cols - 1)
 				setCellType(i, j, static_cast<CellType>(0));
-			else{
-				uint16_t randomVal = mt() % 3;
-				setCellType(i, j, static_cast<CellType>(randomVal));
+			else {
+				int randomPercent = dist(mt);
+				if (randomPercent <= 10)
+					setCellType(i, j, static_cast<CellType>(2));
+				else {
+					uint16_t randomVal = mt() % 3;
+					setCellType(i, j, static_cast<CellType>(randomVal));
+				}
 			}
-			if ((j == 0 || j == m_cols - 1) && i == (m_rows - 1) / 2) {
+			if (((j == 0 || j == m_cols - 1) && i == (m_rows - 1) / 2) || (i == 0 || i == m_rows - 1) && j == (m_cols - 1) / 2) {
 				setCellType(i, j, static_cast<CellType>(2));
 			}
 		}
