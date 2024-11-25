@@ -6,6 +6,7 @@ enum class CellType : uint16_t
 	BREAKABLE_WALL,
 	UNBREAKABLE_WALL,
 	Player,
-	Bullet
+	Bullet,
+	Bomb
 };
 
