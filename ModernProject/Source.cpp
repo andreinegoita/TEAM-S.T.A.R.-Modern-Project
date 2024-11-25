@@ -25,7 +25,7 @@ int main()
 
 	for (int i = 0; i < 3; i++)
 	{
-		Bomb bomb{ 0,0,3,true };
+		Bomb bomb;
 		bomb.setCoordinates(map);
 	}
 
