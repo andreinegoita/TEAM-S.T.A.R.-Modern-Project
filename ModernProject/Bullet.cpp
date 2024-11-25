@@ -110,6 +110,9 @@ void Bullet::handleCellInteraction(GameMap& gameMap)
 	case CellType::UNBREAKABLE_WALL:
 		stopAtWall(gameMap, oldX, oldY);
 		break;
+	case CellType::Bomb:
+		destroyNearbyWalls(gameMap, m_position.first, m_position.second);
+		break;
 	default:
 		break;
 	}
@@ -119,4 +122,25 @@ void Bullet::moveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 {
 	gameMap.setCellType(oldX, oldY, CellType::EMPTY);
 	gameMap.setCellType(m_position.first, m_position.second, CellType::Bullet);
+}
+
+void Bullet::destroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y)
+{
+	std::pair<uint16_t, uint16_t> coordinates;
+	bool isAnotherBomb = false;
+	for (int i = x - 1; i <= x + 1; i++)
+		for (int j = y - 1; j <= y + 1; j++)
+			if (gameMap.getCellType(i, j) == CellType::Bomb && (x != i || y != j))
+			{
+				isAnotherBomb = true;
+				coordinates.first = i;
+				coordinates.second = j;
+			}
+			else if (gameMap.getCellType(i, j) != CellType::UNBREAKABLE_WALL && gameMap.getCellType(i, j) != CellType::Player)
+			{
+				gameMap.setCellType(i, j, CellType::EMPTY);
+			}
+	if (isAnotherBomb)
+		destroyNearbyWalls(gameMap, coordinates.first, coordinates.second);
+	deactivate();
 }
