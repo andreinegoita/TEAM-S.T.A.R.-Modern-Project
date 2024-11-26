@@ -17,6 +17,7 @@ public:
     void destroyBreakableWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY);
     void moveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY);
     void destroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y);
+    void destroyPlayer(GameMap& gameMap, uint16_t x, uint16_t y);
 private:
     DirectionType m_direction;
     bool m_active;

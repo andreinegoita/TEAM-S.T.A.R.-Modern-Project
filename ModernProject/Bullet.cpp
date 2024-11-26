@@ -92,6 +92,18 @@ void Bullet::stopAtWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 	}
 	deactivate();
 }
+void Bullet::destroyPlayer(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+{
+	if (gameMap.getCellType(m_position.first, m_position.second) == CellType::Player) {
+		gameMap.setCellType(m_position.first, m_position.second, CellType::EMPTY);
+	}
+
+	if (gameMap.getCellType(oldX, oldY) == CellType::Bullet) {
+		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
+	}
+
+	deactivate();
+}
 
 void Bullet::handleCellInteraction(GameMap& gameMap)
 {
@@ -112,6 +124,9 @@ void Bullet::handleCellInteraction(GameMap& gameMap)
 		break;
 	case CellType::Bomb:
 		destroyNearbyWalls(gameMap, m_position.first, m_position.second);
+		break;
+	case CellType::Player:
+		destroyPlayer(gameMap, oldX, oldY);
 		break;
 	default:
 		break;
