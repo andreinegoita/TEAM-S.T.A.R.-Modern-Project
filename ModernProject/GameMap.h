@@ -22,11 +22,11 @@ public:
 	
 	void setCellType(uint16_t row, uint16_t col, CellType type);
 
-	bool isInBounds(int x, int y) const;
+	bool IsInBounds(int x, int y) const;
 
-	void drawCell(int x, int y, CellType type);
+	void DrawCell(int x, int y, CellType type);
 
-	void updatePlayerPosition(uint16_t row, uint16_t col, int newX, int newY);
+	void UpdatePlayerPosition(uint16_t row, uint16_t col, int newX, int newY);
 
 	void generateMap();
 

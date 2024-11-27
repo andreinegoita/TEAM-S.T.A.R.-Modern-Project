@@ -17,9 +17,9 @@ public:
 
 	std::pair<uint16_t, uint16_t>GetStartPosition();
 
-	void handleInput(GameMap& gameMap);
+	void HandleInput(GameMap& gameMap);
 
-	void updateBullets(GameMap& gameMap);
+	void UpdateBullets(GameMap& gameMap);
 
 private:
 	std::chrono::steady_clock::time_point m_lastShootTime;
@@ -29,5 +29,5 @@ private:
 	int m_points;
 	Weapon m_weapon;
 	std::vector<std::unique_ptr<Bullet>> m_bullets;
-	std::pair<uint16_t, uint16_t>m_startPosition=m_position;
+	std::pair<uint16_t, uint16_t>m_startPosition;
 };

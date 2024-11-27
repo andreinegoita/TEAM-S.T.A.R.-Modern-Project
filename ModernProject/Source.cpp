@@ -45,11 +45,11 @@ int main()
 	{
 		if (_kbhit())
 		{
-			player.handleInput(map);
+			player.HandleInput(map);
 			system("cls");
 			std::cout << map;
 		}
-		player.updateBullets(map);
+		player.UpdateBullets(map);
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	

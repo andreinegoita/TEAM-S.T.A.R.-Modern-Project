@@ -36,7 +36,7 @@ std::pair<int, int> GameObject::getMovementOffset() const
     }
 }
 
-void GameObject::move(GameMap& gameMap)
+void GameObject::Move(GameMap& gameMap)
 {   
     int oldX = m_position.first;
     int oldY = m_position.second;

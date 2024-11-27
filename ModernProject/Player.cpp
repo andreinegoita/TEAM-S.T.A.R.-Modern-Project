@@ -5,7 +5,7 @@
 #include<thread>
 
 Player::Player(std::string_view  name, std::pair<uint16_t, uint16_t> position, double velocity, DirectionType direction) :m_name{ name },
-GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(0), m_score{ 0 } {}
+GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(0), m_score{ 0 }, m_startPosition{ position } {}
 void Player::Shoot()
 {
     auto fireRate = m_weapon.getFireRate();
@@ -38,7 +38,7 @@ std::pair<uint16_t, uint16_t> Player::GetStartPosition()
 	return m_startPosition;
 }
 
-void Player::handleInput( GameMap& gameMap)
+void Player::HandleInput( GameMap& gameMap)
 {
 
     gameMap.setCellType(m_position.first, m_position.second, CellType::Player);
@@ -48,23 +48,23 @@ void Player::handleInput( GameMap& gameMap)
             switch (key) {
             case 'W': case 'w':
                 m_direction = DirectionType::Up;
-                move(gameMap);
+                Move(gameMap);
                 break;
             case 'A': case 'a':
                 m_direction = DirectionType::Left;
-                move(gameMap);
+                Move(gameMap);
                 break;
             case 'S': case 's':
                 m_direction = DirectionType::Down;
-                move(gameMap);
+                Move(gameMap);
                 break;
             case 'D': case 'd':
                 m_direction = DirectionType::Right;
-                move(gameMap);
+                Move(gameMap);
                 break;
             case ' ': 
                 Shoot();
-                updateBullets(gameMap);
+                UpdateBullets(gameMap);
                 break;
             default:
                 return;
@@ -74,7 +74,7 @@ void Player::handleInput( GameMap& gameMap)
     
 }
 
-void Player::updateBullets(GameMap& gameMap) {
+void Player::UpdateBullets(GameMap& gameMap) {
 
     gameMap.setCellType(m_position.first, m_position.second, CellType::Player);
     for (auto it = m_bullets.begin(); it != m_bullets.end(); ) {
