@@ -78,10 +78,10 @@ void Player::UpdateBullets(GameMap& gameMap) {
 
     gameMap.setCellType(m_position.first, m_position.second, CellType::Player);
     for (auto it = m_bullets.begin(); it != m_bullets.end(); ) {
-        (*it)->moveAndCheck(gameMap);
+        (*it)->MoveAndCheck(gameMap);
 
 
-        if (!(*it)->isActive()) {
+        if (!(*it)->IsActive()) {
             it = m_bullets.erase(it);
         }
         else {

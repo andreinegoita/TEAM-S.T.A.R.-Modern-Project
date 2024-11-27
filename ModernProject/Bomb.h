@@ -6,5 +6,5 @@ class Bomb: public GameObject {
 
 public:
     Bomb();
-    void setCoordinates(GameMap& gameMap);
+    void SetCoordinates(GameMap& gameMap);
 };

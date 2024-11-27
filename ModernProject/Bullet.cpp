@@ -7,23 +7,23 @@ Bullet::Bullet(uint16_t x, uint16_t y, DirectionType direction, double speed, bo
 {}
 
 
-DirectionType Bullet::getDirection() const
+DirectionType Bullet::GetDirection() const
 {
 	return m_direction;
 }
 
 
-bool Bullet::isActive() const
+bool Bullet::IsActive() const
 {
 	return m_active;
 }
 
-void Bullet::deactivate()
+void Bullet::Deactivate()
 {
 	m_active = false;
 }
 
-bool Bullet::collide(const GameObject& other)
+bool Bullet::Collide(const GameObject& other)
 {
 	auto bulletPosition = this->GetPosition();
 	auto objectPosition = other.GetPosition();
@@ -39,7 +39,7 @@ bool Bullet::collide(const GameObject& other)
 	return false;
 }
 
-void Bullet::moveAndCheck(GameMap& gameMap)
+void Bullet::MoveAndCheck(GameMap& gameMap)
 {
 	static auto lastUpdateTime = std::chrono::steady_clock::now();
 	auto updateInterval = std::chrono::seconds(1);
@@ -50,18 +50,18 @@ void Bullet::moveAndCheck(GameMap& gameMap)
 
 		auto offset = getMovementOffset();
 		if (!isOutOfBounds(gameMap, m_position.first + offset.first, m_position.second + offset.second)) {
-			updatePosition(offset);
-			handleCellInteraction(gameMap);
+			UpdatePosition(offset);
+			HandleCellInteraction(gameMap);
 		}
 		else {
-			handleOutOfBounds(gameMap);
+			HandleOutOfBounds(gameMap);
 		}
 
 	}
 }
 
 
-void Bullet::updatePosition(const std::pair<uint16_t, uint16_t>& offset)
+void Bullet::UpdatePosition(const std::pair<uint16_t, uint16_t>& offset)
 {
 	
 	m_position.first += offset.first;
@@ -69,30 +69,30 @@ void Bullet::updatePosition(const std::pair<uint16_t, uint16_t>& offset)
 	
 }
 
-void Bullet::handleOutOfBounds(GameMap& gameMap)
+void Bullet::HandleOutOfBounds(GameMap& gameMap)
 {
 		auto [oldX, oldY] = m_position;
 		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
-		deactivate();
+		Deactivate();
 }
 
-void Bullet::destroyBreakableWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+void Bullet::DestroyBreakableWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 {
 	gameMap.setCellType(m_position.first, m_position.second, CellType::EMPTY);
 	if (gameMap.getCellType(oldX, oldY) == CellType::Bullet) {
 		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
 	}
-	deactivate();
+	Deactivate();
 }
 
-void Bullet::stopAtWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+void Bullet::StopAtWall(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 {
 	if (gameMap.getCellType(oldX, oldY) == CellType::Bullet) {
 		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
 	}
-	deactivate();
+	Deactivate();
 }
-void Bullet::destroyPlayer(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+void Bullet::DestroyPlayer(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 {
 	if (gameMap.getCellType(m_position.first, m_position.second) == CellType::Player) {
 		gameMap.setCellType(m_position.first, m_position.second, CellType::EMPTY);
@@ -102,10 +102,10 @@ void Bullet::destroyPlayer(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 		gameMap.setCellType(oldX, oldY, CellType::EMPTY);
 	}
 
-	deactivate();
+	Deactivate();
 }
 
-void Bullet::handleCellInteraction(GameMap& gameMap)
+void Bullet::HandleCellInteraction(GameMap& gameMap)
 {
 	uint16_t oldX = m_position.first - getMovementOffset().first;
 	uint16_t oldY = m_position.second - getMovementOffset().second;
@@ -114,32 +114,32 @@ void Bullet::handleCellInteraction(GameMap& gameMap)
 
 	switch (cellType) {
 	case CellType::EMPTY:
-		moveBullet(gameMap, oldX, oldY);
+		MoveBullet(gameMap, oldX, oldY);
 		break;
 	case CellType::BREAKABLE_WALL:
-		destroyBreakableWall(gameMap, oldX, oldY);
+		DestroyBreakableWall(gameMap, oldX, oldY);
 		break;
 	case CellType::UNBREAKABLE_WALL:
-		stopAtWall(gameMap, oldX, oldY);
+		StopAtWall(gameMap, oldX, oldY);
 		break;
 	case CellType::Bomb:
-		destroyNearbyWalls(gameMap, m_position.first, m_position.second);
+		DestroyNearbyWalls(gameMap, m_position.first, m_position.second);
 		break;
 	case CellType::Player:
-		destroyPlayer(gameMap, oldX, oldY);
+		DestroyPlayer(gameMap, oldX, oldY);
 		break;
 	default:
 		break;
 	}
 }
 
-void Bullet::moveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
+void Bullet::MoveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 {
 	gameMap.setCellType(oldX, oldY, CellType::EMPTY);
 	gameMap.setCellType(m_position.first, m_position.second, CellType::Bullet);
 }
 
-void Bullet::destroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y)
+void Bullet::DestroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y)
 {
 	std::pair<uint16_t, uint16_t> coordinates;
 	bool isAnotherBomb = false;
@@ -156,6 +156,6 @@ void Bullet::destroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y)
 				gameMap.setCellType(i, j, CellType::EMPTY);
 			}
 	if (isAnotherBomb)
-		destroyNearbyWalls(gameMap, coordinates.first, coordinates.second);
-	deactivate();
+		DestroyNearbyWalls(gameMap, coordinates.first, coordinates.second);
+	Deactivate();
 }

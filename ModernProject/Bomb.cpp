@@ -5,7 +5,7 @@ Bomb::Bomb() :GameObject{ {0,0},0,DirectionType::Up }
 {
 }
 
-void Bomb::setCoordinates(GameMap& gameMap)
+void Bomb::SetCoordinates(GameMap& gameMap)
 {
 	uint16_t sizeRows = gameMap.getRows(), sizeCols = gameMap.getCols();
 	std::mt19937 mt(time(nullptr));

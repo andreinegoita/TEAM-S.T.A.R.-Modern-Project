@@ -38,7 +38,7 @@ int main()
 	for (int i = 0; i < 3; i++)
 	{
 		Bomb bomb;
-		bomb.setCoordinates(map);
+		bomb.SetCoordinates(map);
 	}
 
 	while (true)
