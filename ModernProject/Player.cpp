@@ -8,7 +8,7 @@ Player::Player(std::string_view  name, std::pair<uint16_t, uint16_t> position, d
 GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(0), m_score{ 0 }, m_startPosition{ position } {}
 void Player::Shoot()
 {
-    auto fireRate = m_weapon.getFireRate();
+    auto fireRate = m_weapon.GetFireRate();
 
     auto currentTime = std::chrono::steady_clock::now();
     auto timeSinceLastShoot = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - m_lastShootTime);
@@ -18,7 +18,7 @@ void Player::Shoot()
 
         for (int i = 0; i < bulletsToShoot; ++i) {
 
-            auto newBullet = m_weapon.fire(m_position.first, m_position.second, m_direction);
+            auto newBullet = m_weapon.Fire(m_position.first, m_position.second, m_direction);
             if (newBullet)
             {
                 m_bullets.push_back(std::move(newBullet));

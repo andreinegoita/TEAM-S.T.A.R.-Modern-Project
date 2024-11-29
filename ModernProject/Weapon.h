@@ -8,11 +8,11 @@ class Weapon: public GameObject
 public:
 	Weapon();
 	Weapon(uint16_t x, uint16_t y, double fireRate, double bulletSpeed, DirectionType direction);
-	std::unique_ptr<Bullet> fire(uint16_t x, uint16_t y, DirectionType direction);
-	void upgradeBulletSpeed(double increment);
-	void reduceFireRate(double factor);
-	double getFireRate() const;
-	double getBulletSpeed()const;
+	std::unique_ptr<Bullet>Fire(uint16_t x, uint16_t y, DirectionType direction);
+	void UpgradeBulletSpeed(double increment);
+	void ReduceFireRate(double factor);
+	double GetFireRate() const;
+	double GetBulletSpeed()const;
 private:
 	double m_fireRate;
 	double m_bulletSpeed;

@@ -9,7 +9,7 @@ Weapon::Weapon(uint16_t x, uint16_t y, double fireRate, double bulletSpeed,Direc
 {
 }
 
-std::unique_ptr<Bullet> Weapon::fire(uint16_t x,uint16_t y, DirectionType direction)
+std::unique_ptr<Bullet> Weapon::Fire(uint16_t x,uint16_t y, DirectionType direction)
 {
     auto currentTime = std::chrono::steady_clock::now();
     double timeSinceLastFire = std::chrono::duration<double>(currentTime - m_lastFire).count();
@@ -23,22 +23,22 @@ std::unique_ptr<Bullet> Weapon::fire(uint16_t x,uint16_t y, DirectionType direct
     }
 }
 
-void Weapon::upgradeBulletSpeed(double increment)
+void Weapon::UpgradeBulletSpeed(double increment)
 {
     m_bulletSpeed += increment;
 }
 
-void Weapon::reduceFireRate(double factor)
+void Weapon::ReduceFireRate(double factor)
 {
     m_fireRate = std::max(1.0, m_fireRate - factor);
 }
 
-double Weapon::getFireRate() const
+double Weapon::GetFireRate() const
 {
     return m_fireRate;
 }
 
-double Weapon::getBulletSpeed() const
+double Weapon::GetBulletSpeed() const
 {
     return m_bulletSpeed;
 }

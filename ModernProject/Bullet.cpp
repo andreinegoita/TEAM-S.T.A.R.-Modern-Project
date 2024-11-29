@@ -170,6 +170,10 @@ void Bullet::DestroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y)
 			{
 				gameMap.setCellType(i, j, CellType::EMPTY);
 			}
+			else if (gameMap.getCellType(i, j) == CellType::Player)
+			{
+				gameMap.setCellType(i, j, CellType::EMPTY);
+			}
 	if (isAnotherBomb)
 		DestroyNearbyWalls(gameMap, coordinates.first, coordinates.second);
 	Deactivate();
