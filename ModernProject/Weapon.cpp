@@ -16,7 +16,6 @@ std::unique_ptr<Bullet> Weapon::fire(uint16_t x,uint16_t y, DirectionType direct
 
     if (timeSinceLastFire >= m_fireRate) {
         m_lastFire = currentTime;
-        std::cout << "Pew Pew\n";
         return std::make_unique<Bullet> (x, y, direction, m_bulletSpeed, true);
     }
     else {

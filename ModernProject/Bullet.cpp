@@ -105,6 +105,14 @@ void Bullet::DestroyPlayer(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 	Deactivate();
 }
 
+void Bullet::CheckBulletCollision(GameMap& gameMap, uint16_t x, uint16_t y)
+{
+	if (gameMap.getCellType(x, y) == CellType::Bullet) {
+		gameMap.setCellType(x, y, CellType::EMPTY);
+		Deactivate();
+	}
+}
+
 void Bullet::HandleCellInteraction(GameMap& gameMap)
 {
 	uint16_t oldX = m_position.first - getMovementOffset().first;
@@ -128,6 +136,9 @@ void Bullet::HandleCellInteraction(GameMap& gameMap)
 	case CellType::Player:
 		DestroyPlayer(gameMap, oldX, oldY);
 		break;
+	case CellType::Bullet:
+		CheckBulletCollision(gameMap, m_position.first, m_position.second);
+		break;
 	default:
 		break;
 	}
@@ -136,7 +147,11 @@ void Bullet::HandleCellInteraction(GameMap& gameMap)
 void Bullet::MoveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 {
 	gameMap.setCellType(oldX, oldY, CellType::EMPTY);
+	if(m_active)
+	{ 
 	gameMap.setCellType(m_position.first, m_position.second, CellType::Bullet);
+	}
+
 }
 
 void Bullet::DestroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y)
