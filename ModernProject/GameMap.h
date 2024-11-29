@@ -11,8 +11,6 @@ class GameMap
 public:
 	
 	GameMap(uint16_t rows, uint16_t cols);
-
-	GameMap(const GameMap& other);
 	
 	CellType getCellType(uint16_t row, uint16_t col) const;
 
@@ -22,13 +20,13 @@ public:
 	
 	void setCellType(uint16_t row, uint16_t col, CellType type);
 
+	void generateMap();
+
 	bool IsInBounds(int x, int y) const;
 
 	void DrawCell(int x, int y, CellType type);
 
 	void UpdatePlayerPosition(uint16_t row, uint16_t col, int newX, int newY);
-
-	void generateMap();
 
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
 
