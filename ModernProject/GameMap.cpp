@@ -47,21 +47,21 @@ void GameMap::generateMap()
 	std::mt19937 mt(time(nullptr));
 	std::uniform_int_distribution<int> dist(1, 100);
 
-	for (int i = 0;i < m_rows;i++) {
-		for (int j = 0;j < m_cols;j++) {
-			if (i == 0 || i == m_rows - 1 || j == 0 || j == m_cols - 1)
-				setCellType(i, j, static_cast<CellType>(0));
+	for (size_t row = 0;row < m_rows;row++) {
+		for (size_t col = 0;col < m_cols;col++) {
+			if (row == 0 || row == m_rows - 1 || col == 0 || col == m_cols - 1)
+				setCellType(row, col, static_cast<CellType>(0));
 			else {
 				int randomPercent = dist(mt);
 				if (randomPercent <= 10)
-					setCellType(i, j, static_cast<CellType>(2));
+					setCellType(row, col, static_cast<CellType>(2));
 				else {
 					uint16_t randomVal = mt() % 3;
-					setCellType(i, j, static_cast<CellType>(randomVal));
+					setCellType(row, col, static_cast<CellType>(randomVal));
 				}
 			}
-			if (((j == 0 || j == m_cols - 1) && i == (m_rows - 1) / 2) || (i == 0 || i == m_rows - 1) && j == (m_cols - 1) / 2) {
-				setCellType(i, j, static_cast<CellType>(2));
+			if (((col == 0 || col == m_cols - 1) && row == (m_rows - 1) / 2) || (row == 0 || row == m_rows - 1) && col == (m_cols - 1) / 2) {
+				setCellType(row, col, static_cast<CellType>(2));
 			}
 		}
 	}
@@ -69,10 +69,10 @@ void GameMap::generateMap()
 
 bool GameMap::isValidMap() const
 {
-	for (int i = 0;i < m_rows;i++) {
-		for (int j = 0;j < m_cols;j++) {
+	for (size_t row = 0;row < m_rows;row++)
+		for (size_t col = 0;col < m_cols;col++) {
 
-			CellType cell = m_map[i][j];
+			CellType cell = m_map[row][col];
 			if (cell != CellType::EMPTY &&
 				cell != CellType::BREAKABLE_WALL &&
 				cell != CellType::Player &&
@@ -82,8 +82,12 @@ bool GameMap::isValidMap() const
 			{
 				return false;
 			}
+
+			if (cell == CellType::Player)
+				if (!IsInBounds(row, col))
+					return false;
 		}
-	}
+	
 
 	return true;
 }
@@ -105,11 +109,11 @@ uint16_t GameMap::getCols() const
 
 std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)
 {
-	for (int y = 0; y < gameMap.m_rows; y++)
+	for (size_t row = 0; row < gameMap.m_rows; row++)
 	{
-		for (int x = 0; x < gameMap.m_cols; ++x)
+		for (size_t col = 0; col < gameMap.m_cols; ++col)
 		{
-			switch (gameMap.m_map[y][x])
+			switch (gameMap.m_map[row][col])
 			{
 			case CellType::EMPTY: os << ' ' << "\033[34m" << "-" << "\033[0m" << ' ';
 				break;
