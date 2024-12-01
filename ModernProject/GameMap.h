@@ -30,6 +30,8 @@ public:
 
 	void generateMap();
 
+	bool isValidMap() const;
+
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
 
 private:

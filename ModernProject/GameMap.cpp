@@ -67,6 +67,27 @@ void GameMap::generateMap()
 	}
 }
 
+bool GameMap::isValidMap() const
+{
+	for (int i = 0;i < m_rows;i++) {
+		for (int j = 0;j < m_cols;j++) {
+
+			CellType cell = m_map[i][j];
+			if (cell != CellType::EMPTY &&
+				cell != CellType::BREAKABLE_WALL &&
+				cell != CellType::Player &&
+				cell != CellType::UNBREAKABLE_WALL &&
+				cell != CellType::Bullet &&
+				cell != CellType::Bomb)
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 GameMap::GameMap(const GameMap& other) :m_rows(other.m_rows), m_cols(other.m_cols), m_playerX{ 0 }, m_playerY{ 0 } ,m_map(other.m_map)
 {
 	//Empty
