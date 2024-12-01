@@ -10,23 +10,23 @@ class GameMap
 {
 public:
 	
-	GameMap(uint16_t rows, uint16_t cols);
+	GameMap(size_t rows, size_t cols);
 
 	GameMap(const GameMap& other);
 	
-	CellType getCellType(uint16_t row, uint16_t col) const;
+	CellType getCellType(size_t row, size_t col) const;
 
 	uint16_t getRows() const;
 	
 	uint16_t getCols() const;
 	
-	void setCellType(uint16_t row, uint16_t col, CellType type);
+	void setCellType(size_t row, size_t col, CellType type);
 
 	bool IsInBounds(int x, int y) const;
 
 	void DrawCell(int x, int y, CellType type);
 
-	void UpdatePlayerPosition(uint16_t row, uint16_t col, int newX, int newY);
+	void UpdatePlayerPosition(size_t row, size_t col, int newX, int newY);
 
 	void generateMap();
 
@@ -34,10 +34,10 @@ public:
 
 private:
 
-	const uint16_t m_rows;
-	const uint16_t m_cols; 
+	const size_t m_rows;
+	const size_t m_cols;
 	std::vector<std::vector<CellType>> m_map;
-	uint16_t m_playerX;
-	uint16_t m_playerY;
+	size_t m_playerX;
+	size_t m_playerY;
 };
 

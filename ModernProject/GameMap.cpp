@@ -1,17 +1,17 @@
 #include "GameMap.h"
 
-GameMap::GameMap(uint16_t rows, uint16_t cols)
+GameMap::GameMap(size_t rows, size_t cols)
 	:m_rows(rows), m_cols(cols), m_map(rows, std::vector<CellType>(cols, CellType::EMPTY)), m_playerX{ 0 }, m_playerY{ 0 } {}
 
 
-CellType GameMap::getCellType(uint16_t row, uint16_t col) const
+CellType GameMap::getCellType(size_t row, size_t col) const
 {
 	if (row >= m_rows && col >= m_cols)
 		throw std::out_of_range("Cell coordinates are out of bounds");
 	return m_map[row][col];
 }
 
-void GameMap::setCellType(uint16_t row, uint16_t col, CellType type)
+void GameMap::setCellType(size_t row, size_t col, CellType type)
 {
 	if (row < m_rows && col < m_cols)
 		m_map[row][col] = type;
@@ -32,7 +32,7 @@ void GameMap::DrawCell(int x, int y, CellType type)
 	}
 }
 
-void GameMap::UpdatePlayerPosition(uint16_t row, uint16_t col, int newX, int newY)
+void GameMap::UpdatePlayerPosition(size_t row, size_t col, int newX, int newY)
 {
 	if (IsInBounds(newX, newY) && m_map[newY][newX] == CellType::EMPTY)
 	{
