@@ -43,10 +43,24 @@
     <ClCompile Include="Celltype.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameMapQt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Celltype.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="GameMapQt.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Celltype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Breakable.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Unbreakable.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

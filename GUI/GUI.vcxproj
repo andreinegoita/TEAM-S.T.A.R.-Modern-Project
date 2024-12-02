@@ -96,6 +96,7 @@
     <QtUic Include="GUI.ui" />
     <QtMoc Include="GUI.h" />
     <ClCompile Include="Celltype.cpp" />
+    <ClCompile Include="GameMapQt.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -106,6 +107,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
+    <ClInclude Include="GameMapQt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Breakable.png" />
+    <Image Include="Unbreakable.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
