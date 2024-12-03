@@ -1,5 +1,9 @@
 #include "GameMap.h"
-
+#include <crow.h>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <iostream>
 GameMap::GameMap(size_t rows, size_t cols)
 	:m_rows(rows), m_cols(cols), m_map(rows, std::vector<CellType>(cols, CellType::EMPTY)), m_playerX{ 0 }, m_playerY{ 0 } {}
 
@@ -10,6 +14,7 @@ CellType GameMap::getCellType(size_t row, size_t col) const
 		throw std::out_of_range("Cell coordinates are out of bounds");
 	return m_map[row][col];
 }
+
 
 void GameMap::setCellType(size_t row, size_t col, CellType type)
 {
@@ -92,6 +97,8 @@ bool GameMap::isValidMap() const
 	return true;
 }
 
+
+
 GameMap::GameMap(const GameMap& other) :m_rows(other.m_rows), m_cols(other.m_cols), m_playerX{ 0 }, m_playerY{ 0 } ,m_map(other.m_map)
 {
 	//Empty
@@ -133,3 +140,44 @@ std::ostream& operator<<(std::ostream& os, const GameMap& gameMap)
 	}
 	return os;
 }
+
+void GameMap::UpdateCell(int row, int col, int value) {
+	if (row >= 0 && row < m_rows && col >= 0 && col < m_cols) {
+		m_map[row][col] = static_cast<CellType>(value);
+	}
+}
+
+std::string GameMap::GetMapState() const {
+	std::ostringstream oss;
+	oss << "[";
+
+	for (int i = 0; i < m_rows; ++i) {
+		oss << "[";
+		for (int j = 0; j < m_cols; ++j) {
+			oss << "\"" << CellTypeToString(m_map[i][j]) << "\""; 
+			if (j < m_cols - 1) oss << ",";
+		}
+		oss << "]";
+		if (i < m_rows - 1) oss << ","; 
+	}
+
+	oss << "]";
+	return oss.str();
+}
+
+
+void GameMap::RunServer()
+{
+	crow::SimpleApp app;
+
+	// Ruta pentru a obtine starea hartii
+	CROW_ROUTE(app, "/map").methods("GET"_method)([this]() {
+		return crow::response(GetMapState());
+		});
+
+	// Ruta pentru a actualiza o celula a hartii
+	CROW_ROUTE(app, "/map/update/<int>/<int>/<int>").methods("POST"_method)
+		([this](int row, int col, int value) {
+		UpdateCell(row, col, value);
+		return crow::response("Cell updated");
+			});

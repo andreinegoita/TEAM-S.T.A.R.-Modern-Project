@@ -5,6 +5,7 @@
 #include"GameMap.h"
 class Game
 {
+public:
 	Game(const GameMap& map, std::vector<Player*>players);
 
 private:

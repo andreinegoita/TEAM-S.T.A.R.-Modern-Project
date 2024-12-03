@@ -34,6 +34,13 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const GameMap& gameMap);
 
+	void UpdateCell(int row, int col, int value);
+
+	std::string GetMapState() const;
+
+
+	void RunServer();
+
 private:
 
 	const size_t m_rows;
@@ -41,5 +48,16 @@ private:
 	std::vector<std::vector<CellType>> m_map;
 	size_t m_playerX;
 	size_t m_playerY;
+
+	std::string CellTypeToString(CellType cell) const {
+		switch (cell) {
+		case CellType::EMPTY: return "Empty";
+		case CellType::BREAKABLE_WALL: return "Wall";
+		case CellType::UNBREAKABLE_WALL: return "Unbreakable";
+		case CellType::Player: return "Player";
+		case CellType::Bomb: return "Bomb";
+		default: return "Unknown";
+		}
+	}
 };
 
