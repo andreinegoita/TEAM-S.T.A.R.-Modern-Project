@@ -1,25 +1,16 @@
 ﻿#include "GUI.h"
 #include <QtWidgets/QApplication>
-#include<qlabel.h>
-#include "GameMapQt.h"
 
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
+#include <QApplication>
+#include "MapWindow.h"
 
-    GameMap gameMap(10, 10);
-    gameMap.m_map[2][2] = CellType::Player;
-    gameMap.m_map[4][4] = CellType::BREAKABLE_WALL;
-    gameMap.m_map[6][6] = CellType::UNBREAKABLE_WALL;
+int main(int argc, char* argv[]) {
+    QApplication app(argc, argv);
 
-    GameWidget gameWidget(gameMap);
-    gameWidget.resize(400, 400);
-    gameWidget.setWindowTitle("Harta Jocului cu Texturi");
-    gameWidget.show();
+    MapWindow window;
+    window.setWindowTitle("Battle City Map Viewer");
+    window.resize(500, 500);
+    window.show();
 
-
-
-    GUI w;
-    w.show();
-    return a.exec();
+    return app.exec();
 }
