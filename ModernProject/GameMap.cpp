@@ -170,14 +170,13 @@ void GameMap::RunServer()
 {
 	crow::SimpleApp app;
 
-	// Ruta pentru a obtine starea hartii
 	CROW_ROUTE(app, "/map").methods("GET"_method)([this]() {
 		return crow::response(GetMapState());
 		});
 
-	// Ruta pentru a actualiza o celula a hartii
 	CROW_ROUTE(app, "/map/update/<int>/<int>/<int>").methods("POST"_method)
 		([this](int row, int col, int value) {
 		UpdateCell(row, col, value);
 		return crow::response("Cell updated");
 			});
+}
