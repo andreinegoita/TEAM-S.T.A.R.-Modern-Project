@@ -179,4 +179,5 @@ void GameMap::RunServer()
 		UpdateCell(row, col, value);
 		return crow::response("Cell updated");
 			});
+	app.port(18080).multithreaded().run();
 }

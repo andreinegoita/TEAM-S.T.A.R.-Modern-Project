@@ -1,4 +1,4 @@
-#include "GUI.h"
+﻿#include "GUI.h"
 #include <QtWidgets/QApplication>
 #include<qlabel.h>
 #include "GameMapQt.h"

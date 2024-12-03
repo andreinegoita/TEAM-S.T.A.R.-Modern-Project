@@ -65,6 +65,12 @@
     <Image Include="Unbreakable.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Bomb.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Player.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MapWindow.h">

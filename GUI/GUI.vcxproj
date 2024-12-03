@@ -112,7 +112,9 @@
     <QtMoc Include="MapWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Bomb.png" />
     <Image Include="Breakable.png" />
+    <Image Include="Player.png" />
     <Image Include="Unbreakable.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

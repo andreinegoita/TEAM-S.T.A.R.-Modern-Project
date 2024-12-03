@@ -45,6 +45,7 @@ int main()
 				bomb.SetCoordinates(map);
 			}
 
+		map.RunServer();
 			while (true)
 			{
 				if (_kbhit())
