@@ -1,6 +1,6 @@
 #pragma once
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #include<string>
-
 #include<crow.h>
 #include<sqlite_orm/sqlite_orm.h>
 

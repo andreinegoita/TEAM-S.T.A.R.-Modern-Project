@@ -1,5 +1,4 @@
 #include "PlayersDatabase.h"
-
 void http::populateStorage(Storage& storage, const std::string& playerName)
 {
 	Player newPlayer;
