@@ -8,3 +8,16 @@ void http::populateStorage(Storage& storage, const std::string& playerName)
 
 	storage.insert(newPlayer);
 }
+
+void http::recordGame(Storage& storage, int playerId, int gameScore)
+{
+	Game newGame;
+	newGame.playerId = playerId;
+	newGame.score = gameScore;
+
+	storage.insert(newGame);
+
+	auto player = storage.get<Player>(playerId);
+	player.points += gameScore;
+	storage.update(player);
+}
