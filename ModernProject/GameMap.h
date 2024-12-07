@@ -39,8 +39,6 @@ public:
 	std::string GetMapState() const;
 
 
-	void RunServer();
-
 private:
 
 	const size_t m_rows;

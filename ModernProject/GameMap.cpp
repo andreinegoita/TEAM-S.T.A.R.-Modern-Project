@@ -166,18 +166,4 @@ std::string GameMap::GetMapState() const {
 }
 
 
-void GameMap::RunServer()
-{
-	crow::SimpleApp app;
 
-	CROW_ROUTE(app, "/map").methods("GET"_method)([this]() {
-		return crow::response(GetMapState());
-		});
-
-	CROW_ROUTE(app, "/map/update/<int>/<int>/<int>").methods("POST"_method)
-		([this](int row, int col, int value) {
-		UpdateCell(row, col, value);
-		return crow::response("Cell updated");
-			});
-	app.port(18080).multithreaded().run();
-}

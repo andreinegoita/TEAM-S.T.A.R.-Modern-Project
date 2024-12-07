@@ -3,10 +3,28 @@
 #include"GameMap.h"
 #include"Player.h"
 #include "Bomb.h"
+#include<crow.h>
 #include<chrono>
 #include<thread>
 #include<cstdlib>
 #include<stdexcept>
+
+
+void RunServer(GameMap &map, Player &player)
+{
+	crow::SimpleApp app;
+
+	CROW_ROUTE(app, "/map").methods("GET"_method)([&map]() {
+		return crow::response(map.GetMapState());
+		});
+
+	CROW_ROUTE(app, "/map/update/<int>/<int>/<int>").methods("POST"_method)
+		([&map](int row, int col, int value) {
+		map.UpdateCell(row, col, value);
+		return crow::response("Cell updated");
+			});
+	app.port(18080).multithreaded().run();
+}
 
 int main()
 {	
@@ -45,7 +63,7 @@ int main()
 				bomb.SetCoordinates(map);
 			}
 
-		map.RunServer();
+		RunServer(map,player);
 			while (true)
 			{
 				if (_kbhit())
