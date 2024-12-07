@@ -2,12 +2,12 @@
 #include <QtWidgets/QApplication>
 
 #include <QApplication>
-#include "MapWindow.h"
+#include "GameWindow.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
-    MapWindow window;
+    GameWindow window;
     window.setWindowTitle("Battle City Map Viewer");
     window.resize(500, 500);
     window.show();

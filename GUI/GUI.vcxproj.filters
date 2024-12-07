@@ -49,6 +49,9 @@
     <ClCompile Include="MapWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameMapQt.h">
@@ -75,6 +78,9 @@
   <ItemGroup>
     <QtMoc Include="MapWindow.h">
       <Filter>Resource Files</Filter>
+    </QtMoc>
+    <QtMoc Include="GameWindow.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

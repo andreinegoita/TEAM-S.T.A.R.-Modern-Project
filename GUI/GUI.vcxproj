@@ -104,6 +104,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="MapWindow.cpp" />
     <QtRcc Include="GUI.qrc" />
     <QtUic Include="GUI.ui" />
@@ -121,6 +122,7 @@
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
     <ClInclude Include="GameMapQt.h" />
+    <QtMoc Include="GameWindow.h" />
     <QtMoc Include="MapWindow.h" />
   </ItemGroup>
   <ItemGroup>
