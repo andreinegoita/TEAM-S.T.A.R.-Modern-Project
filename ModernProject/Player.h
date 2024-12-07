@@ -21,6 +21,8 @@ public:
 
 	void UpdateBullets(GameMap& gameMap);
 
+	std::string GetPositionState() const;
+
 private:
 	std::chrono::steady_clock::time_point m_lastShootTime;
 	std::string_view m_name;

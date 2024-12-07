@@ -23,6 +23,10 @@ void RunServer(GameMap &map, Player &player)
 		map.UpdateCell(row, col, value);
 		return crow::response("Cell updated");
 			});
+	CROW_ROUTE(app, "/player_position").methods("GET"_method)
+		([&player]() {
+		return crow::response(player.GetPositionState());
+			});
 	app.port(18080).multithreaded().run();
 }
 

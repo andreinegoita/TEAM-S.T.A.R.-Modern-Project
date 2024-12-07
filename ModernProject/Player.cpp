@@ -3,6 +3,7 @@
 #include<chrono>
 #include<cstdlib>
 #include<thread>
+#include<sstream>
 
 Player::Player(std::string_view  name, std::pair<uint16_t, uint16_t> position, double velocity, DirectionType direction) :m_name{ name },
 GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(0), m_score{ 0 }, m_startPosition{ position } {}
@@ -93,4 +94,13 @@ void Player::UpdateBullets(GameMap& gameMap) {
     std::cout << gameMap;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+}
+
+std::string Player::GetPositionState() const {
+    std::ostringstream oss;
+    oss << "{";
+    oss << "\"y\":" << m_position.first << ",";
+    oss << "\"x\":" << m_position.second;
+    oss << "}";
+    return oss.str();
 }
