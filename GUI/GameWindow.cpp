@@ -8,6 +8,37 @@ m_targetY(0){
     resize(400, 400);
     fetchMap();
 }
+void GameWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_W)
+    {
+        m_targetY -= 0.1f;
+        m_currentSpeedY = -m_speed;
+        /*TO DO:
+          updatePlayerTexture("Up")*/
+    }
+    else if (event->key() == Qt::Key_S)
+    {
+        m_targetY += 0.1f;
+        m_currentSpeedY = m_speed;
+        /*TO DO:
+          updatePlayerTexture(*/
+    }
+    else if (event->key() == Qt::Key_A)
+    {
+        m_targetX -= 0.1f;
+        m_currentSpeedX = -m_speed;
+        /*TO DO:
+         updatePlayerTexture("Down)*/
+    }
+    else if (event->key() == Qt::Key_D)
+    {
+        m_targetX += 0.1f;
+        m_currentSpeedX = m_speed;
+        /*TO DO:
+         uppdatePlayerTexture("Left")*/
+    }
+}
 void GameWindow::setupUI() {
     QWidget* centralWidget = new QWidget(this);
     gridLayout = new QGridLayout(centralWidget);

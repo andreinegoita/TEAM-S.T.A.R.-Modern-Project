@@ -7,13 +7,16 @@
 #include <cpr/cpr.h>
 #include<qgraphicsscene.h>
 #include<qgraphicsview.h>
+#include<QKeyEvent>
+
 
 class GameWindow : public QMainWindow {
     Q_OBJECT
 
 public:
     GameWindow(QWidget* parent = nullptr);
-
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 public:
     void displayMap(const QJsonArray& mapArray);
 
@@ -24,6 +27,9 @@ private:
 
     float m_targetX, m_targetY;
     float m_x ,m_y;
+    float m_currentSpeedX, m_currentSpeedY;
+    float m_speed;
+
 
     void setupUI();
 
