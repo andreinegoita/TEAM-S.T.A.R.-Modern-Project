@@ -14,20 +14,23 @@ class GameWindow : public QMainWindow {
 public:
     GameWindow(QWidget* parent = nullptr);
 
+public:
+    void displayMap(const QJsonArray& mapArray);
+
 private:
     QGridLayout* gridLayout;
     QGraphicsScene* scene;
     QGraphicsView* view;
 
+    float m_targetX, m_targetY;
+    float m_x ,m_y;
+
     void setupUI();
 
     void fetchMap();
 
-    int mapWidth;
-    int mapHeight;
+    int m_mapWidth;
+    int m_mapHeight;
 
-    QVector<QVector<QString>> mapData;
-public:
-    void displayMap(const QJsonArray& mapArray);
-
+    QVector<QVector<QString>> m_mapData;
 };

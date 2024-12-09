@@ -2,8 +2,10 @@
 #include<QGraphicsPixmapItem>
 
 GameWindow::GameWindow(QWidget* parent)
-    : QMainWindow(parent) {
+    : QMainWindow(parent),m_x(0),m_y(m_mapWidth),m_targetX(0),
+m_targetY(0){
     setupUI();
+    resize(400, 400);
     fetchMap();
 }
 void GameWindow::setupUI() {
@@ -18,6 +20,12 @@ void GameWindow::fetchMap() {
     if (response.status_code == 200) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
         QJsonArray mapArray = jsonDoc.array();
+
+        m_mapHeight = mapArray.size();
+        if (m_mapHeight > 0)
+        {
+            m_mapWidth = mapArray[0].toArray().size();
+        }
         displayMap(mapArray);
     }
     else {
@@ -37,7 +45,7 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
     gridLayout->setContentsMargins(0, 0, 0, 0);
     gridLayout->setSpacing(0);
 
-    mapData.clear();
+    m_mapData.clear();
 
     int blockSize = 64;
 
@@ -63,7 +71,7 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
             gridLayout->addWidget(cellLabel, row, col);
         }
 
-        mapData.append(rowData);
+        m_mapData.append(rowData);
     }
 
     setFixedSize(gridLayout->sizeHint());
