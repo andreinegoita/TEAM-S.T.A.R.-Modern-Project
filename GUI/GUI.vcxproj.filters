@@ -54,9 +54,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameMapQt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Celltype.h">
       <Filter>Header Files</Filter>
     </ClInclude>

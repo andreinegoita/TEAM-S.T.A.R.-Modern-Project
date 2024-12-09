@@ -39,6 +39,17 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
          uppdatePlayerTexture("Left")*/
     }
 }
+void GameWindow::keyReleaseEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_W || event->key() == Qt::Key_S)
+    {
+        m_currentSpeedY = 0;
+    }
+    if (event->key() == Qt::Key_A || event->key() == Qt::Key_D)
+    {
+        m_currentSpeedX = 0;
+    }
+}
 void GameWindow::setupUI() {
     QWidget* centralWidget = new QWidget(this);
     gridLayout = new QGridLayout(centralWidget);

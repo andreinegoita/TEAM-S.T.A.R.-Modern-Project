@@ -121,7 +121,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
-    <ClInclude Include="GameMapQt.h" />
     <QtMoc Include="GameWindow.h" />
     <QtMoc Include="MapWindow.h" />
   </ItemGroup>
