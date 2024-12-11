@@ -24,7 +24,7 @@ namespace http
 		return sql::make_storage(
 			filename,
 			sql::make_table(
-				"Products",
+				"Players",
 				sql::make_column("id", &Player::id, sql::primary_key().autoincrement()),
 				sql::make_column("name", &Player::name),
 				sql::make_column("points", &Player::points)
