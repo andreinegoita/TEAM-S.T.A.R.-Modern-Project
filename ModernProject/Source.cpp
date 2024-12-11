@@ -46,6 +46,24 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		storage.insert(new_player);
 		return crow::response("Player added");
 			});
+	CROW_ROUTE(app, "/games").methods("GET"_method)
+		([&storage]() {
+		auto games = storage.get_all<http::Game>();
+		std::ostringstream os;
+		for (const auto& game : games) {
+			os << "ID: " << game.id << ", Player ID: " << game.playerId << ", Score: " << game.score << "\n";
+		}
+		return crow::response(os.str());
+			});
+	CROW_ROUTE(app, "/add_game").methods("POST"_method) ([&storage]
+		(const crow::request& req) {
+			auto x = crow::json::load(req.body);
+			if (!x)
+				return crow::response(400);
+			http::Game new_game{ -1, x["playerId"].i(), x["score"].i() };
+			storage.insert(new_game);
+			return crow::response("Game added");
+		});
 	app.port(18080).multithreaded().run();
 }
 
