@@ -6,6 +6,7 @@
 #include<qvector.h>
 #include <cpr/cpr.h>
 #include<QKeyEvent>
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 
 
 class GameWindow : public QMainWindow {

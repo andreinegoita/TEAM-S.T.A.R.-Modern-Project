@@ -1,3 +1,4 @@
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #include<iostream>
 #include<random>
 #include"GameMap.h"
@@ -28,16 +29,17 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		([&player]() {
 		return crow::response(player.GetPositionState());
 			});
-	CROW_ROUTE(app, "/players").methods("Get"_method)
+	CROW_ROUTE(app, "/players").methods("GET"_method)
 		([&storage]() {
 		auto players = storage.get_all<http::Player>();
 		std::ostringstream os;
 		for (const auto& player : players) {
 			os << "ID: " << player.id << ", Name: " << player.name << ", Points: " << player.points << "\n";
 		}
+		return crow::response("Process worked");
 		return crow::response(os.str());
 			});
-	CROW_ROUTE(app, "/add_player").methods("POST"_method)
+	/*CROW_ROUTE(app, "/add_player").methods("POST"_method)
 		([&storage](const crow::request& req) {
 		auto x = crow::json::load(req.body);
 		if (!x)
@@ -45,7 +47,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		http::Player new_player{ -1, x["name"].s(), x["points"].i() };
 		storage.insert(new_player);
 		return crow::response("Player added");
-			});
+			});*/
 	CROW_ROUTE(app, "/games").methods("GET"_method)
 		([&storage]() {
 		auto games = storage.get_all<http::Game>();
@@ -53,9 +55,10 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		for (const auto& game : games) {
 			os << "ID: " << game.id << ", Player ID: " << game.playerId << ", Score: " << game.score << "\n";
 		}
+		return crow::response("Process Game Worked");
 		return crow::response(os.str());
 			});
-	CROW_ROUTE(app, "/add_game").methods("POST"_method) ([&storage]
+	/*CROW_ROUTE(app, "/add_game").methods("POST"_method) ([&storage]
 		(const crow::request& req) {
 			auto x = crow::json::load(req.body);
 			if (!x)
@@ -63,7 +66,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 			http::Game new_game{ -1, x["playerId"].i(), x["score"].i() };
 			storage.insert(new_game);
 			return crow::response("Game added");
-		});
+		});*/
 	app.port(18080).multithreaded().run();
 }
 
@@ -105,7 +108,7 @@ int main()
 			}
 
 			auto storage = http::createStorage("game.db");
-			storage.sync_schema();
+			storage.sync_schema(true);
 			RunServer(map,player, storage);
 
 			while (true)

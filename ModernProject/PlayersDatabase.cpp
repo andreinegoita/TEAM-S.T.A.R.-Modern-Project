@@ -1,4 +1,5 @@
 #include "PlayersDatabase.h"
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 void http::populateStorage(Storage& storage, const std::string& playerName)
 {
 	Player newPlayer;
