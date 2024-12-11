@@ -8,9 +8,10 @@
 #include<thread>
 #include<cstdlib>
 #include<stdexcept>
+#include "PlayersDatabase.h"
 
 
-void RunServer(GameMap &map, Player &player)
+void RunServer(GameMap &map, Player &player, http::Storage& storage)
 {
 	crow::SimpleApp app;
 
@@ -26,6 +27,24 @@ void RunServer(GameMap &map, Player &player)
 	CROW_ROUTE(app, "/player_position").methods("GET"_method)
 		([&player]() {
 		return crow::response(player.GetPositionState());
+			});
+	CROW_ROUTE(app, "/players").methods("Get"_method)
+		([&storage]() {
+		auto players = storage.get_all<http::Player>();
+		std::ostringstream os;
+		for (const auto& player : players) {
+			os << "ID: " << player.id << ", Name: " << player.name << ", Points: " << player.points << "\n";
+		}
+		return crow::response(os.str());
+			});
+	CROW_ROUTE(app, "/add_player").methods("POST"_method)
+		([&storage](const crow::request& req) {
+		auto x = crow::json::load(req.body);
+		if (!x)
+			return crow::response(400);
+		http::Player new_player{ -1, x["name"].s(), x["points"].i() };
+		storage.insert(new_player);
+		return crow::response("Player added");
 			});
 	app.port(18080).multithreaded().run();
 }
@@ -67,7 +86,10 @@ int main()
 				bomb.SetCoordinates(map);
 			}
 
-		RunServer(map,player);
+			auto storage = http::createStorage("game.db");
+			storage.sync_schema();
+			RunServer(map,player, storage);
+
 			while (true)
 			{
 				if (_kbhit())
