@@ -1,9 +1,9 @@
 #include <QMainWindow>
 #include <QGridLayout>
-#include <qlabel.h>
+#include <QLabel>
 #include <QJsonDocument>
 #include <QJsonArray>
-#include<qvector.h>
+#include<QVector>
 #include <cpr/cpr.h>
 #include<QKeyEvent>
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS

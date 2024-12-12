@@ -1,12 +1,18 @@
 #include "GameWindow.h"
 #include<QGraphicsPixmapItem>
-#include<qtimer.h>
+#include<QTimer>
 
 GameWindow::GameWindow(QWidget* parent)
     : QMainWindow(parent),m_x(0),m_y(m_mapWidth),m_targetX(0),
-m_targetY(0){
+m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0) {
     setupUI();
     resize(400, 400);
+
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &GameWindow::updateGraphics);
+    timer->start(16);
+
+    setFocusPolicy(Qt::StrongFocus);
     fetchMap();
 }
 void GameWindow::keyPressEvent(QKeyEvent* event)
