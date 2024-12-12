@@ -6,6 +6,12 @@
 #include<QVector>
 #include <cpr/cpr.h>
 #include<QKeyEvent>
+#include <QApplication>
+#include <QWidget>
+#include <QTimer>
+#include <QPixmap>
+#include <QJsonObject>
+#include<QDebug>
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 
 

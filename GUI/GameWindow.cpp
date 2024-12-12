@@ -8,6 +8,11 @@ m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0) {
     setupUI();
     resize(400, 400);
 
+    playerLabel = new QLabel(this);
+    updatePlayerTexture("Up");
+    playerLabel->setScaledContents(true);
+    playerLabel->resize(64, 64);
+
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &GameWindow::updateGraphics);
     timer->start(16);
@@ -149,9 +154,13 @@ bool GameWindow::canMoveTo(float newX, float newY)
         }
 
         if (m_mapData[gridY1][gridX1] == "Wall" || m_mapData[gridY1][gridX1] == "Unbreakable" ||
+            m_mapData[gridY1][gridX1] == "Player" ||
             m_mapData[gridY1][gridX2] == "Wall" || m_mapData[gridY1][gridX2] == "Unbreakable" ||
+            m_mapData[gridY1][gridX2] == "Player" ||
             m_mapData[gridY2][gridX1] == "Wall" || m_mapData[gridY2][gridX1] == "Unbreakable" ||
-            m_mapData[gridY2][gridX2] == "Wall" || m_mapData[gridY2][gridX2] == "Unbreakable") {
+            m_mapData[gridY2][gridX1] == "Player" ||
+            m_mapData[gridY2][gridX2] == "Wall" || m_mapData[gridY2][gridX2] == "Unbreakable" ||
+            m_mapData[gridY2][gridX2] == "Player") {
             return false;
         }
 

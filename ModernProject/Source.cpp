@@ -82,7 +82,7 @@ int main()
 
 		if (map.isValidMap()) {
 			std::cout << map;
-			Player player("Hero", { 0, 0 }, 1, DirectionType::Up);
+			Player player("Hero", { 0, 6 }, 1, DirectionType::Up);
 			Player player2("Hero2", { 0, 4 }, 1, DirectionType::Up);
 			Player player3("Hero3", { 4, 0 }, 1, DirectionType::Up);
 			Player player4("Hero4", { 5, 0 }, 1, DirectionType::Up);
