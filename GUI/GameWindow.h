@@ -20,7 +20,11 @@ protected:
 public:
     void displayMap(const QJsonArray& mapArray);
 
+private slots:
+    void updateGraphics();
+
 private:
+    QLabel* playerLabel;
     QGridLayout* gridLayout;
     float m_targetX, m_targetY;
     float m_x ,m_y;
@@ -36,4 +40,6 @@ private:
     int m_mapHeight;
 
     QVector<QVector<QString>> m_mapData;
+
+
 };

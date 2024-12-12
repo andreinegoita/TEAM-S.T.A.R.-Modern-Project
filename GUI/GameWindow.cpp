@@ -1,5 +1,6 @@
 #include "GameWindow.h"
 #include<QGraphicsPixmapItem>
+#include<qtimer.h>
 
 GameWindow::GameWindow(QWidget* parent)
     : QMainWindow(parent),m_x(0),m_y(m_mapWidth),m_targetX(0),
@@ -38,6 +39,7 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         /*TO DO:
          uppdatePlayerTexture("Left")*/
     }
+
 }
 void GameWindow::keyReleaseEvent(QKeyEvent* event)
 {
@@ -76,6 +78,16 @@ void GameWindow::fetchMap() {
     }
 }
 
+void GameWindow::updateGraphics() {
+    float newX = m_x + m_currentSpeedX * 64;
+    float newY = m_y + m_currentSpeedX * 64;
+    if (canMoveTo(newX, newY))
+    {
+        m_x = newX;
+        m_y = newY;
+    }
+    playerLabel->move(static_cast<int>(m_x), static_cast<int>(m_y));
+}
 
 void GameWindow::displayMap(const QJsonArray& mapArray) {
     QLayoutItem* item;
