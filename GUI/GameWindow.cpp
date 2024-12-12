@@ -130,3 +130,29 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
 
     setFixedSize(gridLayout->sizeHint());
 }
+
+bool GameWindow::canMoveTo(float newX, float newY)
+{
+   
+        int blockSize = 64;
+        int collisionOffset = 10;
+
+        int gridX1 = static_cast<int>((newX + collisionOffset) / blockSize);
+        int gridY1 = static_cast<int>((newY + collisionOffset) / blockSize);
+        int gridX2 = static_cast<int>((newX + blockSize - collisionOffset) / blockSize);
+        int gridY2 = static_cast<int>((newY + blockSize - collisionOffset) / blockSize);
+
+        if (gridX1 < 0 || gridY1 < 0 || gridX2 >= m_mapWidth || gridY2 >= m_mapHeight) {
+            return false;
+        }
+
+        if (m_mapData[gridY1][gridX1] == "Wall" || m_mapData[gridY1][gridX1] == "Unbreakable" ||
+            m_mapData[gridY1][gridX2] == "Wall" || m_mapData[gridY1][gridX2] == "Unbreakable" ||
+            m_mapData[gridY2][gridX1] == "Wall" || m_mapData[gridY2][gridX1] == "Unbreakable" ||
+            m_mapData[gridY2][gridX2] == "Wall" || m_mapData[gridY2][gridX2] == "Unbreakable") {
+            return false;
+        }
+
+        return true;
+
+}

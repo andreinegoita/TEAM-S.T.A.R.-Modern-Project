@@ -1,6 +1,6 @@
 #include <QMainWindow>
 #include <QGridLayout>
-#include <QLabel>
+#include <qlabel.h>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include<qvector.h>
@@ -22,6 +22,7 @@ public:
 
 private slots:
     void updateGraphics();
+    bool canMoveTo(float newX, float newY);
 
 private:
     QLabel* playerLabel;
