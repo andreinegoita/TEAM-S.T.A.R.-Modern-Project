@@ -23,6 +23,7 @@ public:
 private slots:
     void updateGraphics();
     bool canMoveTo(float newX, float newY);
+    void updatePlayerTexture(const QString& direction);
 
 private:
     QLabel* playerLabel;

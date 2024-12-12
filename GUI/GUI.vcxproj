@@ -105,7 +105,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameWindow.cpp" />
-    <ClCompile Include="MapWindow.cpp" />
     <QtRcc Include="GUI.qrc" />
     <QtUic Include="GUI.ui" />
     <QtMoc Include="GUI.h" />
@@ -122,12 +121,15 @@
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
     <QtMoc Include="GameWindow.h" />
-    <QtMoc Include="MapWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Bomb.png" />
     <Image Include="Breakable.png" />
     <Image Include="Player.png" />
+    <Image Include="PlayerDown.png" />
+    <Image Include="PlayerLeft.png" />
+    <Image Include="PlayerRight.png" />
+    <Image Include="PlayerUp.png" />
     <Image Include="Unbreakable.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -21,29 +21,25 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
     {
         m_targetY -= 0.1f;
         m_currentSpeedY = -m_speed;
-        /*TO DO:
-          updatePlayerTexture("Up")*/
+        updatePlayerTexture("Up");
     }
     else if (event->key() == Qt::Key_S)
     {
         m_targetY += 0.1f;
         m_currentSpeedY = m_speed;
-        /*TO DO:
-          updatePlayerTexture(*/
+        updatePlayerTexture("Down");
     }
     else if (event->key() == Qt::Key_A)
     {
         m_targetX -= 0.1f;
         m_currentSpeedX = -m_speed;
-        /*TO DO:
-         updatePlayerTexture("Down)*/
+        updatePlayerTexture("Left");
     }
     else if (event->key() == Qt::Key_D)
     {
         m_targetX += 0.1f;
         m_currentSpeedX = m_speed;
-        /*TO DO:
-         uppdatePlayerTexture("Left")*/
+        updatePlayerTexture("Right");
     }
 
 }
@@ -86,7 +82,7 @@ void GameWindow::fetchMap() {
 
 void GameWindow::updateGraphics() {
     float newX = m_x + m_currentSpeedX * 64;
-    float newY = m_y + m_currentSpeedX * 64;
+    float newY = m_y + m_currentSpeedY * 64;
     if (canMoveTo(newX, newY))
     {
         m_x = newX;
@@ -161,4 +157,11 @@ bool GameWindow::canMoveTo(float newX, float newY)
 
         return true;
 
+}
+
+void GameWindow::updatePlayerTexture(const QString& direction) {
+    QString texturePath = "Player" + direction + ".png";
+    QPixmap playerTexture(texturePath);
+    playerTexture = playerTexture.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    playerLabel->setPixmap(playerTexture);
 }

@@ -46,9 +46,6 @@
     <ClCompile Include="GameMapQt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MapWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,11 +68,20 @@
     <Image Include="Player.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="PlayerDown.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="PlayerLeft.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="PlayerRight.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="PlayerUp.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="MapWindow.h">
-      <Filter>Resource Files</Filter>
-    </QtMoc>
     <QtMoc Include="GameWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
