@@ -111,6 +111,7 @@
     <ClCompile Include="Celltype.cpp" />
     <ClCompile Include="GameMapQt.cpp" />
     <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="LoginWindow.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -120,9 +121,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
+    <QtMoc Include="LoginWindow.h" />
     <QtMoc Include="GameWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="battle_city.png" />
     <Image Include="Bomb.png" />
     <Image Include="Breakable.png" />
     <Image Include="Player.png" />

@@ -1,12 +1,13 @@
+#ifndef LOGINWINDOW_H
 #define LOGINWINDOW_H
 #include <QMainWindow>
 
-class QlineEdit;
+class QLineEdit;
 class QPushButton;
 class QLabel;
 
 
-class LoginWindow: public QMainWindow
+class LoginWindow : public QMainWindow
 {
 	Q_OBJECT
 public:
@@ -15,10 +16,12 @@ public:
 
 private:
 	QLabel* backgroundLabel;
-	QlineEdit* usernameEdit;
-	QlineEdit* passwordEdit;
+	QLineEdit* usernameEdit;
+	QLineEdit* passwordEdit;
 	QPushButton* loginButton;
 	QPushButton* registerButton;
 
 	void setupUI();
 };
+
+#endif

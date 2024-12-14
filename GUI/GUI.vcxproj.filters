@@ -49,6 +49,9 @@
     <ClCompile Include="GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoginWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h">
@@ -80,9 +83,15 @@
     <Image Include="PlayerUp.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="battle_city.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GameWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LoginWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
