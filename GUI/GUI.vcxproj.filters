@@ -83,7 +83,7 @@
     <Image Include="PlayerUp.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="battle_city.png">
+    <Image Include="battleCity.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

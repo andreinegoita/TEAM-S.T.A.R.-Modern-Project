@@ -1,4 +1,4 @@
-#include "LoginWindow.h"
+﻿#include "LoginWindow.h"
 #include <QvBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -16,7 +16,7 @@ LoginWindow::~LoginWindow()
 
 void LoginWindow::setupUI()
 {
-	setFixedSize(800, 800);
+    setFixedSize(1200, 900);
 
 	QWidget* centralWidget = new QWidget(this);
 
@@ -25,8 +25,15 @@ void LoginWindow::setupUI()
     QVBoxLayout* layout = new QVBoxLayout(centralWidget);
 
     backgroundLabel = new QLabel(this);
-    QPixmap backgroundPixmap("battle_city.png");
-    backgroundLabel->setPixmap(backgroundPixmap.scaled(400, 200, Qt::KeepAspectRatio));
+    QPixmap backgroundPixmap("battleCity.jpg");
+
+    if (backgroundPixmap.isNull()) {
+        qDebug() << "Image couldn't load with success";
+        return;
+    }
+
+    backgroundLabel->setPixmap(backgroundPixmap.scaled(1200, 1000, Qt::KeepAspectRatio));
+   
     backgroundLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(backgroundLabel);
 
