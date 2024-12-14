@@ -92,7 +92,14 @@ void GameWindow::updateGraphics() {
     {
         m_x = newX;
         m_y = newY;
+        int playerGridX = static_cast<int>(m_x / 64);
+        int playerGridY = static_cast<int>(m_y / 64);
+
+        // Update player position on the UI
+        displayPlayerPosition(playerGridX, playerGridY);
     }
+    m_x = std::max(0.0f, (((m_x) < (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)) ? (m_x) : (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)));
+    m_y = std::max(0.0f, (((m_y) < (static_cast<float>(m_mapHeight) * 64.0f - 64.0f)) ? (m_y) : (static_cast<float>(m_mapHeight) * 64.0f - 64.0f)));
     playerLabel->move(static_cast<int>(m_x), static_cast<int>(m_y));
 }
 
@@ -173,4 +180,33 @@ void GameWindow::updatePlayerTexture(const QString& direction) {
     QPixmap playerTexture(texturePath);
     playerTexture = playerTexture.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     playerLabel->setPixmap(playerTexture);
+}
+
+void GameWindow::fetchPlayerPosition() {
+    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/player_position" });
+
+    if (response.status_code == 200) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        QJsonObject playerPosition = jsonDoc.object();
+
+        int x = playerPosition.value("x").toInt();
+        int y = playerPosition.value("y").toInt();
+
+        displayPlayerPosition(x, y);
+    }
+    else {
+        QLabel* errorLabel = new QLabel("Failed to fetch player position from server!", this);
+        gridLayout->addWidget(errorLabel, 0, 0);
+    }
+}
+
+
+
+void GameWindow::displayPlayerPosition(int x, int y) {
+    if (!positionLabel) {
+        positionLabel = new QLabel(this);
+        gridLayout->addWidget(positionLabel, 0, 0);
+    }
+
+    positionLabel->setText(QString("(%1, %2)").arg(x).arg(y));
 }

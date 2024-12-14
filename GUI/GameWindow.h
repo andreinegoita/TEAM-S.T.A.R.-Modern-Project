@@ -32,6 +32,7 @@ private slots:
     void updatePlayerTexture(const QString& direction);
 
 private:
+    QLabel* positionLabel;
     QLabel* playerLabel;
     QGridLayout* gridLayout;
     float m_targetX, m_targetY;
@@ -43,7 +44,8 @@ private:
     void setupUI();
 
     void fetchMap();
-
+    void fetchPlayerPosition();
+    void displayPlayerPosition(int x, int y);
     int m_mapWidth;
     int m_mapHeight;
 
