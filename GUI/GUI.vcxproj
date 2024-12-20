@@ -105,6 +105,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="RegisterWindow.cpp" />
     <QtRcc Include="GUI.qrc" />
     <QtUic Include="GUI.ui" />
     <QtMoc Include="GUI.h" />
@@ -121,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
+    <QtMoc Include="RegisterWindow.h" />
     <QtMoc Include="LoginWindow.h" />
     <QtMoc Include="GameWindow.h" />
   </ItemGroup>

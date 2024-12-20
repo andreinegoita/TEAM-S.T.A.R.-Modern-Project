@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QPixmap>
+#include "RegisterWindow.h"
 
 LoginWindow::LoginWindow(QWidget* parent)
 {
@@ -56,4 +57,9 @@ void LoginWindow::setupUI()
         "QLineEdit { font-size: 16px; padding: 8px; border-radius: 4px; background-color: white; color: black }"
         "QPushButton { font-size: 16px; padding: 10px; border-radius: 4px; background-color: #3498db; color: white; }"
         "QPushButton:hover { background-color: #2980b9; }");
+
+    connect(registerButton, &QPushButton::clicked, this, []() {
+        RegisterWindow* registerWindow = new RegisterWindow();
+        registerWindow->show();
+        });
 }
