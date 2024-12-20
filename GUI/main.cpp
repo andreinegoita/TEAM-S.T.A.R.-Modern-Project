@@ -10,12 +10,15 @@ int main(int argc, char* argv[]) {
 
     LoginWindow loginWindow;
     loginWindow.setWindowTitle("Battle City Login");
-    loginWindow.show();
 
     GameWindow window;
     window.setWindowTitle("Battle City Map Viewer");
     window.resize(500, 500);
-    window.show();
+    QObject::connect(&loginWindow, &LoginWindow::loginSuccessful, [&]() {
+        window.show();
+        });
+
+    loginWindow.show();
 
     return app.exec();
 }

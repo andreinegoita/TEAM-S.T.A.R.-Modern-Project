@@ -6,9 +6,10 @@
 #include <QPixmap>
 #include "RegisterWindow.h"
 
-LoginWindow::LoginWindow(QWidget* parent)
+LoginWindow::LoginWindow(QWidget* parent) :QMainWindow(parent)
 {
 	setupUI();
+    connect(loginButton, &QPushButton::clicked, this, &LoginWindow::onLoginClicked);
 }
 
 LoginWindow::~LoginWindow()
@@ -62,4 +63,11 @@ void LoginWindow::setupUI()
         RegisterWindow* registerWindow = new RegisterWindow();
         registerWindow->show();
         });
+}
+
+void LoginWindow::onLoginClicked() {
+    // TODO If valid, atutentificate logic
+    emit loginSuccessful();
+    this->close();
+
 }

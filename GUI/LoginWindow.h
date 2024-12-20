@@ -22,6 +22,10 @@ private:
 	QPushButton* registerButton;
 
 	void setupUI();
+	void onLoginClicked();
+
+signals:
+	void loginSuccessful();
 };
 
 #endif
