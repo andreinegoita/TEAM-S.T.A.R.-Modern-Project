@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include "RegisterWindow.h"
+#include <QFile>
 
 LoginWindow::LoginWindow(QWidget* parent) :QMainWindow(parent)
 {
@@ -20,44 +21,47 @@ void LoginWindow::setupUI()
 {
     setFixedSize(1200, 900);
 
-	QWidget* centralWidget = new QWidget(this);
-
+    QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
     QVBoxLayout* layout = new QVBoxLayout(centralWidget);
 
-    backgroundLabel = new QLabel(this);
-    QPixmap backgroundPixmap("battleCity.jpg");
-
-    if (backgroundPixmap.isNull()) {
-        qDebug() << "Image couldn't load with success";
-        return;
+    
+    QString backgroundImagePath = "battleCity.jpg";
+    QFile file( backgroundImagePath );
+    if (!file.exists()) {
+        qDebug() << "Imaginea de fundal nu a fost gasita: " << backgroundImagePath;
     }
-
-    backgroundLabel->setPixmap(backgroundPixmap.scaled(1200, 1000, Qt::KeepAspectRatio));
-   
-    backgroundLabel->setAlignment(Qt::AlignCenter);
-    layout->addWidget(backgroundLabel);
+    else {
+        centralWidget->setStyleSheet(QString(
+            "QWidget {"
+            "    background-image: url('%1');"
+            "    background-position: center;"
+            "    background-repeat: no-repeat;"
+            "    background-size: cover;"
+            "}"
+        ).arg(backgroundImagePath));
+    }
 
     usernameEdit = new QLineEdit(this);
     usernameEdit->setPlaceholderText("Introduceti numele de utilizator");
     layout->addWidget(usernameEdit);
 
-    passwordEdit = new QLineEdit(this);
-    passwordEdit->setPlaceholderText("Introduceti parola");
-    passwordEdit->setEchoMode(QLineEdit::Password);
-    layout->addWidget(passwordEdit);
-
     loginButton = new QPushButton("Conectare", this);
+    loginButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: white; color: black;");
     layout->addWidget(loginButton);
 
     registerButton = new QPushButton("Inregistrare", this);
+    registerButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: white; color: black;");
     layout->addWidget(registerButton);
 
-    centralWidget->setStyleSheet("QWidget { background-color: #2c3e50; }"
-        "QLineEdit { font-size: 16px; padding: 8px; border-radius: 4px; background-color: white; color: black }"
-        "QPushButton { font-size: 16px; padding: 10px; border-radius: 4px; background-color: #3498db; color: white; }"
-        "QPushButton:hover { background-color: #2980b9; }");
+    layout->setAlignment(Qt::AlignCenter);
+
+
+    usernameEdit->setGeometry(500, 300, 200, 50);
+    loginButton->setGeometry(500, 400, 200, 50);
+    registerButton->setGeometry(500, 500, 200, 50);
+
 
     connect(registerButton, &QPushButton::clicked, this, []() {
         RegisterWindow* registerWindow = new RegisterWindow();
@@ -67,7 +71,22 @@ void LoginWindow::setupUI()
 
 void LoginWindow::onLoginClicked() {
     // TODO If valid, atutentificate logic
-    emit loginSuccessful();
+    QString playerName = usernameEdit->text().trimmed();
+    if (playerName.isEmpty()) {
+        qDebug() << "Numele de utilizator este gol. Introduceti un nume valid.";
+        return;
+    }
+    emit loginSuccessful(playerName);
     this->close();
 
+}
+
+void LoginWindow::openMainMenuWindow() {
+    if (!mainMenuWindow) {
+        mainMenuWindow = new MainMenuWindow();
+        QString playerName = usernameEdit->text();
+        emit loginSuccessful(playerName);
+        mainMenuWindow->show();
+    }
+    close();
 }

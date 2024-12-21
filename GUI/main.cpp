@@ -4,6 +4,7 @@
 #include <QApplication>
 #include "GameWindow.h"
 #include "LoginWindow.h"
+#include "MainMenuWindow.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
@@ -11,11 +12,12 @@ int main(int argc, char* argv[]) {
     LoginWindow loginWindow;
     loginWindow.setWindowTitle("Battle City Login");
 
-    GameWindow window;
-    window.setWindowTitle("Battle City Map Viewer");
-    window.resize(500, 500);
-    QObject::connect(&loginWindow, &LoginWindow::loginSuccessful, [&]() {
-        window.show();
+    MainMenuWindow mainMenuWindow;
+    mainMenuWindow.setWindowTitle("Battle City Main Menu");
+    QObject::connect(&loginWindow, &LoginWindow::loginSuccessful, [&](const  QString& playerName) {
+        mainMenuWindow.setPlayerName(playerName);
+        mainMenuWindow.show();
+        loginWindow.close();
         });
 
     loginWindow.show();

@@ -29,20 +29,6 @@ void RegisterWindow::setupUI()
     usernameEdit = new QLineEdit(this);
     layout->addWidget(usernameEdit);
 
-    QLabel* passwordLabel = new QLabel("Parola:", this);
-    layout->addWidget(passwordLabel);
-
-    passwordEdit = new QLineEdit(this);
-    passwordEdit->setEchoMode(QLineEdit::Password);
-    layout->addWidget(passwordEdit);
-
-    QLabel* confirmPasswordLabel = new QLabel("Confirmare parola:", this);
-    layout->addWidget(confirmPasswordLabel);
-
-    confirmPasswordEdit = new QLineEdit(this);
-    confirmPasswordEdit->setEchoMode(QLineEdit::Password);
-    layout->addWidget(confirmPasswordEdit);
-
     registerButton = new QPushButton("Inregistreaza-te", this);
     layout->addWidget(registerButton);
 
@@ -55,13 +41,8 @@ void RegisterWindow::setupUI()
 
 bool RegisterWindow::validateInputs()
 {
-    if (usernameEdit->text().isEmpty() || passwordEdit->text().isEmpty() || confirmPasswordEdit->text().isEmpty()) {
+    if (usernameEdit->text().isEmpty() ) {
         QMessageBox::warning(this, "Eroare", "Toate campurile trebuie completate!");
-        return false;
-    }
-
-    if (passwordEdit->text() != confirmPasswordEdit->text()) {
-        QMessageBox::warning(this, "Eroare", "Parolele nu se potrivesc!");
         return false;
     }
 

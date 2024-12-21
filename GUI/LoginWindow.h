@@ -1,6 +1,7 @@
 #ifndef LOGINWINDOW_H
 #define LOGINWINDOW_H
 #include <QMainWindow>
+#include "MainMenuWindow.h"
 
 class QLineEdit;
 class QPushButton;
@@ -20,12 +21,17 @@ private:
 	QLineEdit* passwordEdit;
 	QPushButton* loginButton;
 	QPushButton* registerButton;
+	MainMenuWindow* mainMenuWindow;
 
 	void setupUI();
 	void onLoginClicked();
 
+
+private slots:
+	void openMainMenuWindow();
+
 signals:
-	void loginSuccessful();
+	void loginSuccessful(const QString& playerName);
 };
 
 #endif

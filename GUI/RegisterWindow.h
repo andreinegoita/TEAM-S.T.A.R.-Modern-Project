@@ -19,8 +19,6 @@ private slots:
 
 private:
     QLineEdit* usernameEdit;
-    QLineEdit* passwordEdit;
-    QLineEdit* confirmPasswordEdit;
     QPushButton* registerButton;
 
     void setupUI();

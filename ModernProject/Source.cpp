@@ -71,6 +71,26 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 			storage.insert(new_game);
 			return crow::response("Game added");
 		});*/
+
+	CROW_ROUTE(app, "/register").methods("POST"_method)([&storage](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+		std::string playerName = body["name"].s();
+		if (playerName.empty()) {
+			return crow::response(400, "Name cannot be empty");
+		}
+
+		try {
+			http::populateStorage(storage, playerName);
+			return crow::response(200, "Player registered successfully");
+		}
+		catch (const std::exception& e) {
+			return crow::response(500, e.what());
+		}
+		});
 	app.port(18080).multithreaded().run();
 }
 
