@@ -32,6 +32,7 @@ private slots:
     void updatePlayerTexture(const QString& direction);
     void addBullet(float x, float y, int direction);
     void updateBullets();
+    void destroyCells(int x, int y);
 private:
     QLabel* positionLabel;
     QLabel* playerLabel;
@@ -55,6 +56,8 @@ struct m_bulletData {
     int m_mapWidth;
     int m_mapHeight;
     uint8_t m_direction;
+    QTimer* bulletCooldownTimer;
+    bool canShoot;
 
     QVector<QVector<QString>> m_mapData;
     QVector<m_bulletData> bullets;

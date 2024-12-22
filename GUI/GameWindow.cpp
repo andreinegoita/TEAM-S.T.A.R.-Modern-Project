@@ -4,7 +4,7 @@
 
 GameWindow::GameWindow(QWidget* parent)
     : QMainWindow(parent),m_x(0),m_y(m_mapWidth),m_targetX(0),
-m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0) {
+m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0),canShoot(true) {
     setupUI();
     resize(400, 400);
 
@@ -20,6 +20,12 @@ m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0) {
     QTimer* bulletTimer = new QTimer(this);
     connect(bulletTimer, &QTimer::timeout, this, &GameWindow::updateBullets);
     bulletTimer->start(16);
+
+    bulletCooldownTimer = new QTimer(this);
+    bulletCooldownTimer->setSingleShot(true);
+    connect(bulletCooldownTimer, &QTimer::timeout, this, [=]() {
+        canShoot = true;
+        });
 
     setFocusPolicy(Qt::StrongFocus);
     fetchMap();
@@ -224,10 +230,15 @@ void GameWindow::addBullet(float x, float y, int direction)
 }
 
 void GameWindow::shootBullet() {
-    float bulletStartX = m_x;
-    float bulletStartY = m_y;
+    if (canShoot) 
+    {
+        float bulletStartX = m_x;
+        float bulletStartY = m_y;
 
-    addBullet(bulletStartX, bulletStartY, m_direction);
+        addBullet(bulletStartX, bulletStartY, m_direction);
+        canShoot = false;
+        bulletCooldownTimer->start(500);
+    }
 }
 
 void GameWindow::fetchPlayerPosition() {
@@ -275,18 +286,37 @@ void GameWindow::updateBullets() {
         if (i < bulletLabels.size()) {
             bulletLabels[i]->move(static_cast<int>(bullet.x), static_cast<int>(bullet.y));
         }
-        int ix = static_cast<int>(bullet.y + 32) / 64;
-        int iy = static_cast<int>(bullet.x + 32) / 64;
+        int ix = static_cast<int>(bullet.y+32) / 64;
+        int iy = static_cast<int>(bullet.x+32) / 64;
 
 
-        if (bullet.x < -16 || bullet.y < -16 || bullet.x > width() || bullet.y > height()
+        if (bullet.x < -16 || bullet.y < -16 || bullet.x >= (m_mapWidth * 63 - 32) || bullet.y >= (m_mapHeight * 63 - 32)
             || m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player")
         {
-
+            destroyCells(ix, iy);
             delete bulletLabels[i];
             bulletLabels.remove(i);
             bullets.remove(i);
             --i;
         }
+    }
+}
+
+void GameWindow::destroyCells(int x, int y)
+{
+    if (m_mapData[x][y] == "Unbreakable")
+        return;
+    if (m_mapData[x][y] == "Wall" || m_mapData[x][y] == "Player")
+    {
+        m_mapData[x][y] = "Empty";
+        return;
+    }
+    if (m_mapData[x][y] == "Bomb")
+    {
+        for (int i = x - 1; i <= x + 1; i++)
+            for (int j = y - 1; j <= y + 1; j++)
+                if (m_mapData[i][j] == "Wall" || m_mapData[i][j] == "Player")
+                    m_mapData[i][j] = "Empty";
+        m_mapData[x][y] = "Empty";
     }
 }
