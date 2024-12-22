@@ -11,7 +11,7 @@
 #include<stdexcept>
 #include "PlayersDatabase.h"
 #include <windows.h>
-#include "PowerUps.h"
+#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
 
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)

@@ -110,7 +110,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\onetr\source\repos\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,7 +128,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\onetr\source\repos\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

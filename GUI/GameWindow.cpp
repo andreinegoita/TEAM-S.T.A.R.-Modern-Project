@@ -95,7 +95,7 @@ void GameWindow::updateGraphics() {
         int playerGridX = static_cast<int>(m_x / 64);
         int playerGridY = static_cast<int>(m_y / 64);
 
-        // Update player position on the UI
+
         displayPlayerPosition(playerGridX, playerGridY);
     }
     m_x = std::max(0.0f, (((m_x) < (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)) ? (m_x) : (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)));
@@ -180,6 +180,36 @@ void GameWindow::updatePlayerTexture(const QString& direction) {
     QPixmap playerTexture(texturePath);
     playerTexture = playerTexture.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     playerLabel->setPixmap(playerTexture);
+}
+
+void GameWindow::addBullet(float x, float y, int direction)
+{
+    m_bulletData bullet = { x, y, direction };
+    bullets.push_back(bullet);
+    
+    QLabel* bulletLabel = new QLabel(this);
+    QPixmap bulletPixmap;
+
+    if (direction == 0 || direction == 1) {
+        bulletPixmap.load("BulletUpDown.png");
+    }
+    else if (direction == 2 || direction == 3) {
+        bulletPixmap.load("BulletLeftRight.png");
+    }
+
+    if (bulletPixmap.isNull()) {
+        qDebug() << "Failed to load bullet texture!";
+        return;
+    }
+
+    bulletPixmap = bulletPixmap.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    bulletLabel->setPixmap(bulletPixmap);
+    bulletLabel->setFixedSize(64, 64);
+    bulletLabel->setScaledContents(true);
+    bulletLabel->move(static_cast<int>(x), static_cast<int>(y));
+    bulletLabel->show();
+
+    bulletLabels.push_back(bulletLabel);
 }
 
 void GameWindow::fetchPlayerPosition() {

@@ -30,7 +30,7 @@ private slots:
     void updateGraphics();
     bool canMoveTo(float newX, float newY);
     void updatePlayerTexture(const QString& direction);
-
+    void addBullet(float x, float y, int direction);
 private:
     QLabel* positionLabel;
     QLabel* playerLabel;
@@ -40,6 +40,11 @@ private:
     float m_currentSpeedX, m_currentSpeedY;
     float m_speed;
 
+struct m_bulletData {
+    float x;
+    float y;
+    int direction;
+};
 
     void setupUI();
 
@@ -50,6 +55,7 @@ private:
     int m_mapHeight;
 
     QVector<QVector<QString>> m_mapData;
-
+    QVector<m_bulletData> bullets;
+    QVector<QLabel*> bulletLabels;
 
 };
