@@ -17,6 +17,10 @@ m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0) {
     connect(timer, &QTimer::timeout, this, &GameWindow::updateGraphics);
     timer->start(16);
 
+    QTimer* bulletTimer = new QTimer(this);
+    connect(bulletTimer, &QTimer::timeout, this, &GameWindow::updateBullets);
+    bulletTimer->start(16);
+
     setFocusPolicy(Qt::StrongFocus);
     fetchMap();
 }
@@ -27,24 +31,31 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_targetY -= 0.1f;
         m_currentSpeedY = -m_speed;
         updatePlayerTexture("Up");
+        m_direction = 0;
     }
     else if (event->key() == Qt::Key_S)
     {
         m_targetY += 0.1f;
         m_currentSpeedY = m_speed;
         updatePlayerTexture("Down");
+        m_direction = 1;
     }
     else if (event->key() == Qt::Key_A)
     {
         m_targetX -= 0.1f;
         m_currentSpeedX = -m_speed;
         updatePlayerTexture("Left");
+        m_direction = 2;
     }
     else if (event->key() == Qt::Key_D)
     {
         m_targetX += 0.1f;
         m_currentSpeedX = m_speed;
         updatePlayerTexture("Right");
+        m_direction = 3;
+    }
+    if (event->key() == Qt::Key_Space) {
+        shootBullet();
     }
 
 }
@@ -212,6 +223,13 @@ void GameWindow::addBullet(float x, float y, int direction)
     bulletLabels.push_back(bulletLabel);
 }
 
+void GameWindow::shootBullet() {
+    float bulletStartX = m_x;
+    float bulletStartY = m_y;
+
+    addBullet(bulletStartX, bulletStartY, m_direction);
+}
+
 void GameWindow::fetchPlayerPosition() {
     cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/player_position" });
 
@@ -230,8 +248,6 @@ void GameWindow::fetchPlayerPosition() {
     }
 }
 
-
-
 void GameWindow::displayPlayerPosition(int x, int y) {
     if (!positionLabel) {
         positionLabel = new QLabel(this);
@@ -239,4 +255,38 @@ void GameWindow::displayPlayerPosition(int x, int y) {
     }
 
     positionLabel->setText(QString("(%1, %2)").arg(x).arg(y));
+}
+
+void GameWindow::updateBullets() {
+    float bulletSpeed = 5.0f;
+
+    for (int i = 0; i < bullets.size(); ++i) {
+        m_bulletData& bullet = bullets[i];
+
+
+        switch (bullet.direction) {
+        case 0: bullet.y -= bulletSpeed; break;
+        case 1: bullet.y += bulletSpeed; break;
+        case 2: bullet.x -= bulletSpeed; break;
+        case 3: bullet.x += bulletSpeed; break;
+        }
+
+
+        if (i < bulletLabels.size()) {
+            bulletLabels[i]->move(static_cast<int>(bullet.x), static_cast<int>(bullet.y));
+        }
+        int ix = static_cast<int>(bullet.y + 32) / 64;
+        int iy = static_cast<int>(bullet.x + 32) / 64;
+
+
+        if (bullet.x < -16 || bullet.y < -16 || bullet.x > width() || bullet.y > height()
+            || m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player")
+        {
+
+            delete bulletLabels[i];
+            bulletLabels.remove(i);
+            bullets.remove(i);
+            --i;
+        }
+    }
 }

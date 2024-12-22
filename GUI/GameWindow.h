@@ -31,6 +31,7 @@ private slots:
     bool canMoveTo(float newX, float newY);
     void updatePlayerTexture(const QString& direction);
     void addBullet(float x, float y, int direction);
+    void updateBullets();
 private:
     QLabel* positionLabel;
     QLabel* playerLabel;
@@ -43,16 +44,17 @@ private:
 struct m_bulletData {
     float x;
     float y;
-    int direction;
+    uint8_t direction;
 };
 
     void setupUI();
-
+    void shootBullet();
     void fetchMap();
     void fetchPlayerPosition();
     void displayPlayerPosition(int x, int y);
     int m_mapWidth;
     int m_mapHeight;
+    uint8_t m_direction;
 
     QVector<QVector<QString>> m_mapData;
     QVector<m_bulletData> bullets;
