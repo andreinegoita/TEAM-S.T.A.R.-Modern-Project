@@ -10,11 +10,9 @@
 #include<cstdlib>
 #include<stdexcept>
 #include "PlayersDatabase.h"
-
 #include <windows.h>
-#include "PowerUpDll.h"
-typedef PowerUp* (*CreatePowerUpFunc)(PowerUpType, int);
-typedef void (*DestroyPowerUpFunc)(PowerUp*);
+#include "PowerUps.h"
+
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)
 {
@@ -96,37 +94,12 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 
 int main()
 {	
-		//HMODULE hDll = LoadLibrary(L"C:\\Users\\onetr\\TeamStar\\Dll\\Dll.dll");
-
-
-
-		//if (hDll == NULL) {
-		//	std::cerr << "Could not load the dynamic library!" << std::endl;
-		//	return -1;
-		//}
-
-		//// Obține adresele funcțiilor
-		//CreatePowerUpFunc createPowerUp = (CreatePowerUpFunc)GetProcAddress(hDll, "createPowerUp");
-		//DestroyPowerUpFunc destroyPowerUp = (DestroyPowerUpFunc)GetProcAddress(hDll, "destroyPowerUp");
-
-		//if (createPowerUp == NULL || destroyPowerUp == NULL) {
-		//	std::cerr << "Could not find the function in the DLL!" << std::endl;
-		//	FreeLibrary(hDll);
-		//	return -1;
-		//}
-
-		//// Creează și folosește PowerUp-ul
-		//PowerUp* powerUp = createPowerUp(PowerUpType::SpeedBoost, 10);
-		//std::cout << "PowerUp Type: " << static_cast<int>(powerUp->getType()) << std::endl;
-		//std::cout << "Duration: " << powerUp->getDuration() << std::endl;
-
-		//// Distruge PowerUp-ul
-		//destroyPowerUp(powerUp);
-
-		//// Eliberează DLL-ul
-		//FreeLibrary(hDll);
-
-
+	PowerUpType type = PowerUpType::Shield;
+	int duration = 10;
+	PowerUp* powerUp = createPowerUp(type, duration);
+	std::cout << "PowerUp Type: " << static_cast<int>(powerUp->GetType()) << std::endl;
+	std::cout << "Duration: " << powerUp->GetDuration() << std::endl;
+	destroyPowerUp(powerUp);
 	try {
 		std::mt19937 mt(time(nullptr));
 		int randValRows = 10 + mt() % 10;
