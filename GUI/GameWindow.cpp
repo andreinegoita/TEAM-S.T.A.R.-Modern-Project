@@ -1,4 +1,4 @@
-#include "GameWindow.h"
+﻿#include "GameWindow.h"
 #include<QGraphicsPixmapItem>
 #include<QTimer>
 
@@ -111,6 +111,7 @@ void GameWindow::updateGraphics() {
         m_y = newY;
         int playerGridX = static_cast<int>(m_x / 64);
         int playerGridY = static_cast<int>(m_y / 64);
+        updateServerPlayerPosition();
 
 
         displayPlayerPosition(playerGridX, playerGridY);
@@ -320,3 +321,33 @@ void GameWindow::destroyCells(int x, int y)
         m_mapData[x][y] = "Empty";
     }
 }
+
+void GameWindow::updateServerPlayerPosition() {
+    static int lastX = -1;
+    static int lastY = -1;
+
+    int currentX = static_cast<int>(m_x / 64);
+    int currentY = static_cast<int>(m_y / 64);
+
+    if (currentX != lastX || currentY != lastY) {
+        lastX = currentX;
+        lastY = currentY;
+
+        QtConcurrent::run([currentX, currentY]() {
+            std::string payload = "{\"x\":" + std::to_string(currentX) + ",\"y\":" + std::to_string(currentY) + "}";
+
+            cpr::Response response = cpr::Post(
+                cpr::Url{ "http://localhost:18080/player_position" },
+                cpr::Body{ payload },
+                cpr::Header{ { "Content-Type", "application/json" } }
+            );
+
+            if (response.status_code != 200) {
+                qDebug() << "Failed to update player position on server!";
+            }
+            });
+    }
+}
+
+
+

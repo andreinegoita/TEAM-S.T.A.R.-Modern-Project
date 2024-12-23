@@ -12,6 +12,7 @@
 #include <QPixmap>
 #include <QJsonObject>
 #include<QDebug>
+#include <QtConcurrent/QtConcurrent>
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 
 
@@ -52,6 +53,7 @@ struct m_bulletData {
     void shootBullet();
     void fetchMap();
     void fetchPlayerPosition();
+    void updateServerPlayerPosition();
     void displayPlayerPosition(int x, int y);
     int m_mapWidth;
     int m_mapHeight;

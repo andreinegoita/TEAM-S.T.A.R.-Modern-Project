@@ -11,7 +11,8 @@
 #include<stdexcept>
 #include "PlayersDatabase.h"
 #include <windows.h>
-#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
+//#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
+#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
 
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)
@@ -31,6 +32,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		([&player]() {
 		return crow::response(player.GetPositionState());
 			});
+
 	CROW_ROUTE(app, "/players").methods("GET"_method)
 		([&storage]() {
 		auto players = storage.get_all<http::Player>();
