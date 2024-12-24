@@ -12,8 +12,8 @@
 #include "PlayersDatabase.h"
 #include <windows.h>
 //#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
-#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
-
+//#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
+#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)
 {
