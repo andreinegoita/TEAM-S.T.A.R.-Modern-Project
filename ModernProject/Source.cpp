@@ -11,7 +11,8 @@
 #include<stdexcept>
 #include "PlayersDatabase.h"
 #include <windows.h>
-#include "PowerUps.h"
+//#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
+#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
 
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)
@@ -31,6 +32,18 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		([&player]() {
 		return crow::response(player.GetPositionState());
 			});
+	CROW_ROUTE(app, "/player_position").methods("POST"_method)([&player](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+		int x = body["x"].i();
+		int y = body["y"].i();
+
+		std::cout << "Received player position: x = " << x << ", y = " << y << std::endl;
+		return crow::response(200);
+		});
 	CROW_ROUTE(app, "/players").methods("GET"_method)
 		([&storage]() {
 		auto players = storage.get_all<http::Player>();

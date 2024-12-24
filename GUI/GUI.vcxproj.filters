@@ -92,6 +92,12 @@
     <Image Include="battleCity.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="BulletUpDown.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="BulletLeftRight.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GameWindow.h">
