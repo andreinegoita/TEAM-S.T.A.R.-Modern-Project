@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModernProject", "ModernProj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUI", "..\GUI\GUI.vcxproj", "{E40FA719-1F54-4C19-87D8-6AA71B21A510}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dll", "..\Dll\Dll.vcxproj", "{1192179F-95B4-44B0-8FF0-34663A4EA97A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -33,14 +31,6 @@ Global
 		{E40FA719-1F54-4C19-87D8-6AA71B21A510}.Release|x64.Build.0 = Release|x64
 		{E40FA719-1F54-4C19-87D8-6AA71B21A510}.Release|x86.ActiveCfg = Release|x64
 		{E40FA719-1F54-4C19-87D8-6AA71B21A510}.Release|x86.Build.0 = Release|x64
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Debug|x64.ActiveCfg = Debug|x64
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Debug|x64.Build.0 = Debug|x64
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Debug|x86.ActiveCfg = Debug|Win32
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Debug|x86.Build.0 = Debug|Win32
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Release|x64.ActiveCfg = Release|x64
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Release|x64.Build.0 = Release|x64
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Release|x86.ActiveCfg = Release|Win32
-		{1192179F-95B4-44B0-8FF0-34663A4EA97A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
