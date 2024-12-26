@@ -58,6 +58,9 @@
     <ClCompile Include="MainMenuWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShopWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h">
@@ -110,6 +113,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="MainMenuWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ShopWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

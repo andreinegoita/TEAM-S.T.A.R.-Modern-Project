@@ -1,4 +1,4 @@
-#include "MainMenuWindow.h"
+﻿#include "MainMenuWindow.h"
 #include "GameWindow.h"
 #include <QFile>
 
@@ -41,13 +41,60 @@ void MainMenuWindow::setupUI() {
     menuButton = new QPushButton("Meniu", this);
     startGameButton = new QPushButton("Start Game", this);
 
-    menuButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: white; color: black;");
-    startGameButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: white; color: black;");
+    menuButton->setStyleSheet(
+        "QPushButton {"
+        "    font-size: 24px;"
+        "    padding: 12px 20px;"
+        "    border-radius: 15px;"
+        "    background-color: white;"  
+        "    color: #1E3A5F;"  
+        "    border: 2px solid #1E3A5F;"  
+        "    box-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;" 
+        "    transition: all 0.3s ease;"
+        "    text-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"  
+        "}"
+        "QPushButton:hover {"
+        "    background-color: rgba(255, 255, 255, 0.8);"  
+        "    color: #1E3A5F;"
+        "    border: 2px solid #1E3A5F;"
+        "    box-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;" 
+        "    text-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"  
+        "}"
+    );
 
-    menuButton->setGeometry(500, 400, 200, 50); 
-    startGameButton->setGeometry(500, 500, 200, 50); 
+    startGameButton->setStyleSheet(
+        "QPushButton {"
+        "    font-size: 24px;"
+        "    padding: 12px 20px;"
+        "    border-radius: 15px;"
+        "    background-color: white;" 
+        "    color: #1E3A5F;"  
+        "    border: 2px solid #1E3A5F;"  
+        "    box-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"  
+        "    transition: all 0.3s ease;"
+        "    text-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;" 
+        "}"
+        "QPushButton:hover {"
+        "    background-color: rgba(255, 255, 255, 0.8);" 
+        "    color: #1E3A5F;"
+        "    border: 2px solid #1E3A5F;"
+        "    box-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"  
+        "    text-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"  
+        "}"
+    );
+
+    menuButton->setGeometry(500, 400, 200, 50);
+    startGameButton->setGeometry(500, 500, 200, 50);
+
 
     connect(startGameButton, &QPushButton::clicked, this, &MainMenuWindow::startGame);
+
+    connect(menuButton, &QPushButton::clicked, this, []() {
+        ShopWindow* shopWindow = new ShopWindow();
+        shopWindow->show();
+        });
+
+
 }
 
 void MainMenuWindow::startGame()
@@ -56,3 +103,4 @@ void MainMenuWindow::startGame()
     gameWindow->show();
     this->close();
 }
+

@@ -67,12 +67,14 @@
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -107,6 +109,7 @@
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="MainMenuWindow.cpp" />
     <ClCompile Include="RegisterWindow.cpp" />
+    <ClCompile Include="ShopWindow.cpp" />
     <QtRcc Include="GUI.qrc" />
     <QtUic Include="GUI.ui" />
     <QtMoc Include="GUI.h" />
@@ -123,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
+    <QtMoc Include="ShopWindow.h" />
     <QtMoc Include="MainMenuWindow.h" />
     <QtMoc Include="RegisterWindow.h" />
     <QtMoc Include="LoginWindow.h" />

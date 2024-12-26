@@ -5,7 +5,6 @@
 #else
 #define POWERUPSDLL_API __declspec(dllimport)
 #endif
-
 enum class POWERUPSDLL_API PowerUpType {
     SpeedBoost,
     Shield,

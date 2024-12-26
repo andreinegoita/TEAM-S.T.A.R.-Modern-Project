@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "PowerUps.h"
-
 #include <iostream>
 PowerUp::PowerUp(PowerUpType type, int duration) : m_type(type), m_duration(duration) {}
 

@@ -3,6 +3,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QLabel>
+#include"ShopWindow.h"
 
 class MainMenuWindow : public QMainWindow {
     Q_OBJECT
