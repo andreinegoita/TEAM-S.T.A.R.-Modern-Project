@@ -113,8 +113,6 @@
     <QtRcc Include="GUI.qrc" />
     <QtUic Include="GUI.ui" />
     <QtMoc Include="GUI.h" />
-    <ClCompile Include="Celltype.cpp" />
-    <ClCompile Include="GameMapQt.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="LoginWindow.cpp" />
     <ClCompile Include="main.cpp" />
@@ -134,10 +132,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="battleCity.jpg" />
+    <Image Include="BattleMenu.jpg" />
     <Image Include="Bomb.png" />
     <Image Include="Breakable.png" />
     <Image Include="BulletUpDown.png" />
     <Image Include="BulletLeftRight.png" />
+    <Image Include="menu.jpg" />
     <Image Include="Player.png" />
     <Image Include="PlayerDown.png" />
     <Image Include="PlayerLeft.png" />

@@ -30,7 +30,7 @@ void LoginWindow::setupUI()
     QString backgroundImagePath = "battleCity.jpg";
     QFile file( backgroundImagePath );
     if (!file.exists()) {
-        qDebug() << "Imaginea de fundal nu a fost gasita: " << backgroundImagePath;
+        qDebug() << "Image can't be procesing: " << backgroundImagePath;
     }
     else {
         centralWidget->setStyleSheet(QString(

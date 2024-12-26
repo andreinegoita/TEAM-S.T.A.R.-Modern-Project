@@ -11,4 +11,3 @@ enum class CellType : uint16_t
 	Bomb
 };
 
-std::string CellTypeToFileName(const CellType& cellType);

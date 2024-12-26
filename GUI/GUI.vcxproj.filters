@@ -40,12 +40,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Celltype.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameMapQt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,6 +93,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="BulletLeftRight.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="menu.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="BattleMenu.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -35,7 +35,7 @@ void MainMenuWindow::setupUI() {
 
     welcomeLabel = new QLabel("Hello PlayerName", this);
     welcomeLabel->setAlignment(Qt::AlignRight | Qt::AlignTop);
-    welcomeLabel->setStyleSheet("font-size: 18px; color: black; padding: 10px;");
+    welcomeLabel->setStyleSheet("font-size:18px; color: black; padding: 10px;");
     welcomeLabel->setGeometry(width() - 310, 10, 300, 30);
 
     menuButton = new QPushButton("Meniu", this);
@@ -89,9 +89,11 @@ void MainMenuWindow::setupUI() {
 
     connect(startGameButton, &QPushButton::clicked, this, &MainMenuWindow::startGame);
 
-    connect(menuButton, &QPushButton::clicked, this, []() {
+    connect(menuButton, &QPushButton::clicked, this, [this]() {
         ShopWindow* shopWindow = new ShopWindow();
+        shopWindow->setWindowTitle("Battle City Menu");
         shopWindow->show();
+        this->close();
         });
 
 

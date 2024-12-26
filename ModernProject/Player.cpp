@@ -156,7 +156,7 @@ void Player::BuyPowerUp(PowerUpType powerUpType) {
         m_powerUpQueue.push(powerUpType);
     }
     else {
-        std::cout << "Nu ai suficienți bani pentru acest power-up!" << std::endl;
+        std::cout << "You don't have enough money to boy this powerUp!" << std::endl;
     }
 }
 

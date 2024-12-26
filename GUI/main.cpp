@@ -5,6 +5,7 @@
 #include "GameWindow.h"
 #include "LoginWindow.h"
 #include "MainMenuWindow.h"
+#include"ShopWindow.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
@@ -19,7 +20,8 @@ int main(int argc, char* argv[]) {
         mainMenuWindow.show();
         loginWindow.close();
         });
-
+    ShopWindow shopWindow;
+ 
     loginWindow.show();
 
     return app.exec();
