@@ -55,6 +55,7 @@ struct m_bulletData {
     void fetchPlayerPosition();
     void updateServerPlayerPosition();
     void displayPlayerPosition(int x, int y);
+    void updateServerBulletsPosition();
     int m_mapWidth;
     int m_mapHeight;
     uint8_t m_direction;

@@ -241,6 +241,32 @@ void GameWindow::shootBullet() {
         bulletCooldownTimer->start(500);
     }
 }
+void GameWindow::updateServerBulletsPosition() {
+    QJsonArray bulletArray;
+
+    for (const m_bulletData& bullet : bullets) {
+        QJsonObject bulletObject;
+        bulletObject["x"] = static_cast<int>(bullet.x);
+        bulletObject["y"] = static_cast<int>(bullet.y);
+        bulletObject["direction"] = bullet.direction;
+        bulletArray.append(bulletObject); // Adăugăm explicit obiectele în QJsonArray
+    }
+
+    QString payload = QJsonDocument(bulletArray).toJson(QJsonDocument::Compact);
+
+    QtConcurrent::run([payload]() {
+        cpr::Response response = cpr::Post(
+            cpr::Url{ "http://localhost:18080/bullets_position" },
+            cpr::Body{ payload.toStdString() },
+            cpr::Header{ { "Content-Type", "application/json" } }
+        );
+
+        if (response.status_code != 200) {
+            qDebug() << "Failed to update bullet positions on server!";
+        }
+        });
+}
+
 
 void GameWindow::fetchPlayerPosition() {
     cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/player_position" });
@@ -301,6 +327,7 @@ void GameWindow::updateBullets() {
             --i;
         }
     }
+    updateServerBulletsPosition();
 }
 
 void GameWindow::destroyCells(int x, int y)
