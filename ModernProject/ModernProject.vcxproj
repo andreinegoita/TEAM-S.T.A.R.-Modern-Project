@@ -116,7 +116,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;D:\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,7 +135,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;D:\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

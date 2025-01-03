@@ -11,9 +11,9 @@
 #include<stdexcept>
 #include "PlayersDatabase.h"
 #include <windows.h>
-//#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
+#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
 //#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
-#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
+//#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)
 {
@@ -23,9 +23,9 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		return crow::response(map.GetMapState());
 		});
 
-	CROW_ROUTE(app, "/map/update/<int>/<int>/<int>").methods("POST"_method)
-		([&map](int row, int col, int value) {
-		map.UpdateCell(row, col, value);
+	CROW_ROUTE(app, "/map/empty/<int>/<int>").methods("POST"_method)
+		([&map](int row, int col) {
+		map.UpdateCell(row, col, 0U);
 		return crow::response("Cell updated");
 			});
 	CROW_ROUTE(app, "/player_position").methods("GET"_method)

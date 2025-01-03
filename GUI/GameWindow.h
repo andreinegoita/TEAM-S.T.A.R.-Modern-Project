@@ -26,6 +26,7 @@ protected:
     void keyReleaseEvent(QKeyEvent* event) override;
 public:
     void displayMap(const QJsonArray& mapArray);
+    void updateMap(const QJsonArray& mapArray);
 
 private slots:
     void updateGraphics();
@@ -56,12 +57,14 @@ struct m_bulletData {
     void updateServerPlayerPosition();
     void displayPlayerPosition(int x, int y);
     void updateServerBulletsPosition();
+    void updateServerMapCell(int row, int col);
     int m_mapWidth;
     int m_mapHeight;
     uint8_t m_direction;
     QTimer* bulletCooldownTimer;
     bool canShoot;
 
+    QJsonArray m_mapArray;
     QVector<QVector<QString>> m_mapData;
     QVector<m_bulletData> bullets;
     QVector<QLabel*> bulletLabels;

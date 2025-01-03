@@ -29,6 +29,7 @@ m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0),canShoot(tr
 
     setFocusPolicy(Qt::StrongFocus);
     fetchMap();
+    updateMap(m_mapArray);
 }
 void GameWindow::keyPressEvent(QKeyEvent* event)
 {
@@ -83,18 +84,32 @@ void GameWindow::setupUI() {
     setCentralWidget(centralWidget);
 }
 
+std::mutex mapMutex;
+
 void GameWindow::fetchMap() {
+    std::lock_guard<std::mutex> lock(mapMutex);
     cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/map" });
     if (response.status_code == 200) {
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
-        QJsonArray mapArray = jsonDoc.array();
-
-        m_mapHeight = mapArray.size();
-        if (m_mapHeight > 0)
+        if (response.text.empty())
         {
-            m_mapWidth = mapArray[0].toArray().size();
+            qDebug() << "Error : Received empty response from server!";
         }
-        displayMap(mapArray);
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        if (jsonDoc.isNull()) {
+            qDebug() << "Error: Failed to parse JSON from server response!";
+            qDebug() << "Response text:" << QString::fromStdString(response.text);
+            return;
+        }
+         m_mapArray = jsonDoc.array();
+
+        if(m_mapHeight==0&&m_mapWidth==0)
+        {
+            m_mapHeight = m_mapArray.size();
+            if (m_mapHeight > 0)
+            {
+                m_mapWidth = m_mapArray[0].toArray().size();
+            }
+        }
     }
     else {
         QLabel* errorLabel = new QLabel("Failed to fetch map from server!", this);
@@ -121,10 +136,27 @@ void GameWindow::updateGraphics() {
     playerLabel->move(static_cast<int>(m_x), static_cast<int>(m_y));
 }
 
+
 void GameWindow::displayMap(const QJsonArray& mapArray) {
-    QLayoutItem* item;
-    while ((item = gridLayout->takeAt(0)) != nullptr) {
-        delete item->widget();
+   
+    if (mapArray.isEmpty()) {
+        qDebug() << "Error: Map array is empty!";
+        return;
+    }
+
+    for (const QJsonValue& rowValue : mapArray) {
+        if (!rowValue.isArray()) {
+            qDebug() << "Error: Expected a row to be a JSON array!";
+            return;
+        }
+    }
+
+
+    while (QLayoutItem* item = gridLayout->takeAt(0)) {
+        if (item->widget())
+        {
+            item->widget()->deleteLater();
+        }
         delete item;
     }
 
@@ -144,10 +176,10 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
             QLabel* cellLabel = new QLabel(this);
 
             QPixmap texture;
-            if (cellType == "Empty") texture.load("Empty.png");
-            else if (cellType == "Wall") texture.load("Breakable.png");
+            if (cellType == "Wall" || cellType == "Bomb") texture.load("Breakable.png");
             else if (cellType == "Unbreakable") texture.load("Unbreakable.png");
             else if (cellType == "Player") texture.load("Player.png");
+            else if (cellType == "Empty") texture.load("Empty.png");
 
             texture = texture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
             cellLabel->setPixmap(texture);
@@ -162,6 +194,47 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
 
     setFixedSize(gridLayout->sizeHint());
 }
+
+void GameWindow::updateMap(const QJsonArray& mapArray) {
+    if (mapArray.isEmpty()) {
+        qDebug() << "Error: Map array is empty!";
+        return;
+    }
+
+    if (m_mapData.isEmpty()) {
+        // First-time initialization
+        displayMap(mapArray);
+        return;
+    }
+
+    int blockSize = 64;
+    for (int row = 0; row < mapArray.size(); ++row) {
+        QJsonArray rowArray = mapArray[row].toArray();
+
+        for (int col = 0; col < rowArray.size(); ++col) {
+            QString cellType = rowArray[col].toString();
+
+            if (row < m_mapData.size() && col < m_mapData[row].size() &&
+                m_mapData[row][col] != cellType) {
+                // Update only if the cell type has changed
+                QLabel* cellLabel = qobject_cast<QLabel*>(gridLayout->itemAtPosition(row, col)->widget());
+                if (cellLabel) {
+                    QPixmap texture;
+                    if (cellType == "Wall" || cellType == "Bomb") texture.load("Breakable.png");
+                    else if (cellType == "Unbreakable") texture.load("Unbreakable.png");
+                    else if (cellType == "Player") texture.load("Player.png");
+                    else if (cellType == "Empty") texture.load("Empty.png");
+
+
+                    texture = texture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+                    cellLabel->setPixmap(texture);
+                }
+                m_mapData[row][col] = cellType;
+            }
+        }
+    }
+}
+
 
 bool GameWindow::canMoveTo(float newX, float newY)
 {
@@ -179,13 +252,13 @@ bool GameWindow::canMoveTo(float newX, float newY)
         }
 
         if (m_mapData[gridY1][gridX1] == "Wall" || m_mapData[gridY1][gridX1] == "Unbreakable" ||
-            m_mapData[gridY1][gridX1] == "Player" ||
+            m_mapData[gridY1][gridX1] == "Player" || m_mapData[gridY1][gridX1] == "Bomb"||
             m_mapData[gridY1][gridX2] == "Wall" || m_mapData[gridY1][gridX2] == "Unbreakable" ||
-            m_mapData[gridY1][gridX2] == "Player" ||
+            m_mapData[gridY1][gridX2] == "Player" || m_mapData[gridY1][gridX2] == "Bomb" ||
             m_mapData[gridY2][gridX1] == "Wall" || m_mapData[gridY2][gridX1] == "Unbreakable" ||
-            m_mapData[gridY2][gridX1] == "Player" ||
+            m_mapData[gridY2][gridX1] == "Player" || m_mapData[gridY2][gridX1] == "Bomb" ||
             m_mapData[gridY2][gridX2] == "Wall" || m_mapData[gridY2][gridX2] == "Unbreakable" ||
-            m_mapData[gridY2][gridX2] == "Player") {
+            m_mapData[gridY2][gridX2] == "Player" || m_mapData[gridY2][gridX2] == "Bomb" ){
             return false;
         }
 
@@ -267,12 +340,30 @@ void GameWindow::updateServerBulletsPosition() {
         });
 }
 
+void GameWindow::updateServerMapCell(int row, int col)
+{
+        cpr::Response response = cpr::Post(
+        cpr::Url{ "http://localhost:18080/map/empty/" + std::to_string(row) + "/" + std::to_string(col)},
+        cpr::Header{ {"Content-Type", "application/json"} }
+    );
+
+    if (response.status_code != 200) {
+       
+        qDebug() << "Error: " << response.status_code << " - " << "map could not be updated";
+    }
+}
+
 
 void GameWindow::fetchPlayerPosition() {
     cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/player_position" });
 
     if (response.status_code == 200) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        if (!jsonDoc.isArray()) {
+            qDebug() << "Error: Expected a JSON array but received different data!";
+            qDebug() << "Parsed JSON:" << jsonDoc.toJson();
+            return;
+        }
         QJsonObject playerPosition = jsonDoc.object();
 
         int x = playerPosition.value("x").toInt();
@@ -286,13 +377,33 @@ void GameWindow::fetchPlayerPosition() {
     }
 }
 
+QPointer<QLabel> positionLabel;
+
 void GameWindow::displayPlayerPosition(int x, int y) {
+    if (!(x >= 0 && x < m_mapHeight && y >= 0 && y < m_mapWidth)) {
+        qDebug() << "Invalid coordinates: (" << x << ", " << y << ")";
+        return;
+    }
+
+    if (!gridLayout) {
+        qDebug() << "gridLayout is null. Initializing.";
+        gridLayout = new QGridLayout(this);
+        setLayout(gridLayout);
+    }
+
     if (!positionLabel) {
+        qDebug() << "positionLabel is null. Creating new QLabel.";
         positionLabel = new QLabel(this);
         gridLayout->addWidget(positionLabel, 0, 0);
     }
 
-    positionLabel->setText(QString("(%1, %2)").arg(x).arg(y));
+    if (positionLabel) {
+        qDebug() << "Updating positionLabel with coordinates: (" << x << ", " << y << ")";
+        positionLabel->setText(QString("(%1, %2)").arg(x).arg(y));
+    }
+    else {
+        qDebug() << "Unexpected error: positionLabel is still null.";
+    }
 }
 
 void GameWindow::updateBullets() {
@@ -309,25 +420,38 @@ void GameWindow::updateBullets() {
         case 3: bullet.x += bulletSpeed; break;
         }
 
-
+        if (i >= bulletLabels.size() || i >= bullets.size()) {
+            continue;
+        }
         if (i < bulletLabels.size()) {
             bulletLabels[i]->move(static_cast<int>(bullet.x), static_cast<int>(bullet.y));
         }
-        int ix = static_cast<int>(bullet.y+32) / 64;
-        int iy = static_cast<int>(bullet.x+32) / 64;
-
+        int ix = std::clamp(static_cast<int>((bullet.y + 32) / 64), 0, m_mapHeight - 1);
+        int iy = std::clamp(static_cast<int>((bullet.x + 32) / 64), 0, m_mapWidth - 1);
 
         if (bullet.x < -16 || bullet.y < -16 || bullet.x >= (m_mapWidth * 63 - 32) || bullet.y >= (m_mapHeight * 63 - 32)
-            || m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player")
+            || (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth &&
+                (m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player")))
         {
-            destroyCells(ix, iy);
+            if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
+                destroyCells(ix, iy);
+            }
             delete bulletLabels[i];
             bulletLabels.remove(i);
             bullets.remove(i);
             --i;
         }
+        if (ix < 0 || iy < 0 || ix >= m_mapHeight || iy >= m_mapWidth) {
+            delete bulletLabels[i];
+            bulletLabels.remove(i);
+            bullets.remove(i);
+            --i;
+            continue;
+        }
+
+        updateMap(m_mapArray);
     }
-    updateServerBulletsPosition();
+    //updateServerBulletsPosition();
 }
 
 void GameWindow::destroyCells(int x, int y)
@@ -336,7 +460,9 @@ void GameWindow::destroyCells(int x, int y)
         return;
     if (m_mapData[x][y] == "Wall" || m_mapData[x][y] == "Player")
     {
-        m_mapData[x][y] = "Empty";
+
+        updateServerMapCell(x, y);
+        fetchMap();
         return;
     }
     if (m_mapData[x][y] == "Bomb")
@@ -344,8 +470,13 @@ void GameWindow::destroyCells(int x, int y)
         for (int i = x - 1; i <= x + 1; i++)
             for (int j = y - 1; j <= y + 1; j++)
                 if (m_mapData[i][j] == "Wall" || m_mapData[i][j] == "Player")
-                    m_mapData[i][j] = "Empty";
-        m_mapData[x][y] = "Empty";
+                {
+                    updateServerMapCell(i, j);
+
+                }
+        
+        updateServerMapCell(x, y);
+        fetchMap();
     }
 }
 
