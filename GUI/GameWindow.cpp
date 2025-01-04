@@ -4,7 +4,7 @@
 
 GameWindow::GameWindow(QWidget* parent)
     : QMainWindow(parent),m_x(0),m_y(m_mapWidth),m_targetX(0),
-m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0),canShoot(true) {
+m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0),canShoot(true),m_bulletSpeed(5.0f) {
     setupUI();
     resize(400, 400);
 
@@ -30,6 +30,9 @@ m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0),canShoot(tr
     setFocusPolicy(Qt::StrongFocus);
     fetchMap();
     updateMap(m_mapArray);
+   // fetchPlayerPosition();
+    setPlayerStartPosition();
+   
 }
 void GameWindow::keyPressEvent(QKeyEvent* event)
 {
@@ -178,7 +181,7 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
             QPixmap texture;
             if (cellType == "Wall" || cellType == "Bomb") texture.load("Breakable.png");
             else if (cellType == "Unbreakable") texture.load("Unbreakable.png");
-            else if (cellType == "Player") texture.load("Player.png");
+            else if (cellType == "Player") texture.load("PlayerUp.png");
             else if (cellType == "Empty") texture.load("Empty.png");
 
             texture = texture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
@@ -222,7 +225,7 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
                     QPixmap texture;
                     if (cellType == "Wall" || cellType == "Bomb") texture.load("Breakable.png");
                     else if (cellType == "Unbreakable") texture.load("Unbreakable.png");
-                    else if (cellType == "Player") texture.load("Player.png");
+                    else if (cellType == "Player") texture.load("PlayerUp.png");
                     else if (cellType == "Empty") texture.load("Empty.png");
 
 
@@ -312,6 +315,25 @@ void GameWindow::shootBullet() {
         addBullet(bulletStartX, bulletStartY, m_direction);
         canShoot = false;
         bulletCooldownTimer->start(500);
+        //QJsonObject bulletObject;
+        //bulletObject["x"] = static_cast<int>(bulletStartX);
+        //bulletObject["y"] = static_cast<int>(bulletStartY);
+        //bulletObject["direction"] = m_direction;
+        //bulletObject["speed"] = m_bulletSpeed; 
+
+        //QString payload = QJsonDocument(bulletObject).toJson(QJsonDocument::Compact);
+
+        //QtConcurrent::run([payload]() {
+        //    cpr::Response response = cpr::Post(
+        //        cpr::Url{ "http://localhost:18080/shoot_bullet" },
+        //        cpr::Body{ payload.toStdString() },
+        //        cpr::Header{ { "Content-Type", "application/json" } }
+        //    );
+
+        //    if (response.status_code != 200) {
+        //        qDebug() << "Failed to send bullet info to server!";
+        //    }
+        //    });
     }
 }
 void GameWindow::updateServerBulletsPosition() {
@@ -350,6 +372,31 @@ void GameWindow::updateServerMapCell(int row, int col)
     if (response.status_code != 200) {
        
         qDebug() << "Error: " << response.status_code << " - " << "map could not be updated";
+    }
+}
+
+void GameWindow::setPlayerStartPosition()
+{
+    if (m_mapData[0][0] == "Empty")
+    {
+        m_x = 0;
+        m_y = 0;
+
+    }
+    else if (m_mapData[0][m_mapWidth-1] == "Empty")
+    {
+        m_y = 0;
+        m_x = 64*(m_mapWidth-1);
+    }
+    else if (m_mapData[m_mapHeight-1][m_mapWidth-1] == "Empty")
+    {
+        m_y = 64*(m_mapHeight-1);
+        m_x = 64*(m_mapWidth - 1);
+    }
+    else if (m_mapData[m_mapHeight - 1][0] == "Empty")
+    {
+        m_y = 64*(m_mapHeight - 1);
+        m_x = 0;
     }
 }
 
@@ -407,17 +454,17 @@ void GameWindow::displayPlayerPosition(int x, int y) {
 }
 
 void GameWindow::updateBullets() {
-    float bulletSpeed = 5.0f;
+   
 
     for (int i = 0; i < bullets.size(); ++i) {
         m_bulletData& bullet = bullets[i];
 
 
         switch (bullet.direction) {
-        case 0: bullet.y -= bulletSpeed; break;
-        case 1: bullet.y += bulletSpeed; break;
-        case 2: bullet.x -= bulletSpeed; break;
-        case 3: bullet.x += bulletSpeed; break;
+        case 0: bullet.y -= m_bulletSpeed; break;
+        case 1: bullet.y += m_bulletSpeed; break;
+        case 2: bullet.x -= m_bulletSpeed; break;
+        case 3: bullet.x += m_bulletSpeed; break;
         }
 
         if (i >= bulletLabels.size() || i >= bullets.size()) {

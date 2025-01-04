@@ -43,7 +43,7 @@ private:
     float m_x ,m_y;
     float m_currentSpeedX, m_currentSpeedY;
     float m_speed;
-
+    float m_bulletSpeed;
 struct m_bulletData {
     float x;
     float y;
@@ -58,12 +58,13 @@ struct m_bulletData {
     void displayPlayerPosition(int x, int y);
     void updateServerBulletsPosition();
     void updateServerMapCell(int row, int col);
+    void setPlayerStartPosition();
     int m_mapWidth;
     int m_mapHeight;
     uint8_t m_direction;
     QTimer* bulletCooldownTimer;
     bool canShoot;
-
+    std::string m_playerName;
     QJsonArray m_mapArray;
     QVector<QVector<QString>> m_mapData;
     QVector<m_bulletData> bullets;
