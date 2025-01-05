@@ -27,6 +27,7 @@ protected:
 public:
     void displayMap(const QJsonArray& mapArray);
     void updateMap(const QJsonArray& mapArray);
+    void returnToMainMenu();
 
 private slots:
     void updateGraphics();

@@ -1,6 +1,7 @@
 ﻿#include "GameWindow.h"
 #include<QGraphicsPixmapItem>
 #include<QTimer>
+#include"MainMenuWindow.h"
 
 GameWindow::GameWindow(QWidget* parent)
     : QMainWindow(parent),m_x(0),m_y(m_mapWidth),m_targetX(0),
@@ -67,8 +68,21 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
     if (event->key() == Qt::Key_Space) {
         shootBullet();
     }
-
+    if (event->key() == Qt::Key_Escape) {
+        returnToMainMenu();
+    }
 }
+
+void GameWindow::returnToMainMenu()
+{
+  
+    MainMenuWindow* mainMenuWindow = new MainMenuWindow();
+    mainMenuWindow->show();
+
+
+    this->close();
+}
+
 void GameWindow::keyReleaseEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_W || event->key() == Qt::Key_S)
