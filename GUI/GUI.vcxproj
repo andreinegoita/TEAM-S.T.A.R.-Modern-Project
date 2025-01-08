@@ -141,9 +141,13 @@
     <Image Include="menu.jpg" />
     <Image Include="Player.png" />
     <Image Include="PlayerDown.png" />
+    <Image Include="PlayerDownShield.png" />
     <Image Include="PlayerLeft.png" />
+    <Image Include="PlayerLeftShield.png" />
     <Image Include="PlayerRight.png" />
+    <Image Include="PlayerRightShield.png" />
     <Image Include="PlayerUp.png" />
+    <Image Include="PlayerUpShield.png" />
     <Image Include="Unbreakable.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

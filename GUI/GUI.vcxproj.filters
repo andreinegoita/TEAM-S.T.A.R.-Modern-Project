@@ -104,6 +104,18 @@
     <Image Include="Empty.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="PlayerDownShield.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="PlayerLeftShield.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="PlayerRightShield.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="PlayerUpShield.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GameWindow.h">
