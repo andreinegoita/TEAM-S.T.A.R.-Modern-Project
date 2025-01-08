@@ -15,7 +15,7 @@
 #include <QtConcurrent/QtConcurrent>
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #include<queue>
-#include"PowerUps.h"
+#include "../PowerUps/PowerUps.h"
 
 
 class GameWindow : public QMainWindow {

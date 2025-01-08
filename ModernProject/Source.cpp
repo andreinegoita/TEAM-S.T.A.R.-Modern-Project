@@ -163,6 +163,40 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 //		});
 //
 //
+	CROW_ROUTE(app, "/buyPowerUp").methods("POST"_method)([&player](const crow::request& req) {
+		std::cout << "Received POST request at /buyPowerUp\n";
+
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			std::cout << "Invalid JSON received\n";
+			return crow::response(400, "Invalid JSON");
+		}
+
+		std::string powerUpTypeStr = body["powerUpType"].s();
+		std::cout << "Power-up type received: " << powerUpTypeStr << "\n";
+
+		if (powerUpTypeStr == "SpeedBoost") {
+			player.BuyPowerUp(PowerUpType::SpeedBoost);
+		}
+		else if (powerUpTypeStr == "Shield") {
+			player.BuyPowerUp(PowerUpType::Shield);
+		}
+		else if (powerUpTypeStr == "ExtraLife") {
+			player.BuyPowerUp(PowerUpType::ExtraLife);
+		}
+		else {
+			return crow::response(400, "Invalid power-up type");
+		}
+
+		return crow::response(player.GetPowerUpState());
+		});
+	CROW_ROUTE(app, "/powerUpQueue").methods("GET"_method)([&player]() {
+		std::string powerUpState = player.GetPowerUpState();
+
+		return crow::response(powerUpState);
+		});
+
+
 	app.port(18080).multithreaded().run();
 }
 
