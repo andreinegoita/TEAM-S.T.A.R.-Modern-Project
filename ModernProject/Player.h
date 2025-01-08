@@ -9,10 +9,10 @@
 #include"PowerUps.h"
 #include<queue>
 
-class Player:public GameObject
+class Player :public GameObject
 {
 public:
-	Player( std::string_view name,std::pair<uint16_t,uint16_t>position,double velocity,DirectionType direction);
+	Player(std::string_view name, std::pair<uint16_t, uint16_t>position, double velocity, DirectionType direction);
 	void Shoot();
 
 	void ResetPosition();
@@ -26,20 +26,23 @@ public:
 	std::string GetPositionState() const;
 
 	void IncreaseSpeed(double multiplier);
-	void ResetSpeed();
+
 	void ActivateShield();
-	void DeactivateShield();
+	void updatePowerUps();
 	void GainExtraLife();
 
 	void ApplyPowerUpEffect(PowerUpType powerUp);
 	void BuyPowerUp(PowerUpType powerUpType);
-	void ActivatePowerUp();
+	void ActivatePowerUp(PowerUpType type);
 
 	bool CanAffordPowerUp(int cost) const { return m_points >= cost; }
 	void DeductPoints(int cost) { m_points -= cost; }
 
 	std::string GetPowerUpState() const;
 
+	bool HasShield();
+	int GetLives();
+	double GetBulletSpeed();
 
 
 private:
@@ -52,8 +55,9 @@ private:
 	std::vector<std::unique_ptr<Bullet>> m_bullets;
 	std::pair<uint16_t, uint16_t>m_startPosition;
 
-	double m_velocityMultiplier = 1.0;  
 	bool m_shieldActive = false;
+	std::chrono::time_point<std::chrono::steady_clock> shieldStartTime;
+	std::chrono::time_point<std::chrono::steady_clock> speedBoostStartTime;
 	std::queue<PowerUpType> m_powerUpQueue;
 
 };

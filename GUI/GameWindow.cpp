@@ -3,9 +3,12 @@
 #include<QTimer>
 #include"MainMenuWindow.h"
 
+
+
+
 GameWindow::GameWindow(QWidget* parent)
-    : QMainWindow(parent),m_x(0),m_y(m_mapWidth),m_targetX(0),
-m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0),canShoot(true),m_bulletSpeed(5.0f) {
+    : QMainWindow(parent), m_x(0), m_y(m_mapWidth), m_targetX(0),
+    m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0), canShoot(true), m_bulletSpeed(5.0f) {
     setupUI();
     resize(400, 400);
 
@@ -31,10 +34,16 @@ m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0),canShoot(tr
     setFocusPolicy(Qt::StrongFocus);
     fetchMap();
     updateMap(m_mapArray);
-   // fetchPlayerPosition();
+    // fetchPlayerPosition();
     setPlayerStartPosition();
-   
+
+    QTimer* powerUpTimer = new QTimer(this);
+    connect(powerUpTimer, &QTimer::timeout, this, &GameWindow::fetchPowerUpQueue);
+    powerUpTimer->start(5000);
+    qDebug() << "Updated";
 }
+
+
 void GameWindow::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_W)
@@ -43,6 +52,10 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_currentSpeedY = -m_speed;
         updatePlayerTexture("Up");
         m_direction = 0;
+        if (m_shield)
+        {
+            updatePlayerTexture("PlayerUpShield");
+        }
     }
     else if (event->key() == Qt::Key_S)
     {
@@ -50,6 +63,10 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_currentSpeedY = m_speed;
         updatePlayerTexture("Down");
         m_direction = 1;
+        if (m_shield)
+        {
+            updatePlayerTexture("PlayerDownShield");
+        }
     }
     else if (event->key() == Qt::Key_A)
     {
@@ -57,6 +74,10 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_currentSpeedX = -m_speed;
         updatePlayerTexture("Left");
         m_direction = 2;
+        if (m_shield)
+        {
+            updatePlayerTexture("PlayerLeftShield");
+        }
     }
     else if (event->key() == Qt::Key_D)
     {
@@ -64,6 +85,10 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_currentSpeedX = m_speed;
         updatePlayerTexture("Right");
         m_direction = 3;
+        if (m_shield)
+        {
+            updatePlayerTexture("PlayerRightShield");
+        }
     }
     if (event->key() == Qt::Key_Space) {
         shootBullet();
@@ -71,11 +96,143 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
     if (event->key() == Qt::Key_Escape) {
         returnToMainMenu();
     }
+    if (event->key() == Qt::Key_E) {
+        qDebug() << "Press E!";
+
+        applyNextPowerUp();
+    }
+}
+
+void GameWindow::updatePlayerUI(double speed, int lives, bool hasShield) {
+
+    m_bulletSpeed = speed;
+    qDebug() << "Bulled speed updated to:" << speed;
+
+
+    m_playerLives = lives;
+    qDebug() << "Player lives updated to:" << lives;
+
+    if (hasShield) {
+
+        m_shield = true;
+
+        qDebug() << "Shield effect activated!";
+    }
+    else {
+
+        m_shield = false;
+        qDebug() << "No Shield!";
+    }
+}
+
+PowerUpType stringToPowerUpType(const QString& str) {
+    if (str == "SpeedBoost") {
+        return PowerUpType::SpeedBoost;
+    }
+    else if (str == "Shield") {
+        return PowerUpType::Shield;
+    }
+    else if (str == "ExtraLife") {
+        return PowerUpType::ExtraLife;
+    }
+
+    else {
+        qDebug() << "Unknown power-up: " << str;
+        return PowerUpType::SpeedBoost;
+    }
+}
+
+void GameWindow::fetchPowerUpQueue()
+{
+    while (!powerUpQueue.empty()) {
+        powerUpQueue.pop();
+    }
+
+    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/powerUpQueue" });
+
+    qDebug() << "Response received:" << response.text.c_str();
+    if (response.status_code == 200) {
+        if (response.text.empty()) {
+            qDebug() << "Error: Received empty response from server!";
+            return;
+        }
+
+        QJsonDocument doc = QJsonDocument::fromJson(response.text.c_str());
+        if (doc.isNull() || !doc.isArray()) {
+            qDebug() << "Invalid or unexpected JSON response! Expected an array.";
+            return;
+        }
+
+        QJsonArray array = doc.array();
+        qDebug() << "Number of power-ups: " << array.size();
+
+        for (int i = 0; i < array.size(); ++i) {
+            QString powerUpString = array[i].toString();
+            qDebug() << "Power-up " << i + 1 << ": " << powerUpString;
+
+            PowerUpType powerUp = stringToPowerUpType(powerUpString);
+            powerUpQueue.push(powerUp);
+        }
+    }
+    else {
+        qDebug() << "Error: HTTP request failed with status code " << response.status_code;
+    }
+}
+void GameWindow::applyNextPowerUp() {
+    if (powerUpQueue.empty()) {
+        qDebug() << "No power-ups in the queue!";
+        return;
+    }
+
+    PowerUpType nextPowerUp = powerUpQueue.front();
+    powerUpQueue.pop();
+
+    std::string payload = "{\"powerUpType\": " + std::to_string(static_cast<int>(nextPowerUp)) + "}";
+
+    // Trimite cererea POST
+    cpr::Response response = cpr::Post(
+        cpr::Url{ "http://localhost:18080/applyPowerUp" },
+        cpr::Body{ payload },
+        cpr::Header{ {"Content-Type", "application/json"} }
+    );
+
+    if (response.status_code == 200) {
+        qDebug() << "Power-up applied successfully!";
+
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        double newBulletSpeed = jsonObj["bulletSpeed"].toDouble();
+        int newLives = jsonObj["lives"].toInt();
+        bool hasShield = jsonObj["hasShield"].toBool();
+
+        updatePlayerUI(newBulletSpeed, newLives, hasShield);
+
+        if (jsonObj.contains("map")) {
+            QJsonArray mapArray = jsonObj["map"].toArray();
+            updateMap(mapArray);
+        }
+        QTimer::singleShot(10000, this, &GameWindow::resetPowerOffEfects);
+    }
+    else {
+        qDebug() << "Failed to apply power-up. Status code:" << response.status_code;
+        qDebug() << "Error response:" << QString::fromStdString(response.text);
+    }
+}
+
+void GameWindow::resetPowerOffEfects()
+{
+    m_bulletSpeed = 5.0f;
+    qDebug() << "Bullet speed reset to default value: 5.0";
+
+    // Dezactivează scutul
+    m_shield = false;
+    qDebug() << "Shield effect deactivated!";
 }
 
 void GameWindow::returnToMainMenu()
 {
-  
+
     MainMenuWindow* mainMenuWindow = new MainMenuWindow();
     mainMenuWindow->show();
 
@@ -117,9 +274,9 @@ void GameWindow::fetchMap() {
             qDebug() << "Response text:" << QString::fromStdString(response.text);
             return;
         }
-         m_mapArray = jsonDoc.array();
+        m_mapArray = jsonDoc.array();
 
-        if(m_mapHeight==0&&m_mapWidth==0)
+        if (m_mapHeight == 0 && m_mapWidth == 0)
         {
             m_mapHeight = m_mapArray.size();
             if (m_mapHeight > 0)
@@ -135,6 +292,7 @@ void GameWindow::fetchMap() {
 }
 
 void GameWindow::updateGraphics() {
+
     float newX = m_x + m_currentSpeedX * 64;
     float newY = m_y + m_currentSpeedY * 64;
     if (canMoveTo(newX, newY))
@@ -151,11 +309,12 @@ void GameWindow::updateGraphics() {
     m_x = std::max(0.0f, (((m_x) < (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)) ? (m_x) : (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)));
     m_y = std::max(0.0f, (((m_y) < (static_cast<float>(m_mapHeight) * 64.0f - 64.0f)) ? (m_y) : (static_cast<float>(m_mapHeight) * 64.0f - 64.0f)));
     playerLabel->move(static_cast<int>(m_x), static_cast<int>(m_y));
+
 }
 
 
 void GameWindow::displayMap(const QJsonArray& mapArray) {
-   
+
     if (mapArray.isEmpty()) {
         qDebug() << "Error: Map array is empty!";
         return;
@@ -255,31 +414,31 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
 
 bool GameWindow::canMoveTo(float newX, float newY)
 {
-   
-        int blockSize = 64;
-        int collisionOffset = 10;
 
-        int gridX1 = static_cast<int>((newX + collisionOffset) / blockSize);
-        int gridY1 = static_cast<int>((newY + collisionOffset) / blockSize);
-        int gridX2 = static_cast<int>((newX + blockSize - collisionOffset) / blockSize);
-        int gridY2 = static_cast<int>((newY + blockSize - collisionOffset) / blockSize);
+    int blockSize = 64;
+    int collisionOffset = 10;
 
-        if (gridX1 < 0 || gridY1 < 0 || gridX2 >= m_mapWidth || gridY2 >= m_mapHeight) {
-            return false;
-        }
+    int gridX1 = static_cast<int>((newX + collisionOffset) / blockSize);
+    int gridY1 = static_cast<int>((newY + collisionOffset) / blockSize);
+    int gridX2 = static_cast<int>((newX + blockSize - collisionOffset) / blockSize);
+    int gridY2 = static_cast<int>((newY + blockSize - collisionOffset) / blockSize);
 
-        if (m_mapData[gridY1][gridX1] == "Wall" || m_mapData[gridY1][gridX1] == "Unbreakable" ||
-            m_mapData[gridY1][gridX1] == "Player" || m_mapData[gridY1][gridX1] == "Bomb"||
-            m_mapData[gridY1][gridX2] == "Wall" || m_mapData[gridY1][gridX2] == "Unbreakable" ||
-            m_mapData[gridY1][gridX2] == "Player" || m_mapData[gridY1][gridX2] == "Bomb" ||
-            m_mapData[gridY2][gridX1] == "Wall" || m_mapData[gridY2][gridX1] == "Unbreakable" ||
-            m_mapData[gridY2][gridX1] == "Player" || m_mapData[gridY2][gridX1] == "Bomb" ||
-            m_mapData[gridY2][gridX2] == "Wall" || m_mapData[gridY2][gridX2] == "Unbreakable" ||
-            m_mapData[gridY2][gridX2] == "Player" || m_mapData[gridY2][gridX2] == "Bomb" ){
-            return false;
-        }
+    if (gridX1 < 0 || gridY1 < 0 || gridX2 >= m_mapWidth || gridY2 >= m_mapHeight) {
+        return false;
+    }
 
-        return true;
+    if (m_mapData[gridY1][gridX1] == "Wall" || m_mapData[gridY1][gridX1] == "Unbreakable" ||
+        m_mapData[gridY1][gridX1] == "Player" || m_mapData[gridY1][gridX1] == "Bomb" ||
+        m_mapData[gridY1][gridX2] == "Wall" || m_mapData[gridY1][gridX2] == "Unbreakable" ||
+        m_mapData[gridY1][gridX2] == "Player" || m_mapData[gridY1][gridX2] == "Bomb" ||
+        m_mapData[gridY2][gridX1] == "Wall" || m_mapData[gridY2][gridX1] == "Unbreakable" ||
+        m_mapData[gridY2][gridX1] == "Player" || m_mapData[gridY2][gridX1] == "Bomb" ||
+        m_mapData[gridY2][gridX2] == "Wall" || m_mapData[gridY2][gridX2] == "Unbreakable" ||
+        m_mapData[gridY2][gridX2] == "Player" || m_mapData[gridY2][gridX2] == "Bomb") {
+        return false;
+    }
+
+    return true;
 
 }
 
@@ -294,7 +453,7 @@ void GameWindow::addBullet(float x, float y, int direction)
 {
     m_bulletData bullet = { x, y, direction };
     bullets.push_back(bullet);
-    
+
     QLabel* bulletLabel = new QLabel(this);
     QPixmap bulletPixmap;
 
@@ -321,7 +480,7 @@ void GameWindow::addBullet(float x, float y, int direction)
 }
 
 void GameWindow::shootBullet() {
-    if (canShoot) 
+    if (canShoot)
     {
         float bulletStartX = m_x;
         float bulletStartY = m_y;
@@ -378,13 +537,13 @@ void GameWindow::updateServerBulletsPosition() {
 
 void GameWindow::updateServerMapCell(int row, int col)
 {
-        cpr::Response response = cpr::Post(
-        cpr::Url{ "http://localhost:18080/map/empty/" + std::to_string(row) + "/" + std::to_string(col)},
+    cpr::Response response = cpr::Post(
+        cpr::Url{ "http://localhost:18080/map/empty/" + std::to_string(row) + "/" + std::to_string(col) },
         cpr::Header{ {"Content-Type", "application/json"} }
     );
 
     if (response.status_code != 200) {
-       
+
         qDebug() << "Error: " << response.status_code << " - " << "map could not be updated";
     }
 }
@@ -397,76 +556,23 @@ void GameWindow::setPlayerStartPosition()
         m_y = 0;
 
     }
-    else if (m_mapData[0][m_mapWidth-1] == "Empty")
+    else if (m_mapData[0][m_mapWidth - 1] == "Empty")
     {
         m_y = 0;
-        m_x = 64*(m_mapWidth-1);
+        m_x = 64 * (m_mapWidth - 1);
     }
-    else if (m_mapData[m_mapHeight-1][m_mapWidth-1] == "Empty")
+    else if (m_mapData[m_mapHeight - 1][m_mapWidth - 1] == "Empty")
     {
-        m_y = 64*(m_mapHeight-1);
-        m_x = 64*(m_mapWidth - 1);
+        m_y = 64 * (m_mapHeight - 1);
+        m_x = 64 * (m_mapWidth - 1);
     }
     else if (m_mapData[m_mapHeight - 1][0] == "Empty")
     {
-        m_y = 64*(m_mapHeight - 1);
+        m_y = 64 * (m_mapHeight - 1);
         m_x = 0;
     }
 }
 
-PowerUpType stringToPowerUpType(const QString& str) {
-    if (str == "SpeedBoost") {
-        return PowerUpType::SpeedBoost;
-    }
-    else if (str == "Shield") {
-        return PowerUpType::Shield;
-    }
-    else if (str == "ExtraLife") {
-        return PowerUpType::ExtraLife;
-    }
-
-    else {
-        qDebug() << "Unknown power-up: " << str;
-        return PowerUpType::SpeedBoost;
-    }
-}
-
-void GameWindow::fetchPowerUpQueue()
-{
-    while (!powerUpQueue.empty()) {
-        powerUpQueue.pop();
-    }
-
-    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/powerUpQueue" });
-
-    qDebug() << "Response received:" << response.text.c_str();
-    if (response.status_code == 200) {
-        if (response.text.empty()) {
-            qDebug() << "Error: Received empty response from server!";
-            return;
-        }
-
-        QJsonDocument doc = QJsonDocument::fromJson(response.text.c_str());
-        if (doc.isNull() || !doc.isArray()) {
-            qDebug() << "Invalid or unexpected JSON response! Expected an array.";
-            return;
-        }
-
-        QJsonArray array = doc.array();
-        qDebug() << "Number of power-ups: " << array.size();
-
-        for (int i = 0; i < array.size(); ++i) {
-            QString powerUpString = array[i].toString();
-            qDebug() << "Power-up " << i + 1 << ": " << powerUpString;
-
-            PowerUpType powerUp = stringToPowerUpType(powerUpString);
-            powerUpQueue.push(powerUp);
-        }
-    }
-    else {
-        qDebug() << "Error: HTTP request failed with status code " << response.status_code;
-    }
-}
 
 void GameWindow::fetchPlayerPosition() {
     cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/player_position" });
@@ -495,7 +601,7 @@ QPointer<QLabel> positionLabel;
 
 void GameWindow::displayPlayerPosition(int x, int y) {
     if (!(x >= 0 && x < m_mapHeight && y >= 0 && y < m_mapWidth)) {
-        qDebug() << "Invalid coordinates: (" << x << ", " << y << ")";
+        /* qDebug() << "Invalid coordinates: (" << x << ", " << y << ")";*/
         return;
     }
 
@@ -512,7 +618,7 @@ void GameWindow::displayPlayerPosition(int x, int y) {
     }
 
     if (positionLabel) {
-        qDebug() << "Updating positionLabel with coordinates: (" << x << ", " << y << ")";
+        /*qDebug() << "Updating positionLabel with coordinates: (" << x << ", " << y << ")";*/
         positionLabel->setText(QString("(%1, %2)").arg(x).arg(y));
     }
     else {
@@ -521,7 +627,7 @@ void GameWindow::displayPlayerPosition(int x, int y) {
 }
 
 void GameWindow::updateBullets() {
-   
+
 
     for (int i = 0; i < bullets.size(); ++i) {
         m_bulletData& bullet = bullets[i];
@@ -588,7 +694,7 @@ void GameWindow::destroyCells(int x, int y)
                     updateServerMapCell(i, j);
 
                 }
-        
+
         updateServerMapCell(x, y);
         fetchMap();
     }
@@ -620,6 +726,8 @@ void GameWindow::updateServerPlayerPosition() {
             });
     }
 }
+
+
 
 
 

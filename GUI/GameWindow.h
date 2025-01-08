@@ -38,6 +38,8 @@ private slots:
     void addBullet(float x, float y, int direction);
     void updateBullets();
     void destroyCells(int x, int y);
+
+    void resetPowerOffEfects();
 private:
     QLabel* positionLabel;
     QLabel* playerLabel;
@@ -46,7 +48,10 @@ private:
     float m_x ,m_y;
     float m_currentSpeedX, m_currentSpeedY;
     float m_speed;
+    int m_playerLives;
+    bool m_shield;
     float m_bulletSpeed;
+    float initialBulletSpeed = 5.0f;
 struct m_bulletData {
     float x;
     float y;
@@ -62,7 +67,9 @@ private:
     void updateServerBulletsPosition();
     void updateServerMapCell(int row, int col);
     void setPlayerStartPosition();
+    void updatePlayerUI(double speed, int lives, bool hasShield);
     void fetchPowerUpQueue();
+    void applyNextPowerUp();
 
 
 private:

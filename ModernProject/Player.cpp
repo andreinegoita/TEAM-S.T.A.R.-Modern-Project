@@ -109,43 +109,45 @@ std::string Player::GetPositionState() const {
 }
 
 void Player::IncreaseSpeed(double multiplier) {
-    m_velocityMultiplier *= multiplier;
-    std::cout << "Speed increased by multiplier: " << m_velocityMultiplier << "\n";
-}
-
-void Player::ResetSpeed() {
-    m_velocityMultiplier = 1.0;
-    std::cout << "Speed reset to normal.\n";
+    m_weapon.UpgradeBulletSpeed(multiplier);
+    speedBoostStartTime = std::chrono::steady_clock::now();
+    std::cout << "Speed increased by multiplier: " << multiplier << "\n";
 }
 
 void Player::ActivateShield() {
     m_shieldActive = true;
+    shieldStartTime = std::chrono::steady_clock::now();
     std::cout << "Shield activated! Player is invincible.\n";
 }
 
-void Player::DeactivateShield() {
-    m_shieldActive = false;
-    std::cout << "Shield deactivated! Player is no longer invincible.\n";
-}
+void Player::updatePowerUps()
+{
+    if (m_shieldActive && std::chrono::steady_clock::now() - shieldStartTime > std::chrono::seconds(10)) {
+        m_shieldActive = false;
+    }
 
+    if (std::chrono::steady_clock::now() - speedBoostStartTime > std::chrono::seconds(10)) {
+        m_weapon.SetBulletSpeed(5.0f);
+    }
+}
 void Player::GainExtraLife() {
     m_health++;
-    std::cout << "Extra life gained! Lives: " <<m_health << "\n";
+    std::cout << "Extra life gained! Lives: " << m_health << "\n";
 }
 
 void Player::BuyPowerUp(PowerUpType powerUpType) {
     int cost = 0;
 
-    // Definirea costului pentru fiecare power-up
+
     switch (powerUpType) {
     case PowerUpType::SpeedBoost:
-        cost = 100; // Exemplu de cost
+        cost = 100;
         break;
     case PowerUpType::Shield:
-        cost = 150; // Exemplu de cost
+        cost = 150;
         break;
     case PowerUpType::ExtraLife:
-        cost = 200; // Exemplu de cost
+        cost = 200;
         break;
     default:
         break;
@@ -164,38 +166,41 @@ void Player::BuyPowerUp(PowerUpType powerUpType) {
 void Player::ApplyPowerUpEffect(PowerUpType powerUp) {
     switch (powerUp) {
     case PowerUpType::SpeedBoost:
-        IncreaseSpeed(1.5); 
+        IncreaseSpeed(2.0f);
+        std::cout << "Speed Boost applied to player " << m_name << "\n";
         break;
     case PowerUpType::Shield:
-        ActivateShield(); 
+        ActivateShield();
+        std::cout << "Shield applied to player " << m_name << "\n";
         break;
     case PowerUpType::ExtraLife:
-        GainExtraLife(); 
+        GainExtraLife();
+        std::cout << "Invalid power-up type for player " << m_name << "\n";
         break;
     default:
         break;
     }
+    m_powerUpQueue.pop();
 }
 
-void Player::ActivatePowerUp() {
-    if (!m_powerUpQueue.empty()) {
-        PowerUpType powerUpType = m_powerUpQueue.front();
-        m_powerUpQueue.pop(); // Îndepărtează power-up-ul activat
+void Player::ActivatePowerUp(PowerUpType type)
+{
+    PowerUp* powerUp = createPowerUp(type, 10);
 
-        // Aplică efectul power-up-ului
-        ApplyPowerUpEffect(powerUpType);
-    }
+
+    powerUp->ApplyEffect();
+
+
+    destroyPowerUp(powerUp);
+
 }
 
 
 std::string Player::GetPowerUpState() const {
     std::ostringstream oss;
-    oss << "{\"player\": {";
-    oss << "\"name\": \"" << m_name << "\", ";
-    oss << "\"points\": " << m_points << ", ";
-    oss << "\"powerUpQueue\": [";
+    oss << "[";
 
-    std::queue<PowerUpType> tempQueue = m_powerUpQueue; 
+    std::queue<PowerUpType> tempQueue = m_powerUpQueue;
     while (!tempQueue.empty()) {
         PowerUpType powerUp = tempQueue.front();
         tempQueue.pop();
@@ -221,6 +226,22 @@ std::string Player::GetPowerUpState() const {
         }
     }
 
-    oss << "]}}"; 
+    oss << "]";
     return oss.str();
 }
+
+bool Player::HasShield()
+{
+    return m_shieldActive;
+}
+
+int Player::GetLives()
+{
+    return m_health;
+}
+
+double Player::GetBulletSpeed()
+{
+    return m_weapon.GetBulletSpeed();
+}
+
