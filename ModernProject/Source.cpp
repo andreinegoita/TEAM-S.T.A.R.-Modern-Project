@@ -195,6 +195,30 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 
 		return crow::response(powerUpState);
 		});
+	CROW_ROUTE(app, "/applyPowerUp").methods("POST"_method)([&](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+
+		if (!body) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+		PowerUpType type = static_cast<PowerUpType>(body["powerUpType"].i());
+
+		player.ApplyPowerUpEffect(type);
+
+		player.updatePowerUps();
+
+		crow::json::wvalue response;
+
+
+		response["bulletSpeed"] = player.GetBulletSpeed();
+
+
+		response["lives"] = player.GetLives();
+		response["hasShield"] = player.HasShield();
+
+		return crow::response(200, response);
+		});
 
 
 	app.port(18080).multithreaded().run();
