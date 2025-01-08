@@ -54,7 +54,7 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_direction = 0;
         if (m_shield)
         {
-            updatePlayerTexture("PlayerUpShield");
+            updatePlayerTexture("UpShield");
         }
     }
     else if (event->key() == Qt::Key_S)
@@ -65,7 +65,7 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_direction = 1;
         if (m_shield)
         {
-            updatePlayerTexture("PlayerDownShield");
+            updatePlayerTexture("DownShield");
         }
     }
     else if (event->key() == Qt::Key_A)
@@ -76,7 +76,7 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_direction = 2;
         if (m_shield)
         {
-            updatePlayerTexture("PlayerLeftShield");
+            updatePlayerTexture("LeftShield");
         }
     }
     else if (event->key() == Qt::Key_D)
@@ -87,7 +87,7 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         m_direction = 3;
         if (m_shield)
         {
-            updatePlayerTexture("PlayerRightShield");
+            updatePlayerTexture("RightShield");
         }
     }
     if (event->key() == Qt::Key_Space) {

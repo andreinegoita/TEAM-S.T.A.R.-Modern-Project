@@ -12,9 +12,9 @@
 #include "PlayersDatabase.h"
 #include <windows.h>
 
-#include "../PowerUps/PowerUps.h"
+//#include "/TEAM-S.T.A.R.-Modern-Project/PowerUps/PowerUps/PowerUps.h"
 //#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
-//#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
+#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)
 {
@@ -103,6 +103,65 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 			return crow::response(500, e.what());
 		}
 	});
+
+	CROW_ROUTE(app, "/buyPowerUp").methods("POST"_method)([&player](const crow::request& req) {
+		std::cout << "Received POST request at /buyPowerUp\n";
+
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			std::cout << "Invalid JSON received\n";
+			return crow::response(400, "Invalid JSON");
+		}
+
+		std::string powerUpTypeStr = body["powerUpType"].s();
+		std::cout << "Power-up type received: " << powerUpTypeStr << "\n";
+
+		if (powerUpTypeStr == "SpeedBoost") {
+			player.BuyPowerUp(PowerUpType::SpeedBoost);
+		}
+		else if (powerUpTypeStr == "Shield") {
+			player.BuyPowerUp(PowerUpType::Shield);
+		}
+		else if (powerUpTypeStr == "ExtraLife") {
+			player.BuyPowerUp(PowerUpType::ExtraLife);
+		}
+		else {
+			return crow::response(400, "Invalid power-up type");
+		}
+
+		return crow::response(player.GetPowerUpState());
+		});
+	CROW_ROUTE(app, "/powerUpQueue").methods("GET"_method)([&player]() {
+		std::string powerUpState = player.GetPowerUpState();
+
+		return crow::response(powerUpState);
+		});
+
+	CROW_ROUTE(app, "/applyPowerUp").methods("POST"_method)([&](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+
+		if (!body) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+		PowerUpType type = static_cast<PowerUpType>(body["powerUpType"].i());
+
+		player.ApplyPowerUpEffect(type);
+
+		player.updatePowerUps();
+
+		crow::json::wvalue response;
+
+
+		response["bulletSpeed"] = player.GetBulletSpeed();
+
+
+		response["lives"] = player.GetLives();
+		response["hasShield"] = player.HasShield();
+
+		return crow::response(200, response);
+		});
+
 
 	//CROW_ROUTE(app, "/shoot_bullet").methods("POST"_method)([](const crow::request& req) {
 	//	auto json = crow::json::load(req.body);

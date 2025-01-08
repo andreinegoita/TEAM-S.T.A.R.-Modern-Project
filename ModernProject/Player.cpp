@@ -67,9 +67,6 @@ void Player::HandleInput( GameMap& gameMap)
                 Shoot();
                 UpdateBullets(gameMap);
                 break;
-            case 'P': case'p':
-                ActivatePowerUp();
-                break;
             default:
                 return;
             }

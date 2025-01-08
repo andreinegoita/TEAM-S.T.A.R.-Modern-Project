@@ -13,6 +13,7 @@ public:
 	void ReduceFireRate(double factor);
 	double GetFireRate() const;
 	double GetBulletSpeed()const;
+	void SetBulletSpeed(double speed);
 private:
 	double m_fireRate;
 	double m_bulletSpeed;
