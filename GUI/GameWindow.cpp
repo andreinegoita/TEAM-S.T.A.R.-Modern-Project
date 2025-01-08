@@ -414,6 +414,59 @@ void GameWindow::setPlayerStartPosition()
     }
 }
 
+PowerUpType stringToPowerUpType(const QString& str) {
+    if (str == "SpeedBoost") {
+        return PowerUpType::SpeedBoost;
+    }
+    else if (str == "Shield") {
+        return PowerUpType::Shield;
+    }
+    else if (str == "ExtraLife") {
+        return PowerUpType::ExtraLife;
+    }
+
+    else {
+        qDebug() << "Unknown power-up: " << str;
+        return PowerUpType::SpeedBoost;
+    }
+}
+
+void GameWindow::fetchPowerUpQueue()
+{
+    while (!powerUpQueue.empty()) {
+        powerUpQueue.pop();
+    }
+
+    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/powerUpQueue" });
+
+    qDebug() << "Response received:" << response.text.c_str();
+    if (response.status_code == 200) {
+        if (response.text.empty()) {
+            qDebug() << "Error: Received empty response from server!";
+            return;
+        }
+
+        QJsonDocument doc = QJsonDocument::fromJson(response.text.c_str());
+        if (doc.isNull() || !doc.isArray()) {
+            qDebug() << "Invalid or unexpected JSON response! Expected an array.";
+            return;
+        }
+
+        QJsonArray array = doc.array();
+        qDebug() << "Number of power-ups: " << array.size();
+
+        for (int i = 0; i < array.size(); ++i) {
+            QString powerUpString = array[i].toString();
+            qDebug() << "Power-up " << i + 1 << ": " << powerUpString;
+
+            PowerUpType powerUp = stringToPowerUpType(powerUpString);
+            powerUpQueue.push(powerUp);
+        }
+    }
+    else {
+        qDebug() << "Error: HTTP request failed with status code " << response.status_code;
+    }
+}
 
 void GameWindow::fetchPlayerPosition() {
     cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/player_position" });

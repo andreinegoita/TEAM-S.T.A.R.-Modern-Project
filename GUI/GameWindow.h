@@ -14,6 +14,8 @@
 #include<QDebug>
 #include <QtConcurrent/QtConcurrent>
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
+#include<queue>
+#include"PowerUps.h"
 
 
 class GameWindow : public QMainWindow {
@@ -50,7 +52,7 @@ struct m_bulletData {
     float y;
     uint8_t direction;
 };
-
+private:
     void setupUI();
     void shootBullet();
     void fetchMap();
@@ -60,6 +62,10 @@ struct m_bulletData {
     void updateServerBulletsPosition();
     void updateServerMapCell(int row, int col);
     void setPlayerStartPosition();
+    void fetchPowerUpQueue();
+
+
+private:
     int m_mapWidth;
     int m_mapHeight;
     uint8_t m_direction;
@@ -70,5 +76,6 @@ struct m_bulletData {
     QVector<QVector<QString>> m_mapData;
     QVector<m_bulletData> bullets;
     QVector<QLabel*> bulletLabels;
+    std::queue<PowerUpType> powerUpQueue;
 
 };
