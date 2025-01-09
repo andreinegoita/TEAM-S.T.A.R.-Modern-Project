@@ -219,6 +219,31 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 
 		return crow::response(200, response);
 		});
+	CROW_ROUTE(app, "/get_players").methods("GET"_method)([&storage]() {
+		try {
+			auto players = storage.get_all<http::Player>();
+			crow::json::wvalue response;
+
+
+			response["players"] = crow::json::wvalue::list();
+
+
+			size_t index = 0;
+			for (const auto& player : players) {
+				crow::json::wvalue playerJson;
+				playerJson["id"] = player.id;
+				playerJson["name"] = player.name;
+				playerJson["points"] = player.points;
+
+				response["players"][index++] = std::move(playerJson);
+			}
+
+			return crow::response(200, response);
+		}
+		catch (const std::exception& e) {
+			return crow::response(500, e.what());
+		}
+		});
 
 
 	app.port(18080).multithreaded().run();

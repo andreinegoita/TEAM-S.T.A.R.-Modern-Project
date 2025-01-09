@@ -36,6 +36,7 @@ GameWindow::GameWindow(QWidget* parent)
     updateMap(m_mapArray);
     // fetchPlayerPosition();
     setPlayerStartPosition();
+    FetchPlayersFromServer();
 
     QTimer* powerUpTimer = new QTimer(this);
     connect(powerUpTimer, &QTimer::timeout, this, &GameWindow::fetchPowerUpQueue);
@@ -727,7 +728,42 @@ void GameWindow::updateServerPlayerPosition() {
     }
 }
 
+void GameWindow::FetchPlayersFromServer() {
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
+   
+    QNetworkRequest request(QUrl("http://localhost:18080/get_players"));
+    QNetworkReply* reply = manager->get(request);
 
+    
+    connect(reply, &QNetworkReply::finished, this, [reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            
+            QByteArray responseData = reply->readAll();
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
 
+            if (jsonDoc.isObject()) {
+                QJsonObject jsonObj = jsonDoc.object();
+                QJsonArray playersArray = jsonObj["players"].toArray();
 
+               
+                for (const QJsonValue& playerValue : playersArray) {
+                    QJsonObject playerObj = playerValue.toObject();
+                    int playerId = playerObj["id"].toInt();
+                    QString playerName = playerObj["name"].toString();
+                    int playerPoints = playerObj["points"].toInt();
+
+                   
+                    qDebug() << "Received player: " << playerName
+                        << ", ID: " << playerId
+                        << ", Points: " << playerPoints;
+                }
+            }
+        }
+        else {
+            qDebug() << "Error fetching players: " << reply->errorString();
+        }
+
+        reply->deleteLater(); 
+        });
+}

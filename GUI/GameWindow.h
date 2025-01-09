@@ -13,6 +13,11 @@
 #include <QJsonObject>
 #include<QDebug>
 #include <QtConcurrent/QtConcurrent>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
+#include <QListWidget>
+
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #include<queue>
 #include "../PowerUps/PowerUps.h"
@@ -70,6 +75,7 @@ private:
     void updatePlayerUI(double speed, int lives, bool hasShield);
     void fetchPowerUpQueue();
     void applyNextPowerUp();
+    void FetchPlayersFromServer();
 
 
 private:
