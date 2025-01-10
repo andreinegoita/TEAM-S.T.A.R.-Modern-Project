@@ -14,7 +14,6 @@ class Player :public GameObject
 public:
 	Player(std::string_view name, std::pair<uint16_t, uint16_t>position, double velocity, DirectionType direction);
 	void Shoot();
-
 	void ResetPosition();
 
 	std::pair<uint16_t, uint16_t>GetStartPosition();
@@ -26,16 +25,15 @@ public:
 	std::string GetPositionState() const;
 
 	void IncreaseSpeed(double multiplier);
-
+	void ReduceFireRate(double factor);
 	void ActivateShield();
 	void updatePowerUps();
 	void GainExtraLife();
 
 	void ApplyPowerUpEffect(PowerUpType powerUp);
 	void BuyPowerUp(PowerUpType powerUpType);
-	void ActivatePowerUp(PowerUpType type);
 
-	bool CanAffordPowerUp(int cost) const { return m_points >= cost; }
+	bool CanAffordPowerUp(int cost) const;
 	void DeductPoints(int cost) { m_points -= cost; }
 
 	std::string GetPowerUpState() const;
@@ -43,6 +41,7 @@ public:
 	bool HasShield();
 	int GetLives();
 	double GetBulletSpeed();
+	double GetFireRate();
 
 
 private:

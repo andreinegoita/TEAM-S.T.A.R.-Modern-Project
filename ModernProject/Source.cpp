@@ -184,6 +184,10 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		else if (powerUpTypeStr == "ExtraLife") {
 			player.BuyPowerUp(PowerUpType::ExtraLife);
 		}
+		else if (powerUpTypeStr == "FireRate")
+		{
+			player.BuyPowerUp(PowerUpType::FireRate);
+		}
 		else {
 			return crow::response(400, "Invalid power-up type");
 		}
@@ -212,10 +216,9 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 
 
 		response["bulletSpeed"] = player.GetBulletSpeed();
-
-
 		response["lives"] = player.GetLives();
 		response["hasShield"] = player.HasShield();
+		response["fireRate"] = player.GetFireRate();
 
 		return crow::response(200, response);
 		});
@@ -252,12 +255,6 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 int main()
 {
 	//std::vector<m_bulletData> activeBullets;
-	PowerUpType type = PowerUpType::Shield;
-	int duration = 10;
-	PowerUp* powerUp = createPowerUp(type, duration);
-	std::cout << "PowerUp Type: " << static_cast<int>(powerUp->GetType()) << std::endl;
-	std::cout << "Duration: " << powerUp->GetDuration() << std::endl;
-	destroyPowerUp(powerUp);
 	try {
 		std::mt19937 mt(time(nullptr));
 		int randValRows = 10 + mt() % 6;

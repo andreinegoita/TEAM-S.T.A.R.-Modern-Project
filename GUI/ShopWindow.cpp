@@ -97,11 +97,30 @@ void ShopWindow::setupUI() {
         "}"
     );
 
+    FireRate = new QPushButton("Buy FireRate", this);
+    FireRate->setStyleSheet(
+        "QPushButton {"
+        "    font-size: 24px;"
+        "    padding: 12px 20px;"
+        "    border-radius: 15px;"
+        "    color: black;"
+        "    border: 2px solid #00ffff;"
+
+        "}"
+        "QPushButton:hover {"
+        "    background-color: rgba(255, 255, 255, 0.8);"
+        "    color: #1E3A5F;"
+        "    border: 2px solid #1E3A5F;"
+
+        "}"
+    );
+
 
     
     buyPowerSpeed->setGeometry(375,235, 250, 60);
     buyPowerShield->setGeometry(375, 335, 250, 60);
     ExtraLife->setGeometry(375, 435, 250, 60);
+    FireRate->setGeometry(375, 535, 250, 60);
   
     QPushButton* exitButton = new QPushButton("Exit to Main Menu", this);
     exitButton->setGeometry(200,100, 200, 50); 
@@ -135,6 +154,9 @@ void ShopWindow::setupUI() {
 
     connect(ExtraLife, &QPushButton::clicked, this, [this]() {
         sendPowerUpRequest("ExtraLife");
+        });
+    connect(FireRate, &QPushButton::clicked, this, [this]() {
+        sendPowerUpRequest("FireRate");
         });
 
     connect(exitButton, &QPushButton::clicked, this, [this]() {

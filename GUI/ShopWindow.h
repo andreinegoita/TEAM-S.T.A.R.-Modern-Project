@@ -17,4 +17,5 @@ private:
     QPushButton* buyPowerSpeed;
     QPushButton* buyPowerShield;
     QPushButton* ExtraLife;
+    QPushButton* FireRate;
 };

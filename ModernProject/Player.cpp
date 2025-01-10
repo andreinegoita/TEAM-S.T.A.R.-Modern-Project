@@ -29,6 +29,7 @@ void Player::Shoot()
     }
 }
 
+
 void Player::ResetPosition()
 {
 	m_position = m_startPosition;
@@ -111,6 +112,11 @@ void Player::IncreaseSpeed(double multiplier) {
     std::cout << "Speed increased by multiplier: " << multiplier << "\n";
 }
 
+void Player::ReduceFireRate(double factor)
+{
+    m_weapon.ReduceFireRate(factor);
+}
+
 void Player::ActivateShield() {
     m_shieldActive = true;
     shieldStartTime = std::chrono::steady_clock::now();
@@ -132,6 +138,7 @@ void Player::GainExtraLife() {
     std::cout << "Extra life gained! Lives: " << m_health << "\n";
 }
 
+
 void Player::BuyPowerUp(PowerUpType powerUpType) {
     int cost = 0;
 
@@ -146,6 +153,9 @@ void Player::BuyPowerUp(PowerUpType powerUpType) {
     case PowerUpType::ExtraLife:
         cost = 200;
         break;
+    case PowerUpType::FireRate:
+        cost = 500;
+        break;
     default:
         break;
     }
@@ -159,20 +169,25 @@ void Player::BuyPowerUp(PowerUpType powerUpType) {
     }
 }
 
+bool Player::CanAffordPowerUp(int cost) const
+{
+        return m_points >= cost;
+}
+
 
 void Player::ApplyPowerUpEffect(PowerUpType powerUp) {
     switch (powerUp) {
     case PowerUpType::SpeedBoost:
         IncreaseSpeed(2.0f);
-        std::cout << "Speed Boost applied to player " << m_name << "\n";
         break;
     case PowerUpType::Shield:
         ActivateShield();
-        std::cout << "Shield applied to player " << m_name << "\n";
         break;
     case PowerUpType::ExtraLife:
         GainExtraLife();
-        std::cout << "Invalid power-up type for player " << m_name << "\n";
+        break;
+    case PowerUpType::FireRate:
+        ReduceFireRate(250);
         break;
     default:
         break;
@@ -180,17 +195,6 @@ void Player::ApplyPowerUpEffect(PowerUpType powerUp) {
     m_powerUpQueue.pop();
 }
 
-void Player::ActivatePowerUp(PowerUpType type)
-{
-    PowerUp* powerUp = createPowerUp(type, 10);
-
-
-    powerUp->ApplyEffect();
-
-
-    destroyPowerUp(powerUp);
-
-}
 
 
 std::string Player::GetPowerUpState() const {
@@ -212,6 +216,9 @@ std::string Player::GetPowerUpState() const {
             break;
         case PowerUpType::ExtraLife:
             powerUpStr = "ExtraLife";
+            break;
+        case PowerUpType::FireRate:
+            powerUpStr = "FireRate";
             break;
         default:
             break;
@@ -240,5 +247,10 @@ int Player::GetLives()
 double Player::GetBulletSpeed()
 {
     return m_weapon.GetBulletSpeed();
+}
+
+double Player::GetFireRate()
+{
+   return  m_weapon.GetFireRate();
 }
 

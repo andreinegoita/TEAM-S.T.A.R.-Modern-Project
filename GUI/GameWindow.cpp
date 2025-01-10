@@ -2,13 +2,15 @@
 #include<QGraphicsPixmapItem>
 #include<QTimer>
 #include"MainMenuWindow.h"
+#include <QPainter>  
+#include <QPaintEvent> 
 
 
 
 
 GameWindow::GameWindow(QWidget* parent)
     : QMainWindow(parent), m_x(0), m_y(m_mapWidth), m_targetX(0),
-    m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0), canShoot(true), m_bulletSpeed(5.0f) {
+    m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0), canShoot(true), m_bulletSpeed(5.0f),m_fireRate(500) {
     setupUI();
     resize(400, 400);
 
@@ -41,6 +43,10 @@ GameWindow::GameWindow(QWidget* parent)
     QTimer* powerUpTimer = new QTimer(this);
     connect(powerUpTimer, &QTimer::timeout, this, &GameWindow::fetchPowerUpQueue);
     powerUpTimer->start(5000);
+
+    visibilityTimer = new QTimer(this);
+    connect(visibilityTimer, &QTimer::timeout, this, &GameWindow::increaseVisibility);
+    visibilityTimer->start(5000); 
     qDebug() << "Updated";
 }
 
@@ -104,7 +110,7 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void GameWindow::updatePlayerUI(double speed, int lives, bool hasShield) {
+void GameWindow::updatePlayerUI(double speed, int lives, bool hasShield,double fireRate) {
 
     m_bulletSpeed = speed;
     qDebug() << "Bulled speed updated to:" << speed;
@@ -124,6 +130,8 @@ void GameWindow::updatePlayerUI(double speed, int lives, bool hasShield) {
         m_shield = false;
         qDebug() << "No Shield!";
     }
+    m_fireRate = fireRate;
+    qDebug() << "Fire Rate updated to:" << m_fireRate;
 }
 
 PowerUpType stringToPowerUpType(const QString& str) {
@@ -135,6 +143,10 @@ PowerUpType stringToPowerUpType(const QString& str) {
     }
     else if (str == "ExtraLife") {
         return PowerUpType::ExtraLife;
+    }
+    else if (str == "FireRate")
+    {
+        return PowerUpType::FireRate;
     }
 
     else {
@@ -206,8 +218,9 @@ void GameWindow::applyNextPowerUp() {
         double newBulletSpeed = jsonObj["bulletSpeed"].toDouble();
         int newLives = jsonObj["lives"].toInt();
         bool hasShield = jsonObj["hasShield"].toBool();
+        double newFireRate = jsonObj["fireRate"].toDouble();
 
-        updatePlayerUI(newBulletSpeed, newLives, hasShield);
+        updatePlayerUI(newBulletSpeed, newLives, hasShield,newFireRate);
 
         if (jsonObj.contains("map")) {
             QJsonArray mapArray = jsonObj["map"].toArray();
@@ -226,7 +239,6 @@ void GameWindow::resetPowerOffEfects()
     m_bulletSpeed = 5.0f;
     qDebug() << "Bullet speed reset to default value: 5.0";
 
-    // Dezactivează scutul
     m_shield = false;
     qDebug() << "Shield effect deactivated!";
 }
@@ -315,12 +327,12 @@ void GameWindow::updateGraphics() {
 
 
 void GameWindow::displayMap(const QJsonArray& mapArray) {
-
     if (mapArray.isEmpty()) {
         qDebug() << "Error: Map array is empty!";
         return;
     }
 
+   
     for (const QJsonValue& rowValue : mapArray) {
         if (!rowValue.isArray()) {
             qDebug() << "Error: Expected a row to be a JSON array!";
@@ -328,10 +340,9 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
         }
     }
 
-
+    
     while (QLayoutItem* item = gridLayout->takeAt(0)) {
-        if (item->widget())
-        {
+        if (item->widget()) {
             item->widget()->deleteLater();
         }
         delete item;
@@ -344,21 +355,43 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
 
     int blockSize = 64;
 
+   
+    QPixmap wallTexture("Breakable.png");
+    QPixmap unbreakableTexture("Unbreakable.png");
+    QPixmap playerTexture("PlayerUp.png");
+    QPixmap emptyTexture("Empty.png");
+
+   
+    wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    playerTexture = playerTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+
+    
     for (int row = 0; row < mapArray.size(); ++row) {
         QJsonArray rowArray = mapArray[row].toArray();
         QVector<QString> rowData;
 
+        
         for (int col = 0; col < rowArray.size(); ++col) {
             QString cellType = rowArray[col].toString();
             QLabel* cellLabel = new QLabel(this);
 
+           
             QPixmap texture;
-            if (cellType == "Wall" || cellType == "Bomb") texture.load("Breakable.png");
-            else if (cellType == "Unbreakable") texture.load("Unbreakable.png");
-            else if (cellType == "Player") texture.load("PlayerUp.png");
-            else if (cellType == "Empty") texture.load("Empty.png");
+            if (cellType == "Wall" || cellType == "Bomb") {
+                texture = wallTexture;
+            }
+            else if (cellType == "Unbreakable") {
+                texture = unbreakableTexture;
+            }
+            else if (cellType == "Player") {
+                texture = playerTexture;
+            }
+            else if (cellType == "Empty") {
+                texture = emptyTexture;
+            }
 
-            texture = texture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
             cellLabel->setPixmap(texture);
             cellLabel->setFixedSize(blockSize, blockSize);
 
@@ -379,37 +412,58 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
     }
 
     if (m_mapData.isEmpty()) {
-        // First-time initialization
+        
         displayMap(mapArray);
         return;
     }
 
     int blockSize = 64;
+    QPixmap wallTexture("Breakable.png");
+    QPixmap unbreakableTexture("Unbreakable.png");
+    QPixmap playerTexture("PlayerUp.png");
+    QPixmap emptyTexture("Empty.png");
+    wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    playerTexture = playerTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+
+    int playerGridX = static_cast<int>(m_x / 64);
+    int playerGridY = static_cast<int>(m_y / 64);
+
     for (int row = 0; row < mapArray.size(); ++row) {
         QJsonArray rowArray = mapArray[row].toArray();
 
         for (int col = 0; col < rowArray.size(); ++col) {
             QString cellType = rowArray[col].toString();
+            int distance = std::max(abs(row - playerGridY), abs(col - playerGridX));
 
-            if (row < m_mapData.size() && col < m_mapData[row].size() &&
-                m_mapData[row][col] != cellType) {
-                // Update only if the cell type has changed
-                QLabel* cellLabel = qobject_cast<QLabel*>(gridLayout->itemAtPosition(row, col)->widget());
-                if (cellLabel) {
-                    QPixmap texture;
-                    if (cellType == "Wall" || cellType == "Bomb") texture.load("Breakable.png");
-                    else if (cellType == "Unbreakable") texture.load("Unbreakable.png");
-                    else if (cellType == "Player") texture.load("PlayerUp.png");
-                    else if (cellType == "Empty") texture.load("Empty.png");
+            QLabel* cellLabel = qobject_cast<QLabel*>(gridLayout->itemAtPosition(row, col)->widget());
+            if (!cellLabel) continue;
 
-
-                    texture = texture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
-                    cellLabel->setPixmap(texture);
+            if (distance <= visibilityRadius) {
+                QPixmap texture;
+                if (cellType == "Wall" || cellType == "Bomb") {
+                    texture = wallTexture;
                 }
-                m_mapData[row][col] = cellType;
+                else if (cellType == "Unbreakable") {
+                    texture = unbreakableTexture;
+                }
+                else if (cellType == "Player") {
+                    texture = playerTexture;
+                }
+                else if (cellType == "Empty") {
+                    texture = emptyTexture;
+                }
+
+                cellLabel->setPixmap(texture);
+            }
+            else {
+                cellLabel->setPixmap(emptyTexture);
             }
         }
     }
+
+    setFixedSize(gridLayout->sizeHint());
 }
 
 
@@ -480,15 +534,16 @@ void GameWindow::addBullet(float x, float y, int direction)
     bulletLabels.push_back(bulletLabel);
 }
 
+
+
 void GameWindow::shootBullet() {
     if (canShoot)
     {
         float bulletStartX = m_x;
-        float bulletStartY = m_y;
-
-        addBullet(bulletStartX, bulletStartY, m_direction);
-        canShoot = false;
-        bulletCooldownTimer->start(500);
+        float bulletStartY = m_y;      
+          addBullet(bulletStartX, bulletStartY, m_direction);
+            canShoot = false;
+            bulletCooldownTimer->start(m_fireRate);
         //QJsonObject bulletObject;
         //bulletObject["x"] = static_cast<int>(bulletStartX);
         //bulletObject["y"] = static_cast<int>(bulletStartY);
@@ -510,6 +565,7 @@ void GameWindow::shootBullet() {
         //    });
     }
 }
+
 void GameWindow::updateServerBulletsPosition() {
     QJsonArray bulletArray;
 
@@ -679,20 +735,33 @@ void GameWindow::destroyCells(int x, int y)
 {
     if (m_mapData[x][y] == "Unbreakable")
         return;
-    if (m_mapData[x][y] == "Wall" || m_mapData[x][y] == "Player")
+    if (m_mapData[x][y] == "Wall")
     {
-
+        m_mapData[x][y] = "Empty";
         updateServerMapCell(x, y);
         fetchMap();
         return;
+
+    }
+    if (m_mapData[x][y] == "Player")
+    {
+        if (!m_shield)
+        {
+            m_mapData[x][y] = "Empty";
+            updateServerMapCell(x, y);
+            fetchMap();
+            return;
+        }
     }
     if (m_mapData[x][y] == "Bomb")
     {
+        m_mapData[x][y] = "Empty";
         for (int i = x - 1; i <= x + 1; i++)
             for (int j = y - 1; j <= y + 1; j++)
                 if (m_mapData[i][j] == "Wall" || m_mapData[i][j] == "Player")
                 {
                     updateServerMapCell(i, j);
+                    m_mapData[i][j] = "Empty";
 
                 }
 
@@ -731,14 +800,14 @@ void GameWindow::updateServerPlayerPosition() {
 void GameWindow::FetchPlayersFromServer() {
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
-   
+
     QNetworkRequest request(QUrl("http://localhost:18080/get_players"));
     QNetworkReply* reply = manager->get(request);
 
-    
+
     connect(reply, &QNetworkReply::finished, this, [reply]() {
         if (reply->error() == QNetworkReply::NoError) {
-            
+
             QByteArray responseData = reply->readAll();
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
 
@@ -746,14 +815,14 @@ void GameWindow::FetchPlayersFromServer() {
                 QJsonObject jsonObj = jsonDoc.object();
                 QJsonArray playersArray = jsonObj["players"].toArray();
 
-               
+
                 for (const QJsonValue& playerValue : playersArray) {
                     QJsonObject playerObj = playerValue.toObject();
                     int playerId = playerObj["id"].toInt();
                     QString playerName = playerObj["name"].toString();
                     int playerPoints = playerObj["points"].toInt();
 
-                   
+
                     qDebug() << "Received player: " << playerName
                         << ", ID: " << playerId
                         << ", Points: " << playerPoints;
@@ -764,6 +833,29 @@ void GameWindow::FetchPlayersFromServer() {
             qDebug() << "Error fetching players: " << reply->errorString();
         }
 
-        reply->deleteLater(); 
+        reply->deleteLater();
         });
 }
+void GameWindow::increaseVisibility() {
+    visibilityRadius++;
+    qDebug() << "Visibility increased to radius: " << visibilityRadius;
+    updateMap(m_mapArray); 
+   
+}
+
+//void GameWindow::paintEvent(QPaintEvent* event) {
+//    QMainWindow::paintEvent(event);
+//
+//    QPainter painter(this);
+//    painter.setPen(QPen(Qt::green, 2, Qt::DashLine));
+//    painter.setBrush(QBrush(QColor(0, 255, 0, 50)));  
+//
+//    int centerX = static_cast<int>(m_x + 32);  
+//    int centerY = static_cast<int>(m_y + 32);
+//
+//    painter.drawEllipse(centerX - visibilityRadius * 64, centerY - visibilityRadius * 64,
+//        visibilityRadius * 128, visibilityRadius * 128);
+//}
+
+
+

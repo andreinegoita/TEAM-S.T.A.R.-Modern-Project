@@ -34,6 +34,7 @@ protected:
 public:
     void displayMap(const QJsonArray& mapArray);
     void updateMap(const QJsonArray& mapArray);
+    void increaseVisibility();
     void returnToMainMenu();
 
 private slots:
@@ -43,7 +44,6 @@ private slots:
     void addBullet(float x, float y, int direction);
     void updateBullets();
     void destroyCells(int x, int y);
-
     void resetPowerOffEfects();
 private:
     QLabel* positionLabel;
@@ -55,7 +55,8 @@ private:
     float m_speed;
     int m_playerLives;
     bool m_shield;
-    float m_bulletSpeed;
+    double m_bulletSpeed;
+    double m_fireRate;
     float initialBulletSpeed = 5.0f;
 struct m_bulletData {
     float x;
@@ -72,7 +73,7 @@ private:
     void updateServerBulletsPosition();
     void updateServerMapCell(int row, int col);
     void setPlayerStartPosition();
-    void updatePlayerUI(double speed, int lives, bool hasShield);
+    void updatePlayerUI(double speed, int lives, bool hasShield,double fireRate);
     void fetchPowerUpQueue();
     void applyNextPowerUp();
     void FetchPlayersFromServer();
@@ -90,5 +91,8 @@ private:
     QVector<m_bulletData> bullets;
     QVector<QLabel*> bulletLabels;
     std::queue<PowerUpType> powerUpQueue;
+
+    int visibilityRadius = 1;
+    QTimer* visibilityTimer;
 
 };
