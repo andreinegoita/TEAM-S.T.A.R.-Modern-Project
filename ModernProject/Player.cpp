@@ -6,7 +6,7 @@
 #include<sstream>
 
 Player::Player(std::string_view  name, std::pair<uint16_t, uint16_t> position, double velocity, DirectionType direction) :m_name{ name },
-GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(1000), m_score{ 0 }, m_startPosition{ position } {}
+GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(10000), m_score{ 0 }, m_startPosition{ position } {}
 void Player::Shoot()
 {
     auto fireRate = m_weapon.GetFireRate();
@@ -155,17 +155,26 @@ void Player::BuyPowerUp(PowerUpType powerUpType) {
         break;
     case PowerUpType::FireRate:
         cost = 500;
+        if (m_fireRatePurchased)
+        {
+            std::cout << "You already buy it!" <<std::endl;
+            return;
+        }
         break;
     default:
         break;
     }
-
+    
     if (CanAffordPowerUp(cost)) {
         m_points -= cost;
         m_powerUpQueue.push(powerUpType);
+
+        if (powerUpType == PowerUpType::FireRate) {
+            m_fireRatePurchased = true; 
+        }
     }
     else {
-        std::cout << "You don't have enough money to boy this powerUp!" << std::endl;
+        std::cout << "You don't have enough money to buy this powerUp!" << std::endl;
     }
 }
 

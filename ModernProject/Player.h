@@ -54,9 +54,11 @@ private:
 	std::vector<std::unique_ptr<Bullet>> m_bullets;
 	std::pair<uint16_t, uint16_t>m_startPosition;
 
-	bool m_shieldActive = false;
+	bool m_shieldActive=false;
 	std::chrono::time_point<std::chrono::steady_clock> shieldStartTime;
 	std::chrono::time_point<std::chrono::steady_clock> speedBoostStartTime;
 	std::queue<PowerUpType> m_powerUpQueue;
+
+	bool m_fireRatePurchased=false;
 
 };

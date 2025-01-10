@@ -202,7 +202,7 @@ void GameWindow::applyNextPowerUp() {
 
     std::string payload = "{\"powerUpType\": " + std::to_string(static_cast<int>(nextPowerUp)) + "}";
 
-    // Trimite cererea POST
+  
     cpr::Response response = cpr::Post(
         cpr::Url{ "http://localhost:18080/applyPowerUp" },
         cpr::Body{ payload },
