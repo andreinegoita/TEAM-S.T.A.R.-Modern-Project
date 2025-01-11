@@ -44,118 +44,46 @@ void ShopWindow::setupUI() {
     shopLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(shopLabel);
 
-    buyPowerSpeed = new QPushButton("Buy Speed", this);
-    buyPowerSpeed->setStyleSheet(
-        "QPushButton {"
-        "    font-size: 24px;"
-        "    padding: 12px 20px;"
-        "    border-radius: 15px;"
-        "    background-color: cyan;"
-        "    color: black;"
-        "    border: 2px solid #00ffff;"
-     
-        "}"
-        "QPushButton:hover {"
-        "    background-color: rgba(255, 255, 255, 0.8);"
-        "    color: #1E3A5F;"
-        "    border: 2px solid #1E3A5F;"
-     
-        "}"
-        );
+    pointsLabel = new QLabel(this);
+    pointsLabel->setGeometry(400, 50, 200, 50);
+    pointsLabel->setStyleSheet("font-size: 30px; color: black;background-color:cyan;text-align: center; border: 2px solid #00ffff; border-radius: 10px;");
+    pointsLabel->setAlignment(Qt::AlignCenter);
+    updatePlayerPoints();
+
+    Speed = new QPushButton("Buy Speed", this);
+    styleButton(Speed);
 
 
-    buyPowerShield = new QPushButton("Buy Shield", this);
-    buyPowerShield->setStyleSheet(
-        "QPushButton {"
-        "    font-size: 24px;"
-        "    padding: 12px 20px;"
-        "    border-radius: 15px;"
-        "    background-color: cyan;"
-        "    color: black;"
-        "    border: 2px solid #00ffff;"
-      
-        "}"
-        "QPushButton:hover {"
-        "    background-color:rgba(255, 255, 255, 0.8);"
-        "    color: #1E3A5F;"
-        "border: 2px solid #1E3A5F; "
-       
-        "}"
-    );
+    Shield = new QPushButton("Buy Shield", this);
+    styleButton(Shield);
 
     ExtraLife = new QPushButton("Buy ExtraLife", this);
-    ExtraLife->setStyleSheet(
-        "QPushButton {"
-        "    font-size: 24px;"
-        "    padding: 12px 20px;"
-        "    border-radius: 15px;"
-        "    background-color: cyan;"
-        "    color: black;"
-        "    border: 2px solid #00ffff;"
-       
-        "}"
-        "QPushButton:hover {"
-        "    background-color: rgba(255, 255, 255, 0.8);"
-        "    color: #1E3A5F;"
-        "    border: 2px solid #1E3A5F;"
-        
-        "}"
-    );
+    styleButton(ExtraLife);
 
     FireRate = new QPushButton("Buy FireRate", this);
-    FireRate->setStyleSheet(
-        "QPushButton {"
-        "    font-size: 24px;"
-        "    padding: 12px 20px;"
-        "    border-radius: 15px;"
-        "    background-color: cyan;"
-        "    color: black;"
-        "    border: 2px solid #00ffff;"
-
-        "}"
-        "QPushButton:hover {"
-        "    background-color: rgba(255, 255, 255, 0.8);"
-        "    color: #1E3A5F;"
-        "    border: 2px solid #1E3A5F;"
-
-        "}"
-    );
+    styleButton(FireRate);
 
 
     
-    buyPowerSpeed->setGeometry(375,235, 250, 60);
-    buyPowerShield->setGeometry(375, 335, 250, 60);
+    Speed->setGeometry(375,235, 250, 60);
+    Shield->setGeometry(375, 335, 250, 60);
     ExtraLife->setGeometry(375, 435, 250, 60);
     FireRate->setGeometry(375, 535, 250, 60);
   
     QPushButton* exitButton = new QPushButton("Exit to Main Menu", this);
     exitButton->setGeometry(200,100, 200, 50); 
 
-    exitButton->setStyleSheet(
-        "QPushButton {"
-        "    font-size: 24px;"
-        "    padding: 12px 20px;"
-        "    border-radius: 15px;"
-        "    background-color: cyan;"
-        "    color: black;"
-        "    border: 2px solid #00ffff;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: rgba(255, 255, 255, 0.8);"
-        "    color: #1E3A5F;"
-        "    border: 2px solid #1E3A5F;"
-        
-        "}"
-    );
+    styleButton(exitButton);
+      
 
 
     exitButton->setGeometry(50,800, 250, 60);
 
-    connect(buyPowerSpeed, &QPushButton::clicked, this, [this]() {
+    connect(Speed, &QPushButton::clicked, this, [this]() {
         sendPowerUpRequest("SpeedBoost");
         });
 
-    connect(buyPowerShield, &QPushButton::clicked, this, [this]() {
+    connect(Shield, &QPushButton::clicked, this, [this]() {
         sendPowerUpRequest("Shield");
         });
 
@@ -176,17 +104,14 @@ void ShopWindow::setupUI() {
 
 
 void ShopWindow::sendPowerUpRequest(const std::string& powerUpType) {
-    // Creăm JSON-ul pentru cererea de power-up
     QJsonObject jsonObj;
     jsonObj["powerUpType"] = QString::fromStdString(powerUpType);
 
-    // Convertim obiectul JSON într-un șir de caractere
     QJsonDocument jsonDoc(jsonObj);
     QByteArray jsonData = jsonDoc.toJson();
 
-    // Folosim jsonData.toStdString() pentru a crea cererea POST
     cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:18080/buyPowerUp" },
-        cpr::Body{ jsonData.toStdString() }, // cererea ca std::string
+        cpr::Body{ jsonData.toStdString() }, 
         cpr::Header{ {"Content-Type", "application/json"} });
 
     if (r.status_code == 200) {
@@ -204,17 +129,19 @@ void ShopWindow::sendPowerUpRequest(const std::string& powerUpType) {
 void ShopWindow::styleButton(QPushButton* button) {
     button->setStyleSheet(
         "QPushButton {"
-        "    font-size: 30px;"
+        "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
-        "    background-color: transparent;"
+        "    background-color: cyan;"
         "    color: black;"
         "    border: 2px solid #00ffff;"
+
         "}"
         "QPushButton:hover {"
         "    background-color: rgba(255, 255, 255, 0.8);"
         "    color: #1E3A5F;"
         "    border: 2px solid #1E3A5F;"
+
         "}"
     );
 }

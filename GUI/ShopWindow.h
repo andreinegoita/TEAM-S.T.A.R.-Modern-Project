@@ -18,8 +18,8 @@ private:
 
     QLabel* shopLabel;
     QLabel* pointsLabel;
-    QPushButton* buyPowerSpeed;
-    QPushButton* buyPowerShield;
+    QPushButton* Speed;
+    QPushButton* Shield;
     QPushButton* ExtraLife;
     QPushButton* FireRate;
     int playerPoints = 100; 
