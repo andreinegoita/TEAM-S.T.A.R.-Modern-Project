@@ -134,6 +134,7 @@ void GameWindow::updatePlayerUI(double speed, int lives, bool hasShield,double f
     qDebug() << "Fire Rate updated to:" << m_fireRate;
 }
 
+
 PowerUpType stringToPowerUpType(const QString& str) {
     if (str == "SpeedBoost") {
         return PowerUpType::SpeedBoost;
@@ -143,10 +144,6 @@ PowerUpType stringToPowerUpType(const QString& str) {
     }
     else if (str == "ExtraLife") {
         return PowerUpType::ExtraLife;
-    }
-    else if (str == "FireRate")
-    {
-        return PowerUpType::FireRate;
     }
 
     else {

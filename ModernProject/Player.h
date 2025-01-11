@@ -42,6 +42,7 @@ public:
 	int GetLives();
 	double GetBulletSpeed();
 	double GetFireRate();
+	int GetPoints();
 
 
 private:

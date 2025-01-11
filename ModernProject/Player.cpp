@@ -6,7 +6,7 @@
 #include<sstream>
 
 Player::Player(std::string_view  name, std::pair<uint16_t, uint16_t> position, double velocity, DirectionType direction) :m_name{ name },
-GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(10000), m_score{ 0 }, m_startPosition{ position } {}
+GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(1000), m_score{ 0 }, m_startPosition{ position } {}
 void Player::Shoot()
 {
     auto fireRate = m_weapon.GetFireRate();
@@ -261,5 +261,10 @@ double Player::GetBulletSpeed()
 double Player::GetFireRate()
 {
    return  m_weapon.GetFireRate();
+}
+
+int Player::GetPoints()
+{
+    return m_points;
 }
 

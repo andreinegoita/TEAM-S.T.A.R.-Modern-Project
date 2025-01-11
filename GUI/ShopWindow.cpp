@@ -192,9 +192,49 @@ void ShopWindow::sendPowerUpRequest(const std::string& powerUpType) {
     if (r.status_code == 200) {
         std::cout << "Power-up successfully bought!" << std::endl;
         std::cout << "Updated Player State: " << r.text << std::endl;
+        playerPoints -= 10;
+        if (playerPoints < 0) playerPoints = 0;
+        updatePlayerPoints();   
     }
     else {
         std::cout << "Failed to buy power-up: " << r.status_code << std::endl;
     }
 }
+
+void ShopWindow::styleButton(QPushButton* button) {
+    button->setStyleSheet(
+        "QPushButton {"
+        "    font-size: 30px;"
+        "    padding: 12px 20px;"
+        "    border-radius: 15px;"
+        "    background-color: transparent;"
+        "    color: black;"
+        "    border: 2px solid #00ffff;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: rgba(255, 255, 255, 0.8);"
+        "    color: #1E3A5F;"
+        "    border: 2px solid #1E3A5F;"
+        "}"
+    );
+}
+
+void ShopWindow::updatePlayerPoints()
+{
+    cpr::Response r = cpr::Get(cpr::Url{ "http://localhost:18080/getPoints" });
+
+    if (r.status_code == 200) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(r.text).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        int playerPoints = jsonObj["playerPoints"].toInt();
+
+        
+        pointsLabel->setText("Points: " + QString::number(playerPoints));
+    }
+    else {
+        std::cout << "Error, can't points: " << r.status_code << std::endl;
+    }
+}
+
 

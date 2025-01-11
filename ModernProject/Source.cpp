@@ -12,9 +12,9 @@
 #include "PlayersDatabase.h"
 #include <windows.h>
 
-#include "../PowerUps/PowerUps.h"
+//#include "../PowerUps/PowerUps.h"
 //#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
-//#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
+#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
 
 void RunServer(GameMap &map, Player &player, http::Storage& storage)
 {
@@ -247,6 +247,17 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 			return crow::response(500, e.what());
 		}
 		});
+
+	CROW_ROUTE(app, "/getPoints").methods("GET"_method)([&player]() {
+
+		crow::json::wvalue points;
+		points["playerPoints"] =player.GetPoints();
+
+		return crow::response(points);
+
+		});
+
+
 
 
 	app.port(18080).multithreaded().run();
