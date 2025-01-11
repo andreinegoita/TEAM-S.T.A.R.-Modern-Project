@@ -17,22 +17,26 @@ ShopWindow::ShopWindow(QWidget* parent) : QWidget(parent) {
 void ShopWindow::setupUI() {
     setFixedSize(1000, 900);
 
-    QString backgroundImagePath = "BattleMenu.jpg"; 
+   
+
+    QString backgroundImagePath = "BattleMenu.jpg";  
     QFile file(backgroundImagePath);
     if (!file.exists()) {
-        qDebug() << "Imaginea de fundal nu a fost găsită: " << backgroundImagePath;
+        qDebug() << "Imaginea nu a fost găsită: " << backgroundImagePath;
     }
     else {
-        setStyleSheet(QString(
-            "QWidget {"
-            "    background-image: url('%1');"
-            "    background-position: center;"
-            "    background-repeat: no-repeat;"
-            "    background-size: cover;"
-            "}"
-        ).arg(backgroundImagePath));
+        QPalette palette;
+        QPixmap backgroundImage(backgroundImagePath);
 
+
+        palette.setBrush(QPalette::Window, QBrush(backgroundImage));
+
+
+        setPalette(palette);
+
+        setAutoFillBackground(true);
     }
+
 
     QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -46,7 +50,7 @@ void ShopWindow::setupUI() {
         "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
-        "    background-color: transparent;"
+        "    background-color: cyan;"
         "    color: black;"
         "    border: 2px solid #00ffff;"
      
@@ -66,7 +70,7 @@ void ShopWindow::setupUI() {
         "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
-        "    background-color: transparent;"
+        "    background-color: cyan;"
         "    color: black;"
         "    border: 2px solid #00ffff;"
       
@@ -85,6 +89,7 @@ void ShopWindow::setupUI() {
         "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
+        "    background-color: cyan;"
         "    color: black;"
         "    border: 2px solid #00ffff;"
        
@@ -103,6 +108,7 @@ void ShopWindow::setupUI() {
         "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
+        "    background-color: cyan;"
         "    color: black;"
         "    border: 2px solid #00ffff;"
 
@@ -130,6 +136,7 @@ void ShopWindow::setupUI() {
         "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
+        "    background-color: cyan;"
         "    color: black;"
         "    border: 2px solid #00ffff;"
         "}"

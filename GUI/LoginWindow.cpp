@@ -19,7 +19,7 @@ LoginWindow::~LoginWindow()
 
 void LoginWindow::setupUI()
 {
-    setFixedSize(1200, 900);
+    setFixedSize(1600, 900);
 
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
@@ -28,31 +28,34 @@ void LoginWindow::setupUI()
 
     
     QString backgroundImagePath = "battleCity.jpg";
-    QFile file( backgroundImagePath );
+    QFile file(backgroundImagePath);
     if (!file.exists()) {
-        qDebug() << "Image can't be procesing: " << backgroundImagePath;
+        qDebug() << "Image can't be processed: " << backgroundImagePath;
     }
     else {
-        centralWidget->setStyleSheet(QString(
-            "QWidget {"
-            "    background-image: url('%1');"
-            "    background-position: center;"
-            "    background-repeat: no-repeat;"
-            "    background-size: cover;"
-            "}"
-        ).arg(backgroundImagePath));
+        QPalette palette;
+        QPixmap backgroundImage(backgroundImagePath);
+        palette.setBrush(QPalette::Window, QBrush(backgroundImage));
+        centralWidget->setPalette(palette);
+        centralWidget->setAutoFillBackground(true);
     }
 
     usernameEdit = new QLineEdit(this);
     usernameEdit->setPlaceholderText("Introduceti numele de utilizator");
+    usernameEdit->setStyleSheet("QLineEdit { "
+        "background-color: white; "
+        "color: black; "
+        "border: 2px solid #333; "
+        "border-radius: 4px; }");
     layout->addWidget(usernameEdit);
 
+
     loginButton = new QPushButton("Conectare", this);
-    loginButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: white; color: black;");
+    loginButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: cyan; color: black;");
     layout->addWidget(loginButton);
 
     registerButton = new QPushButton("Inregistrare", this);
-    registerButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: white; color: black;");
+    registerButton->setStyleSheet("font-size: 16px; padding: 10px; border-radius: 4px; background-color: cyan; color: black;");
     layout->addWidget(registerButton);
 
     layout->setAlignment(Qt::AlignCenter);
