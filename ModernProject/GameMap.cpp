@@ -52,25 +52,33 @@ void GameMap::generateMap()
 	std::mt19937 mt(time(nullptr));
 	std::uniform_int_distribution<int> dist(1, 100);
 
-	for (size_t row = 0;row < m_rows;row++) {
-		for (size_t col = 0;col < m_cols;col++) {
-			if (row == 0 || row == m_rows - 1 || col == 0 || col == m_cols - 1)
-				setCellType(row, col, static_cast<CellType>(0));
+	for (size_t row = 0; row < m_rows; row++) {
+		for (size_t col = 0; col < m_cols; col++) {
+			if (row == 0 || row == m_rows - 1 || col == 0 || col == m_cols - 1) {
+				setCellType(row, col, static_cast<CellType>(2));
+			}
 			else {
 				int randomPercent = dist(mt);
-				if (randomPercent <= 10)
-					setCellType(row, col, static_cast<CellType>(2));
+
+				if (randomPercent <= 100) {
+					setCellType(row, col, static_cast<CellType>(0));
+				}
+				else if (randomPercent <= 95) {
+					setCellType(row, col, static_cast<CellType>(1));
+				}
 				else {
-					uint16_t randomVal = mt() % 3;
-					setCellType(row, col, static_cast<CellType>(randomVal));
+					setCellType(row, col, static_cast<CellType>(2));
 				}
 			}
-			if (((col == 0 || col == m_cols - 1) && row == (m_rows - 1) / 2) || (row == 0 || row == m_rows - 1) && col == (m_cols - 1) / 2) {
-				setCellType(row, col, static_cast<CellType>(2));
+
+			if (((col == 0 || col == m_cols - 1) && row == (m_rows - 1) / 2) ||
+				((row == 0 || row == m_rows - 1) && col == (m_cols - 1) / 2)) {
+				setCellType(row, col, static_cast<CellType>(2)); 
 			}
 		}
 	}
 }
+
 
 bool GameMap::isValidMap() const
 {

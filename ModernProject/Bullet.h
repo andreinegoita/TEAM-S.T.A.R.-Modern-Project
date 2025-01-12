@@ -18,9 +18,12 @@ public:
     void MoveBullet(GameMap& gameMap, uint16_t oldX, uint16_t oldY);
     void DestroyNearbyWalls(GameMap& gameMap, uint16_t x, uint16_t y);
     void DestroyPlayer(GameMap& gameMap, uint16_t x, uint16_t y);
-    void CheckBulletCollision(GameMap& gameMap, uint16_t x, uint16_t y);
+
+    template <typename T>
+    void CheckCollisionWithCell(GameMap& gameMap, T& object, uint16_t x, uint16_t y, CellType targetCellType);
 private:
     DirectionType m_direction;
     bool m_active;
 
 };
+

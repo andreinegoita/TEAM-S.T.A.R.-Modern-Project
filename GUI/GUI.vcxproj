@@ -137,7 +137,6 @@
     <ClInclude Include="Celltype.h" />
     <QtMoc Include="ShopWindow.h" />
     <QtMoc Include="MainMenuWindow.h" />
-    <ClInclude Include="RegisterWindow.h" />
     <QtMoc Include="LoginWindow.h" />
     <QtMoc Include="GameWindow.h" />
   </ItemGroup>

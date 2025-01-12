@@ -152,10 +152,8 @@
     <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Bullet.h" />
-    <ClCompile Include="CellType.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Direction.cpp" />
-    <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameMap.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -169,7 +167,6 @@
     <ClInclude Include="CellType.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Direction.h" />
-    <ClInclude Include="Game.h" />
     <ClInclude Include="GameMap.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Player.h" />

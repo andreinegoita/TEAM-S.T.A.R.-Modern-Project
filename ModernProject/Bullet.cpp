@@ -105,13 +105,14 @@ void Bullet::DestroyPlayer(GameMap& gameMap, uint16_t oldX, uint16_t oldY)
 	Deactivate();
 }
 
-void Bullet::CheckBulletCollision(GameMap& gameMap, uint16_t x, uint16_t y)
-{
-	if (gameMap.getCellType(x, y) == CellType::Bullet) {
+template <typename T>
+void Bullet::CheckCollisionWithCell(GameMap& gameMap, T& object, uint16_t x, uint16_t y, CellType targetCellType) {
+	if (gameMap.getCellType(x, y) == targetCellType) {
 		gameMap.setCellType(x, y, CellType::EMPTY);
-		Deactivate();
+		object.Deactivate();
 	}
 }
+
 
 void Bullet::HandleCellInteraction(GameMap& gameMap)
 {
