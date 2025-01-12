@@ -1,4 +1,5 @@
-#include "RegisterWindow.h"
+import RegisterWindow;
+
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>

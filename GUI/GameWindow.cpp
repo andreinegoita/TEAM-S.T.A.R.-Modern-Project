@@ -100,9 +100,6 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
     if (event->key() == Qt::Key_Space) {
         shootBullet();
     }
-    if (event->key() == Qt::Key_Escape) {
-        returnToMainMenu();
-    }
     if (event->key() == Qt::Key_E) {
         qDebug() << "Press E!";
 
@@ -238,16 +235,6 @@ void GameWindow::resetPowerOffEfects()
 
     m_shield = false;
     qDebug() << "Shield effect deactivated!";
-}
-
-void GameWindow::returnToMainMenu()
-{
-
-    MainMenuWindow* mainMenuWindow = new MainMenuWindow();
-    mainMenuWindow->show();
-
-
-    this->close();
 }
 
 void GameWindow::keyReleaseEvent(QKeyEvent* event)

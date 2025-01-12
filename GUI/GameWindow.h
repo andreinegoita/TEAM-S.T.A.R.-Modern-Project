@@ -35,7 +35,6 @@ public:
     void displayMap(const QJsonArray& mapArray);
     void updateMap(const QJsonArray& mapArray);
     void increaseVisibility();
-    void returnToMainMenu();
 
 private slots:
     void updateGraphics();

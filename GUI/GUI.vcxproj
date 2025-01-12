@@ -65,9 +65,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;C:\Facultate\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;C:\Facultate\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
     </ClCompile>
     <Link>
       <AdditionalDependencies>PowerUps.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -76,9 +77,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;C:\Facultate\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
     </ClCompile>
     <Link>
       <AdditionalDependencies>PowerUps.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -117,6 +119,7 @@
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="MainMenuWindow.cpp" />
     <ClCompile Include="RegisterWindow.cpp" />
+    <ClCompile Include="RegisterWindow.cppm" />
     <ClCompile Include="ShopWindow.cpp" />
     <QtRcc Include="GUI.qrc" />
     <QtUic Include="GUI.ui" />
@@ -134,7 +137,7 @@
     <ClInclude Include="Celltype.h" />
     <QtMoc Include="ShopWindow.h" />
     <QtMoc Include="MainMenuWindow.h" />
-    <QtMoc Include="RegisterWindow.h" />
+    <ClInclude Include="RegisterWindow.h" />
     <QtMoc Include="LoginWindow.h" />
     <QtMoc Include="GameWindow.h" />
   </ItemGroup>

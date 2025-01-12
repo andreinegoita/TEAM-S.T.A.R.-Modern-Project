@@ -55,9 +55,13 @@
     <ClCompile Include="ShopWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RegisterWindow.cppm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -122,9 +126,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="LoginWindow.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="RegisterWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="MainMenuWindow.h">
