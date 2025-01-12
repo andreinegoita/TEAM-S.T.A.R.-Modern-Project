@@ -5,9 +5,10 @@
 #include <conio.h>
 #include"GameMap.h"
 #include"GameObject.h"
-#include"Weapon.h"
 #include"PowerUps.h"
 #include<queue>
+
+import Weapon;
 
 class Player :public GameObject
 {

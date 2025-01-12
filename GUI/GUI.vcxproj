@@ -67,7 +67,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;C:\Facultate\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;C:\Facultate\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>PowerUps.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -78,7 +78,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\onetr\TeamStar\PowerUps\PowerUps;D:\ModernProject\PowerUps\PowerUps;C:\Facultate\TEAM-S.T.A.R.-Modern-Project\PowerUps\PowerUps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>PowerUps.lib;%(AdditionalDependencies)</AdditionalDependencies>
