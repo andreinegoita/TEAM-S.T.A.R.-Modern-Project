@@ -23,6 +23,7 @@ private:
 
     void setupUI();
     bool validateInputs();
+    int generateUniqueId();
 };
 
 #endif

@@ -4,6 +4,10 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlError>
+
 
 RegisterWindow::RegisterWindow(QWidget* parent):QMainWindow(parent)
 {
@@ -49,11 +53,37 @@ bool RegisterWindow::validateInputs()
     return true;
 }
 
-void RegisterWindow::onRegisterButtonClicked() 
+void RegisterWindow::onRegisterButtonClicked()
 {
     if (validateInputs()) {
-        // TODO: Add Player in database
-        QMessageBox::information(this, "Succes", "Utilizator inregistrat cu succes!");
-        this->close();
+        QString playerName = usernameEdit->text(); // Assume you have a QLineEdit for the name
+        int playerPoints = 300; // Default points for a new player
+        int playerId = generateUniqueId(); // Create a method to generate unique IDs
+
+        QSqlDatabase db = QSqlDatabase::database(); // Assuming a database connection is already established
+        if (!db.isOpen()) {
+            QMessageBox::critical(this, "Database Error", "Database connection is not open.");
+            return;
+        }
+
+        QSqlQuery query;
+        query.prepare("INSERT INTO players (id, name, points) VALUES (:id, :name, :points)");
+        query.bindValue(":id", playerId);
+        query.bindValue(":name", playerName);
+        query.bindValue(":points", playerPoints);
+
+        if (query.exec()) {
+            QMessageBox::information(this, "Success", "Utilizator inregistrat cu succes!");
+            this->close();
+        }
+        else {
+            QMessageBox::critical(this, "Database Error", query.lastError().text());
+        }
     }
+}
+
+int RegisterWindow::generateUniqueId()
+{
+    static int nextId = 1;
+    return nextId++;
 }
