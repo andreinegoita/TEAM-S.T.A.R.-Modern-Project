@@ -132,6 +132,9 @@
     <ProjectReference Include="..\ModernProject\ModernProject.vcxproj">
       <Project>{a6595bdb-63c4-4576-bb16-390c3a6b6d05}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\PowerUps\PowerUps\PowerUps.vcxproj">
+      <Project>{47b312ea-90f5-4946-b410-400aacf323dd}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h" />

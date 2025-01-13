@@ -1,10 +1,11 @@
-﻿#include "LoginWindow.h"
+﻿
+#include "LoginWindow.h"
 #include <QvBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
 #include <QPixmap>
-#include "RegisterWindow.h"
+
 #include <QFile>
 
 LoginWindow::LoginWindow(QWidget* parent) :QMainWindow(parent)

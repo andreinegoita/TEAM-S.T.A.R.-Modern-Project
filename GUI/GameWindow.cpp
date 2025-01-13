@@ -48,6 +48,20 @@ GameWindow::GameWindow(QWidget* parent)
     connect(visibilityTimer, &QTimer::timeout, this, &GameWindow::increaseVisibility);
     visibilityTimer->start(5000); 
     qDebug() << "Updated";
+
+    messageLabel = new QLabel(this);
+    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);  
+    messageLabel->setStyleSheet("QLabel { color : red; font-size: 30px; }");  
+    messageLabel->hide();
+}
+
+void GameWindow::displayPlayerDeathMessage(const std::string& playerName)
+{
+    messageLabel->setText(QString::fromStdString(playerName + " died"));
+
+    messageLabel->show();
+
+    QTimer::singleShot(5000, messageLabel, &QLabel::hide);
 }
 
 
@@ -132,23 +146,6 @@ void GameWindow::updatePlayerUI(double speed, int lives, bool hasShield,double f
 }
 
 
-PowerUpType stringToPowerUpType(const QString& str) {
-    if (str == "SpeedBoost") {
-        return PowerUpType::SpeedBoost;
-    }
-    else if (str == "Shield") {
-        return PowerUpType::Shield;
-    }
-    else if (str == "ExtraLife") {
-        return PowerUpType::ExtraLife;
-    }
-
-    else {
-        qDebug() << "Unknown power-up: " << str;
-        return PowerUpType::SpeedBoost;
-    }
-}
-
 void GameWindow::fetchPowerUpQueue()
 {
     while (!powerUpQueue.empty()) {
@@ -177,7 +174,10 @@ void GameWindow::fetchPowerUpQueue()
             QString powerUpString = array[i].toString();
             qDebug() << "Power-up " << i + 1 << ": " << powerUpString;
 
-            PowerUpType powerUp = stringToPowerUpType(powerUpString);
+
+
+            PowerUpType powerUp = Power::StringToPowerUpType(powerUpString.toStdString());
+       
             powerUpQueue.push(powerUp);
         }
     }
@@ -731,10 +731,18 @@ void GameWindow::destroyCells(int x, int y)
     {
         if (!m_shield)
         {
-            m_mapData[x][y] = "Empty";
-            updateServerMapCell(x, y);
-            fetchMap();
-            return;
+            m_playerLives--;
+            if (m_mapData[x][y] == "Player")
+            {
+                if (m_playerLives == 0)
+                {
+                    displayPlayerDeathMessage(m_playerName);
+                    m_mapData[x][y] = "Empty";
+                    updateServerMapCell(x, y);
+                    fetchMap();
+                    return;
+                }
+            }
         }
     }
     if (m_mapData[x][y] == "Bomb")

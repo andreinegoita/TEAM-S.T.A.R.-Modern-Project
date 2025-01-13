@@ -266,6 +266,7 @@ int main()
 {
 	//std::vector<m_bulletData> activeBullets;
 	try {
+		
 		std::mt19937 mt(time(nullptr));
 		int randValRows = 10 + mt() % 6;
 		int randValCols = 10 + mt() % 20;
