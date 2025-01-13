@@ -268,3 +268,12 @@ int Player::GetPoints()
     return m_points;
 }
 
+void Player::setName(const std::string& name)
+{
+    this->m_name = name;
+}
+
+void Player::setPoints(int points)
+{
+    this->m_points = points;
+}

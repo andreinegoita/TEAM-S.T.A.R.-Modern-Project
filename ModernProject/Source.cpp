@@ -111,6 +111,26 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 			return crow::response(500, e.what());
 		}
 	});
+	CROW_ROUTE(app, "/login").methods("POST"_method)([&player](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			return crow::response(400, "Invalid JSON body");
+		}
+
+		std::string id = body["id"].s();
+		std::string name = body["name"].s();
+		int points = body["points"].i();
+		player.setName(name);
+		player.setPoints(points);
+
+
+		crow::json::wvalue response;
+		response["status"] = "success";
+		response["message"] = "Player found";
+		response["points"] = points;
+		return crow::response(200, response);
+
+		});
 
 	//CROW_ROUTE(app, "/shoot_bullet").methods("POST"_method)([](const crow::request& req) {
 	//	auto json = crow::json::load(req.body);
