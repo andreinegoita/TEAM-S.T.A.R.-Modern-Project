@@ -6,6 +6,11 @@
 #include <QPixmap>
 #include "RegisterWindow.h"
 #include <QFile>
+#include <QtSql/QSqlQuery>
+#include <QtSQl/QSqlError>
+#include <QDebug>
+#include <QMessageBox>
+#include <cpr/cpr.h>
 
 LoginWindow::LoginWindow(QWidget* parent) :QMainWindow(parent)
 {
@@ -79,9 +84,45 @@ void LoginWindow::onLoginClicked() {
         qDebug() << "Numele de utilizator este gol. Introduceti un nume valid.";
         return;
     }
-    emit loginSuccessful(playerName);
-    this->close();
 
+    QSqlQuery query;
+    query.prepare("SELECT id,points FROM players WHERE name = :name");
+    query.bindValue(":name", playerName);
+
+    if (!query.exec()) {
+        qDebug() << "Error executing query: " << query.lastError().text();
+        QMessageBox::critical(this, "Eroare", "Nu s-a putut verifica utilizatorul in baza de date.");
+        return;
+    }
+    if (query.next()) { // Găsește utilizatorul
+        int playerId = query.value(0).toInt(); // id-ul jucătorului
+        int playerPoints = query.value(1).toInt(); // punctele jucătorului
+
+        qDebug() << "Player found: ID=" << playerId << ", Points=" << playerPoints;
+
+        // Trimite datele către server folosind CPR
+        cpr::Response response = cpr::Post(
+            cpr::Url{ "http://localhost:18080/login" }, // URL-ul serverului tău
+            cpr::Body{ R"({"id": ")" + std::to_string(playerId) + R"(", "name": ")" + playerName.toStdString() + R"(", "points": ")" + std::to_string(playerPoints) + R"("})" },
+            cpr::Header{ {"Content-Type", "application/json"} }
+        );
+
+
+        if (response.status_code == 200) {
+            qDebug() << "Player logged in successfully: " << response.text.c_str();
+            emit loginSuccessful(playerName);
+            this->close();
+        }
+        else {
+            qDebug() << "Error logging in: " << response.text.c_str();
+            QMessageBox::critical(this, "Eroare server", "Nu s-a putut autentifica utilizatorul.");
+        }
+    }
+    else {
+        // Playerul nu există
+        qDebug() << "Playerul nu a fost gasit in baza de date.";
+        QMessageBox::warning(this, "Eroare autentificare", "Utilizatorul nu exista in baza de date.");
+    }
 }
 
 void LoginWindow::openMainMenuWindow() {
