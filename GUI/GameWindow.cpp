@@ -546,38 +546,40 @@ void GameWindow::shootBullet() {
           addBullet(bulletStartX, bulletStartY, m_direction);
             canShoot = false;
             bulletCooldownTimer->start(m_fireRate);
-        //QJsonObject bulletObject;
-        //bulletObject["x"] = static_cast<int>(bulletStartX);
-        //bulletObject["y"] = static_cast<int>(bulletStartY);
-        //bulletObject["direction"] = m_direction;
-        //bulletObject["speed"] = m_bulletSpeed; 
-
-        //QString payload = QJsonDocument(bulletObject).toJson(QJsonDocument::Compact);
-
-        //QtConcurrent::run([payload]() {
-        //    cpr::Response response = cpr::Post(
-        //        cpr::Url{ "http://localhost:18080/shoot_bullet" },
-        //        cpr::Body{ payload.toStdString() },
-        //        cpr::Header{ { "Content-Type", "application/json" } }
-        //    );
-
-        //    if (response.status_code != 200) {
-        //        qDebug() << "Failed to send bullet info to server!";
-        //    }
-        //    });
+        
     }
 }
 
 void GameWindow::updateServerBulletsPosition() {
+    static int lastX = -1;
+    static int lastY = -1;
+
+
+
     QJsonArray bulletArray;
 
     for (const m_bulletData& bullet : bullets) {
         QJsonObject bulletObject;
-        bulletObject["x"] = static_cast<int>(bullet.x);
-        bulletObject["y"] = static_cast<int>(bullet.y);
-        bulletObject["direction"] = bullet.direction;
-        bulletArray.append(bulletObject); // Adăugăm explicit obiectele în QJsonArray
+        int currentX = static_cast<int>((bullet.x + 10) / 64);
+        int currentY = static_cast<int>((bullet.y + 10) / 64);
+        if (currentX != lastX || currentY != lastY)
+        {
+            if (lastX != -1 && lastY != -1)
+            {
+                bulletObject["x"] = currentX;
+                bulletObject["y"] = currentY;
+                bulletObject["direction"] = bullet.direction;
+                bulletObject["prev_x"] = lastX;
+                bulletObject["prev_y"] = lastY;
+                bulletArray.append(bulletObject);
+            }
+            lastX = currentX;
+            lastY = currentY;
+        }
+
+
     }
+
 
     QString payload = QJsonDocument(bulletArray).toJson(QJsonDocument::Compact);
 
@@ -593,6 +595,7 @@ void GameWindow::updateServerBulletsPosition() {
         }
         });
 }
+
 
 void GameWindow::updateServerMapCell(int row, int col)
 {
@@ -698,7 +701,6 @@ void GameWindow::updateBullets() {
         case 2: bullet.x -= m_bulletSpeed; break;
         case 3: bullet.x += m_bulletSpeed; break;
         }
-
         if (i >= bulletLabels.size() || i >= bullets.size()) {
             continue;
         }
@@ -707,6 +709,10 @@ void GameWindow::updateBullets() {
         }
         int ix = std::clamp(static_cast<int>((bullet.y + 32) / 64), 0, m_mapHeight - 1);
         int iy = std::clamp(static_cast<int>((bullet.x + 32) / 64), 0, m_mapWidth - 1);
+
+        if (ix != bullet.previousCellX || iy != bullet.previousCellY) {
+            updateServerBulletsPosition();
+        }
 
         if (bullet.x < -16 || bullet.y < -16 || bullet.x >= (m_mapWidth * 63 - 32) || bullet.y >= (m_mapHeight * 63 - 32)
             || (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth &&
@@ -730,9 +736,8 @@ void GameWindow::updateBullets() {
 
         updateMap(m_mapArray);
     }
-    //updateServerBulletsPosition();
-}
 
+}
 void GameWindow::destroyCells(int x, int y)
 {
     if (m_mapData[x][y] == "Unbreakable")

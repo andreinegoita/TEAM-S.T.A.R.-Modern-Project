@@ -52,6 +52,27 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		std::cout << "Received player position: x = " << x << ", y = " << y << std::endl;
 		return crow::response(200);
 		});
+	CROW_ROUTE(app, "/bullets_position").methods("POST"_method)([&map](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+
+		for (const auto& bullet : body) {
+			int x = bullet["x"].i();
+			int y = bullet["y"].i();
+			int prevx = bullet["prev_x"].i();
+			int prevy = bullet["prev_y"].i();
+			int direction = bullet["direction"].i();
+			map.UpdateCell(y, x, 4U);
+			map.UpdateCell(prevy, prevx, 0U);
+
+			std::cout << "Bullet at (" << x << ", " << y << ", " << prevx << ", " << prevy << "), direction: " << direction << std::endl;
+		}
+
+		return crow::response(200);
+		});
 
 	CROW_ROUTE(app, "/players").methods("GET"_method)
 		([&storage]() {

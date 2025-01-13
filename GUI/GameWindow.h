@@ -58,11 +58,12 @@ private:
     double m_bulletSpeed;
     double m_fireRate;
     float initialBulletSpeed = 5.0f;
-struct m_bulletData {
-    float x;
-    float y;
-    uint8_t direction;
-};
+    struct m_bulletData {
+        float x;
+        float y;
+        uint8_t direction;
+        int previousCellX = -1, previousCellY = -1;
+    };
 private:
     void setupUI();
     void shootBullet();
