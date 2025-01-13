@@ -51,7 +51,7 @@ GameWindow::GameWindow(QWidget* parent)
 
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &GameWindow::fetchMap);
-    updateTimer->start(500);
+    updateTimer->start(200);
 
     messageLabel = new QLabel(this);
     messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
@@ -721,7 +721,7 @@ void GameWindow::updateBullets() {
 
         if (bullet.x < -16 || bullet.y < -16 || bullet.x >= (m_mapWidth * 63 - 32) || bullet.y >= (m_mapHeight * 63 - 32)
             || (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth &&
-                (m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player")))
+                (m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player"||m_mapData[ix][iy]=="Bullet")))
         {
             if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
                 destroyCells(ix, iy);

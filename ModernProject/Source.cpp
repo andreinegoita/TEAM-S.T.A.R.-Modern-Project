@@ -12,6 +12,7 @@
 #include "PlayersDatabase.h"
 #include <windows.h>
 
+
 #include "../PowerUps/PowerUps.h"
 //#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
 //#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
@@ -115,23 +116,39 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 
 	CROW_ROUTE(app, "/register").methods("POST"_method)([&storage](const crow::request& req) {
 		auto body = crow::json::load(req.body);
+
+		// Verificare validitate JSON
 		if (!body) {
-			return crow::response(400, "Invalid JSON");
+			return crow::response(400, "Invalid JSON payload");
 		}
 
+		// Extrage datele din JSON
 		std::string playerName = body["name"].s();
 		if (playerName.empty()) {
-			return crow::response(400, "Name cannot be empty");
+			return crow::response(400, "Player name cannot be empty");
+		}
+
+		int playerPoints = body["points"].i(); // Opțional, poate avea un număr implicit
+		if (playerPoints <= 0) {
+			playerPoints = 300; // Valoare implicită
 		}
 
 		try {
+			
 			http::populateStorage(storage, playerName);
-			return crow::response(200, "Player registered successfully");
+
+			// Răspuns JSON către client
+			crow::json::wvalue response;
+			response["status"] = "success";
+			response["name"] = playerName;
+			response["points"] = playerPoints;
+
+			return crow::response(200, response);
 		}
 		catch (const std::exception& e) {
 			return crow::response(500, e.what());
 		}
-	});
+		});
 	CROW_ROUTE(app, "/login").methods("POST"_method)([&player](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 		if (!body) {
@@ -307,8 +324,6 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		});
 
 
-
-
 	app.port(18080).multithreaded().run();
 }
 
@@ -327,8 +342,8 @@ int main()
 			std::cout << map;
 			Player player("Hero", { 0, 0 }, 3, DirectionType::Up);
 			Player player2("Hero2", { 0, randValCols-1 }, 3, DirectionType::Up);
-			Player player3("Hero3", { randValRows-1, 0 }, 3, DirectionType::Up);
-			Player player4("Hero4", { randValRows-1,randValCols-1 }, 3, DirectionType::Up);
+			//Player player3("Hero3", { randValRows-1, 0 }, 3, DirectionType::Up);
+			//Player player4("Hero4", { randValRows-1,randValCols-1 }, 3, DirectionType::Up);
 			system("cls");
 			Weapon weapon(23, 54, 4.3, 2.4, DirectionType::Up);
 			player.GetStartPosition();
@@ -340,8 +355,8 @@ int main()
 			/*player3.GetStartPosition();
 			map.setCellType(player3.GetStartPosition().first, player3.GetStartPosition().second, CellType::Player);*/
 
-			player4.GetStartPosition();
-			map.setCellType(player4.GetStartPosition().first, player4.GetStartPosition().second, CellType::Player);
+			//player4.GetStartPosition();
+			//map.setCellType(player4.GetStartPosition().first, player4.GetStartPosition().second, CellType::Player);
 
 
 			for (int i = 0; i < 3; i++)

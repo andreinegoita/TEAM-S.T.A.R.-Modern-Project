@@ -24,6 +24,8 @@ private:
     void setupUI();
     bool validateInputs();
     int generateUniqueId();
+    bool sendPlayerDataToServer(int playerId, const QString& playerName, int playerPoints); 
+
 };
 
 #endif

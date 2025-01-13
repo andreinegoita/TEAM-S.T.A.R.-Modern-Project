@@ -54,6 +54,7 @@ private:
 		case CellType::UNBREAKABLE_WALL: return "Unbreakable";
 		case CellType::Player: return "Player";
 		case CellType::Bomb: return "Bomb";
+		case CellType::Bullet: return "Bullet";
 		default: return "Unknown";
 		}
 	}

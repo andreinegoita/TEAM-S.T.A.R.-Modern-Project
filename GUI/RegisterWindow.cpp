@@ -1,4 +1,4 @@
-#include "RegisterWindow.h"
+﻿#include "RegisterWindow.h"
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -7,6 +7,10 @@
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
+#include <cpr/cpr.h>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 
 
 RegisterWindow::RegisterWindow(QWidget* parent):QMainWindow(parent)
@@ -53,37 +57,56 @@ bool RegisterWindow::validateInputs()
     return true;
 }
 
-void RegisterWindow::onRegisterButtonClicked()
-{
+void RegisterWindow::onRegisterButtonClicked() {
     if (validateInputs()) {
-        QString playerName = usernameEdit->text(); // Assume you have a QLineEdit for the name
-        int playerPoints = 300; // Default points for a new player
-        int playerId = generateUniqueId(); // Create a method to generate unique IDs
+        QString playerName = usernameEdit->text();
+        int playerPoints = 300; // Puncte implicite
+        int playerId = generateUniqueId(); // ID unic
 
-        QSqlDatabase db = QSqlDatabase::database(); // Assuming a database connection is already established
-        if (!db.isOpen()) {
-            QMessageBox::critical(this, "Database Error", "Database connection is not open.");
-            return;
-        }
-
-        QSqlQuery query;
-        query.prepare("INSERT INTO players (id, name, points) VALUES (:id, :name, :points)");
-        query.bindValue(":id", playerId);
-        query.bindValue(":name", playerName);
-        query.bindValue(":points", playerPoints);
-
-        if (query.exec()) {
-            QMessageBox::information(this, "Success", "Utilizator inregistrat cu succes!");
+        if (sendPlayerDataToServer(playerId, playerName, playerPoints)) {
+            QMessageBox::information(this, "Success", "Utilizator înregistrat cu succes!");
             this->close();
-        }
-        else {
-            QMessageBox::critical(this, "Database Error", query.lastError().text());
         }
     }
 }
-
 int RegisterWindow::generateUniqueId()
 {
     static int nextId = 1;
     return nextId++;
+}
+
+bool RegisterWindow::sendPlayerDataToServer(int playerId, const QString& playerName, int playerPoints) {
+    // Construire JSON manual
+    QString jsonString = QString("{\"id\": %1, \"name\": \"%2\", \"points\": %3}")
+        .arg(playerId)
+        .arg(playerName)
+        .arg(playerPoints);
+
+    // Trimitere cerere POST către server
+    cpr::Response response = cpr::Post(
+        cpr::Url{ "http://localhost:18080/register" },
+        cpr::Body{ jsonString.toStdString() },
+        cpr::Header{ {"Content-Type", "application/json"} }
+    );
+
+    // Verificare răspuns server
+    if (response.status_code == 200) {
+        // Procesare răspuns JSON primit de la server
+        auto responseText = QString::fromStdString(response.text);
+        QJsonDocument responseDoc = QJsonDocument::fromJson(responseText.toUtf8());
+        QJsonObject responseObj = responseDoc.object();
+
+        if (responseObj["status"].toString() == "success") {
+            return true;
+        }
+        else {
+            QMessageBox::critical(nullptr, "Server Error", responseObj["error"].toString());
+            return false;
+        }
+    }
+    else {
+        QMessageBox::critical(nullptr, "Error",
+            QString("Failed to connect to server: %1").arg(response.status_code));
+        return false;
+    }
 }
