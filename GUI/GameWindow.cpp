@@ -784,28 +784,43 @@ void GameWindow::updateServerPlayerPosition() {
     static int lastX = -1;
     static int lastY = -1;
 
-    int currentX = static_cast<int>(m_x / 64);
-    int currentY = static_cast<int>(m_y / 64);
+    int currentX = static_cast<int>((m_x + 10) / 64);
+    int currentY = static_cast<int>((m_y + 10) / 64);
+
 
     if (currentX != lastX || currentY != lastY) {
+        if (lastX != -1 && lastY != -1)
+        {
+            int lx = lastX;
+            int ly = lastY;
+
+            QtConcurrent::run([&lx, &ly, currentX, currentY]() {
+                std::string payload = "{\"x\":" + std::to_string(currentX) + ",\"y\":" + std::to_string(currentY) +
+                    ",\"lx\":" + std::to_string(lx) + ",\"ly\":" + std::to_string(ly) + "}";
+
+
+
+                cpr::Response response = cpr::Post(
+                    cpr::Url{ "http://localhost:18080/player_position" },
+                    cpr::Body{ payload },
+                    cpr::Header{ { "Content-Type", "application/json" } }
+                );
+
+                if (response.status_code != 200) {
+                    qDebug() << "Failed to update player position on server! Status code:" << response.status_code;
+                    qDebug() << "Error message:" << QString::fromStdString(response.error.message);
+                }
+                });
+        }
         lastX = currentX;
         lastY = currentY;
 
-        QtConcurrent::run([currentX, currentY]() {
-            std::string payload = "{\"x\":" + std::to_string(currentX) + ",\"y\":" + std::to_string(currentY) + "}";
 
-            cpr::Response response = cpr::Post(
-                cpr::Url{ "http://localhost:18080/player_position" },
-                cpr::Body{ payload },
-                cpr::Header{ { "Content-Type", "application/json" } }
-            );
-
-            if (response.status_code != 200) {
-                qDebug() << "Failed to update player position on server!";
-            }
-            });
+        updateMap(m_mapArray);
     }
+
 }
+
 
 void GameWindow::FetchPlayersFromServer() {
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
