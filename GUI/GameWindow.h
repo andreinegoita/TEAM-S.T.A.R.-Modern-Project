@@ -96,5 +96,5 @@ private:
     QLabel* messageLabel;
     int visibilityRadius = 1;
     QTimer* visibilityTimer;
-
+    QTimer* updateTimer;
 };

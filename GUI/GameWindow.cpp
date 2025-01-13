@@ -49,10 +49,15 @@ GameWindow::GameWindow(QWidget* parent)
     visibilityTimer->start(5000); 
     qDebug() << "Updated";
 
+    updateTimer = new QTimer(this);
+    connect(updateTimer, &QTimer::timeout, this, &GameWindow::fetchMap);
+    updateTimer->start(500);
+
     messageLabel = new QLabel(this);
     messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     messageLabel->setStyleSheet("QLabel { color : red; font-size: 30px; }");
     messageLabel->hide();
+   // updatePlayerUI(m_speed, m_playerLives, m_shield, m_fireRate);
 }
 
 
