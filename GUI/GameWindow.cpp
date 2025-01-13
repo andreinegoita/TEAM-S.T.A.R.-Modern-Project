@@ -48,6 +48,11 @@ GameWindow::GameWindow(QWidget* parent)
     connect(visibilityTimer, &QTimer::timeout, this, &GameWindow::increaseVisibility);
     visibilityTimer->start(5000); 
     qDebug() << "Updated";
+
+    messageLabel = new QLabel(this);
+    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    messageLabel->setStyleSheet("QLabel { color : red; font-size: 30px; }");
+    messageLabel->hide();
 }
 
 
@@ -744,10 +749,18 @@ void GameWindow::destroyCells(int x, int y)
     {
         if (!m_shield)
         {
-            m_mapData[x][y] = "Empty";
-            updateServerMapCell(x, y);
-            fetchMap();
-            return;
+            m_playerLives--;
+            if (m_mapData[x][y] == "Player")
+            {
+                if (m_playerLives == 0)
+                {
+                    displayPlayerDeathMessage(m_playerName);
+                    m_mapData[x][y] = "Empty";
+                    updateServerMapCell(x, y);
+                    fetchMap();
+                    return;
+                }
+            }
         }
     }
     if (m_mapData[x][y] == "Bomb")
@@ -832,6 +845,14 @@ void GameWindow::FetchPlayersFromServer() {
 
         reply->deleteLater();
         });
+}
+void GameWindow::displayPlayerDeathMessage(const std::string& playerName)
+{
+    messageLabel->setText(QString::fromStdString(playerName + " died"));
+
+    messageLabel->show();
+
+    QTimer::singleShot(5000, messageLabel, &QLabel::hide);
 }
 void GameWindow::increaseVisibility() {
     visibilityRadius++;

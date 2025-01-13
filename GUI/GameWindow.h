@@ -77,6 +77,7 @@ private:
     void fetchPowerUpQueue();
     void applyNextPowerUp();
     void FetchPlayersFromServer();
+    void displayPlayerDeathMessage(const std::string& playerName);
 
 
 private:
@@ -91,7 +92,7 @@ private:
     QVector<m_bulletData> bullets;
     QVector<QLabel*> bulletLabels;
     std::queue<PowerUpType> powerUpQueue;
-
+    QLabel* messageLabel;
     int visibilityRadius = 1;
     QTimer* visibilityTimer;
 
