@@ -4,7 +4,7 @@ void http::populateStorage(Storage& storage, const std::string& playerName)
 {
 	Player newPlayer;
 	newPlayer.name = playerName;
-	newPlayer.points = 0;
+	newPlayer.points = 300;
 
 	storage.insert(newPlayer);
 }

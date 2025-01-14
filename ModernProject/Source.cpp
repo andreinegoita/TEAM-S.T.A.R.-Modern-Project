@@ -114,30 +114,114 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 			return crow::response("Game added");
 		});*/
 
+	//CROW_ROUTE(app, "/register").methods("POST"_method)([&storage](const crow::request& req) {
+	//	auto body = crow::json::load(req.body);
+
+	//	// Verificare validitate JSON
+	//	if (!body) {
+	//		return crow::response(400, "Invalid JSON payload");
+	//	}
+
+	//	// Extrage datele din JSON
+	//	std::string playerName = body["name"].s();
+	//	if (playerName.empty()) {
+	//		return crow::response(400, "Player name cannot be empty");
+	//	}
+
+	//	int playerPoints = body["points"].i(); // Opțional, poate avea un număr implicit
+	//	if (playerPoints <= 0) {
+	//		playerPoints = 300; // Valoare implicită
+	//	}
+
+	//	try {
+	//		
+	//		http::populateStorage(storage, playerName);
+
+	//		// Răspuns JSON către client
+	//		crow::json::wvalue response;
+	//		response["status"] = "success";
+	//		response["name"] = playerName;
+	//		response["points"] = playerPoints;
+
+	//		return crow::response(200, response);
+	//	}
+	//	catch (const std::exception& e) {
+	//		return crow::response(500, e.what());
+	//	}
+	//	});
+
+
 	CROW_ROUTE(app, "/register").methods("POST"_method)([&storage](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 
-		// Verificare validitate JSON
+
 		if (!body) {
 			return crow::response(400, "Invalid JSON payload");
 		}
 
-		// Extrage datele din JSON
+		
 		std::string playerName = body["name"].s();
 		if (playerName.empty()) {
 			return crow::response(400, "Player name cannot be empty");
 		}
 
-		int playerPoints = body["points"].i(); // Opțional, poate avea un număr implicit
+		int playerPoints = body["points"].i();
 		if (playerPoints <= 0) {
-			playerPoints = 300; // Valoare implicită
+			playerPoints = 300;
 		}
 
 		try {
-			
-			http::populateStorage(storage, playerName);
 
-			// Răspuns JSON către client
+			sqlite3* db;
+			const char* db_name = "D:/TEAM-S.T.A.R.-Modern-Project/ModernProject/game.db";
+			
+
+			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
+				return crow::response(500, "Failed to connect to database");
+			}
+
+			const char* select_sql = "SELECT COUNT(*) FROM players WHERE name = ?";
+			sqlite3_stmt* select_stmt;
+
+			if (sqlite3_prepare_v2(db, select_sql, -1, &select_stmt, nullptr) != SQLITE_OK) {
+				sqlite3_close(db);
+				return crow::response(500, "Failed to prepare SELECT statement");
+			}
+
+			sqlite3_bind_text(select_stmt, 1, playerName.c_str(), -1, SQLITE_STATIC);
+			int count = 0;
+
+			if (sqlite3_step(select_stmt) == SQLITE_ROW) {
+				count = sqlite3_column_int(select_stmt, 0);
+			}
+
+			sqlite3_finalize(select_stmt);
+
+			if (count > 0) {
+				sqlite3_close(db);
+				return crow::response(409, "Player name already exists");
+			}
+
+			const char* insert_sql = "INSERT INTO players (name, points) VALUES (?, ?)";
+			sqlite3_stmt* insert_stmt;
+
+			if (sqlite3_prepare_v2(db, insert_sql, -1, &insert_stmt, nullptr) != SQLITE_OK) {
+				sqlite3_close(db);
+				return crow::response(500, "Failed to prepare INSERT statement");
+			}
+
+			sqlite3_bind_text(insert_stmt, 1, playerName.c_str(), -1, SQLITE_STATIC);
+			sqlite3_bind_int(insert_stmt, 2, playerPoints);
+
+			if (sqlite3_step(insert_stmt) != SQLITE_DONE) {
+				sqlite3_finalize(insert_stmt);
+				sqlite3_close(db);
+				return crow::response(500, "Failed to insert player into database");
+			}
+
+			sqlite3_finalize(insert_stmt);
+			sqlite3_close(db);
+
 			crow::json::wvalue response;
 			response["status"] = "success";
 			response["name"] = playerName;
@@ -149,7 +233,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 			return crow::response(500, e.what());
 		}
 		});
-	CROW_ROUTE(app, "/login").methods("POST"_method)([&player](const crow::request& req) {
+	CROW_ROUTE(app, "/login").methods("GET"_method)([&player](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 		if (!body) {
 			return crow::response(400, "Invalid JSON body");

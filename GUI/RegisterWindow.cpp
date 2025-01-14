@@ -13,9 +13,9 @@
 #include <QJsonValue>
 
 
-RegisterWindow::RegisterWindow(QWidget* parent):QMainWindow(parent)
+RegisterWindow::RegisterWindow(QWidget* parent) :QMainWindow(parent)
 {
-	setupUI();
+    setupUI();
 }
 
 RegisterWindow::~RegisterWindow()
@@ -49,7 +49,7 @@ void RegisterWindow::setupUI()
 
 bool RegisterWindow::validateInputs()
 {
-    if (usernameEdit->text().isEmpty() ) {
+    if (usernameEdit->text().isEmpty()) {
         QMessageBox::warning(this, "Eroare", "Toate campurile trebuie completate!");
         return false;
     }
@@ -104,6 +104,12 @@ bool RegisterWindow::sendPlayerDataToServer(int playerId, const QString& playerN
             return false;
         }
     }
+        else if (response.status_code == 409)
+        {
+        QMessageBox::critical(nullptr, "Error",
+            QString("User already exists: %1").arg(response.status_code));
+        return false;
+        }
     else {
         QMessageBox::critical(nullptr, "Error",
             QString("Failed to connect to server: %1").arg(response.status_code));

@@ -101,7 +101,7 @@ void LoginWindow::onLoginClicked() {
         qDebug() << "Player found: ID=" << playerId << ", Points=" << playerPoints;
 
         // Trimite datele către server folosind CPR
-        cpr::Response response = cpr::Post(
+        cpr::Response response = cpr::Get(
             cpr::Url{ "http://localhost:18080/login" }, // URL-ul serverului tău
             cpr::Body{ R"({"id": ")" + std::to_string(playerId) + R"(", "name": ")" + playerName.toStdString() + R"(", "points": ")" + std::to_string(playerPoints) + R"("})" },
             cpr::Header{ {"Content-Type", "application/json"} }

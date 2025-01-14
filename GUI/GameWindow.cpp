@@ -319,8 +319,8 @@ void GameWindow::updateGraphics() {
     {
         m_x = newX;
         m_y = newY;
-        int playerGridX = static_cast<int>(m_x / 64);
-        int playerGridY = static_cast<int>(m_y / 64);
+        int playerGridX = static_cast<int>((m_x + 32) / 64);
+        int playerGridY = static_cast<int>((m_y + 32) / 64);
         updateServerPlayerPosition();
 
 
