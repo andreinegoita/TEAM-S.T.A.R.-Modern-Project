@@ -97,4 +97,7 @@ private:
     int visibilityRadius = 1;
     QTimer* visibilityTimer;
     QTimer* updateTimer;
+
+    std::string base_url = "http://localhost:18080";
+    const QString base_url_Q = "http://localhost:18080";
 };

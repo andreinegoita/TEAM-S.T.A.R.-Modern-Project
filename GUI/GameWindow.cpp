@@ -168,7 +168,7 @@ void GameWindow::fetchPowerUpQueue()
         powerUpQueue.pop();
     }
 
-    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/powerUpQueue" });
+    cpr::Response response = cpr::Get(cpr::Url{ base_url+"/powerUpQueue" });
 
     qDebug() << "Response received:" << response.text.c_str();
     if (response.status_code == 200) {
@@ -211,7 +211,7 @@ void GameWindow::applyNextPowerUp() {
 
   
     cpr::Response response = cpr::Post(
-        cpr::Url{ "http://localhost:18080/applyPowerUp" },
+        cpr::Url{ base_url+"/applyPowerUp" },
         cpr::Body{ payload },
         cpr::Header{ {"Content-Type", "application/json"} }
     );
@@ -282,7 +282,7 @@ std::mutex mapMutex;
 
 void GameWindow::fetchMap() {
     std::lock_guard<std::mutex> lock(mapMutex);
-    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/map" });
+    cpr::Response response = cpr::Get(cpr::Url{ base_url+"/map" });
     if (response.status_code == 200) {
         if (response.text.empty())
         {
@@ -588,9 +588,9 @@ void GameWindow::updateServerBulletsPosition() {
 
     QString payload = QJsonDocument(bulletArray).toJson(QJsonDocument::Compact);
 
-    QtConcurrent::run([payload]() {
+    QtConcurrent::run([payload,this]() {
         cpr::Response response = cpr::Post(
-            cpr::Url{ "http://localhost:18080/bullets_position" },
+            cpr::Url{base_url+"/bullets_position" },
             cpr::Body{ payload.toStdString() },
             cpr::Header{ { "Content-Type", "application/json" } }
         );
@@ -605,7 +605,7 @@ void GameWindow::updateServerBulletsPosition() {
 void GameWindow::updateServerMapCell(int row, int col)
 {
     cpr::Response response = cpr::Post(
-        cpr::Url{ "http://localhost:18080/map/empty/" + std::to_string(row) + "/" + std::to_string(col) },
+        cpr::Url{ base_url+"/map/empty/" + std::to_string(row) + "/" + std::to_string(col) },
         cpr::Header{ {"Content-Type", "application/json"} }
     );
 
@@ -642,7 +642,7 @@ void GameWindow::setPlayerStartPosition()
 
 
 void GameWindow::fetchPlayerPosition() {
-    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/player_position" });
+    cpr::Response response = cpr::Get(cpr::Url{base_url+"/player_position" });
 
     if (response.status_code == 200) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
@@ -804,14 +804,14 @@ void GameWindow::updateServerPlayerPosition() {
             int lx = lastX;
             int ly = lastY;
 
-            QtConcurrent::run([&lx, &ly, currentX, currentY]() {
+            QtConcurrent::run([&lx, &ly, currentX, currentY,this]() {
                 std::string payload = "{\"x\":" + std::to_string(currentX) + ",\"y\":" + std::to_string(currentY) +
                     ",\"lx\":" + std::to_string(lx) + ",\"ly\":" + std::to_string(ly) + "}";
 
 
 
                 cpr::Response response = cpr::Post(
-                    cpr::Url{ "http://localhost:18080/player_position" },
+                    cpr::Url{base_url+"/player_position" },
                     cpr::Body{ payload },
                     cpr::Header{ { "Content-Type", "application/json" } }
                 );
@@ -836,7 +836,7 @@ void GameWindow::FetchPlayersFromServer() {
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
 
-    QNetworkRequest request(QUrl("http://localhost:18080/get_players"));
+    QNetworkRequest request(QUrl(base_url_Q+"/get_players"));
     QNetworkReply* reply = manager->get(request);
 
 

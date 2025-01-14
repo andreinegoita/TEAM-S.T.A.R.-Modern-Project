@@ -84,7 +84,7 @@ bool RegisterWindow::sendPlayerDataToServer(int playerId, const QString& playerN
 
     // Trimitere cerere POST către server
     cpr::Response response = cpr::Post(
-        cpr::Url{ "http://localhost:18080/register" },
+        cpr::Url{ base_url+"/register" },
         cpr::Body{ jsonString.toStdString() },
         cpr::Header{ {"Content-Type", "application/json"} }
     );

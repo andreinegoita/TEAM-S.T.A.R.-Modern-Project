@@ -110,7 +110,7 @@ void ShopWindow::sendPowerUpRequest(const std::string& powerUpType) {
     QJsonDocument jsonDoc(jsonObj);
     QByteArray jsonData = jsonDoc.toJson();
 
-    cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:18080/buyPowerUp" },
+    cpr::Response r = cpr::Post(cpr::Url{ base_url+"/buyPowerUp" },
         cpr::Body{ jsonData.toStdString() }, 
         cpr::Header{ {"Content-Type", "application/json"} });
 
@@ -148,7 +148,7 @@ void ShopWindow::styleButton(QPushButton* button) {
 
 void ShopWindow::updatePlayerPoints()
 {
-    cpr::Response r = cpr::Get(cpr::Url{ "http://localhost:18080/getPoints" });
+    cpr::Response r = cpr::Get(cpr::Url{ base_url+"/getPoints" });
 
     if (r.status_code == 200) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(r.text).toUtf8());

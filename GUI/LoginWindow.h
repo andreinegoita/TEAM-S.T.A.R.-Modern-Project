@@ -2,6 +2,7 @@
 #define LOGINWINDOW_H
 #include <QMainWindow>
 #include "MainMenuWindow.h"
+#include<string>
 
 class QLineEdit;
 class QPushButton;
@@ -22,9 +23,9 @@ private:
 	QPushButton* loginButton;
 	QPushButton* registerButton;
 	MainMenuWindow* mainMenuWindow;
-
 	void setupUI();
 	void onLoginClicked();
+	std::string base_url = "http://localhost:18080";
 
 
 private slots:

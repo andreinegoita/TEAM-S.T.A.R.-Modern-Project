@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include<iostream>
+#include<string>
 
 class ShopWindow : public QWidget {
     Q_OBJECT
@@ -15,7 +16,7 @@ private:
     void sendPowerUpRequest(const std::string& powerUpType);
     void styleButton(QPushButton* button);
     void updatePlayerPoints();
-
+    std::string base_url="http://localhost:18080";
     QLabel* shopLabel;
     QLabel* pointsLabel;
     QPushButton* Speed;

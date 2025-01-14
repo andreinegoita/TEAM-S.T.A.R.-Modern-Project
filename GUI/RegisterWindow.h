@@ -1,6 +1,6 @@
 #ifndef REGISTERWINDOW_H
 #define REGISTERWINDOW_H
-
+#include<string>
 #include <QMainWindow>
 
 class QLineEdit;
@@ -20,7 +20,7 @@ private slots:
 private:
     QLineEdit* usernameEdit;
     QPushButton* registerButton;
-
+    std::string base_url = "http://localhost:18080";
     void setupUI();
     bool validateInputs();
     int generateUniqueId();
