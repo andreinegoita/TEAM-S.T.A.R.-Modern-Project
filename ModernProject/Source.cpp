@@ -32,7 +32,7 @@ void initializeSpawnPositions(GameMap& map, std::set<std::pair<int, int>> availa
 void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<std::pair<int, int>> availableSpawnPositions)
 {
 	crow::SimpleApp app;
-	app.loglevel(crow::LogLevel::Critical);
+	//app.loglevel(crow::LogLevel::Critical);
 	CROW_ROUTE(app, "/map").methods("GET"_method)([&map]() {
 		return crow::response(map.GetMapState());
 		});
@@ -127,7 +127,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 
 	CROW_ROUTE(app, "/players").methods("GET"_method)
 		([&storage]() {
-		auto players = storage.get_all<http::Player>();
+		auto players = storage.get_all<http::PlayersDatabase>();
 		std::ostringstream os;
 		for (const auto& player : players) {
 			os << "ID: " << player.id << ", Name: " << player.name << ", Points: " << player.points << "\n";
@@ -216,9 +216,9 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		}
 
 		int playerPoints = body["points"].i();
-		if (playerPoints <= 0) {
-			playerPoints = 300;
-		}
+		//if (playerPoints <= 0) {
+		//	playerPoints = 1000;
+		//}
 
 		try {
 
@@ -289,20 +289,151 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 			return crow::response(400, "Invalid JSON body");
 		}
 
-		std::string id = body["id"].s();
 		std::string name = body["name"].s();
-		int points = body["points"].i();
-		player.setName(name);
-		player.setPoints(points);
+		if (name.empty()) {
+			return crow::response(400, "Player name cannot be empty");
+		}
 
+		try {
+			sqlite3* db;
+			const char* db_name = "D:/TEAM-S.T.A.R.-Modern-Project/ModernProject/game.db";
 
-		crow::json::wvalue response;
-		response["status"] = "success";
-		response["message"] = "Player found";
-		response["points"] = points;
-		return crow::response(200, response);
+			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
+				return crow::response(500, "Failed to connect to database");
+			}
 
+			const char* select_sql = "SELECT name, points FROM players WHERE name = ? COLLATE NOCASE";
+			sqlite3_stmt* stmt;
+
+			if (sqlite3_prepare_v2(db, select_sql, -1, &stmt, nullptr) != SQLITE_OK) {
+				sqlite3_close(db);
+				return crow::response(500, "Failed to prepare SELECT statement");
+			}
+
+			sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+			std::cout << "Executing query: " << select_sql << " with name: " << name << std::endl;
+
+			std::string playerName;
+			int points = 0;
+
+			if (sqlite3_step(stmt) == SQLITE_ROW) {
+				playerName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+				points = sqlite3_column_int(stmt, 1);
+			}
+			else {
+				std::cout << "No player found with name: " << name << std::endl;
+				sqlite3_finalize(stmt);
+				sqlite3_close(db);
+				return crow::response(404, "Player not found");
+			}
+
+			sqlite3_finalize(stmt);
+			sqlite3_close(db);
+
+			player.setName(playerName);
+			player.setPoints(points);
+
+			crow::json::wvalue response;
+			response["status"] = "success";
+			response["message"] = "Player found";
+			response["name"] = playerName;
+			response["points"] = points;
+			return crow::response(200, response);
+
+		}
+		catch (const std::exception& e) {
+			return crow::response(500, e.what());
+		}
 		});
+
+	CROW_ROUTE(app, "/purchase").methods("POST"_method)([&storage](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+
+		if (!body) {
+			return crow::response(400, "Invalid JSON payload");
+		}
+
+		std::string playerName = body["name"].s();
+		if (playerName.empty()) {
+			return crow::response(400, "Player name cannot be empty");
+		}
+
+		int cost = body["cost"].i();
+		if (cost <= 0) {
+			return crow::response(400, "Invalid purchase cost");
+		}
+
+		try {
+			sqlite3* db;
+			const char* db_name = "D:/TEAM-S.T.A.R.-Modern-Project/ModernProject/game.db";
+
+			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
+				return crow::response(500, "Failed to connect to database");
+			}
+
+			const char* select_sql = "SELECT points FROM players WHERE name = ?;";
+			sqlite3_stmt* select_stmt;
+
+			if (sqlite3_prepare_v2(db, select_sql, -1, &select_stmt, nullptr) != SQLITE_OK) {
+				sqlite3_close(db);
+				return crow::response(500, "Failed to prepare SELECT statement");
+			}
+
+			sqlite3_bind_text(select_stmt, 1, playerName.c_str(), -1, SQLITE_STATIC);
+
+			int playerPoints = -1;
+			if (sqlite3_step(select_stmt) == SQLITE_ROW) {
+				playerPoints = sqlite3_column_int(select_stmt, 0);
+			}
+			sqlite3_finalize(select_stmt);
+
+			if (playerPoints == -1) {
+				sqlite3_close(db);
+				return crow::response(404, "Player not found");
+			}
+
+			if (playerPoints < cost) {
+				sqlite3_close(db);
+				return crow::response(400, "Insufficient points for purchase");
+			}
+
+			sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+
+			const char* update_sql = "UPDATE players SET points = points - ? WHERE name = ?;";
+			sqlite3_stmt* update_stmt;
+
+			if (sqlite3_prepare_v2(db, update_sql, -1, &update_stmt, nullptr) != SQLITE_OK) {
+				sqlite3_close(db);
+				return crow::response(500, "Failed to prepare UPDATE statement");
+			}
+
+			sqlite3_bind_int(update_stmt, 1, cost);
+			sqlite3_bind_text(update_stmt, 2, playerName.c_str(), -1, SQLITE_STATIC);
+
+			if (sqlite3_step(update_stmt) != SQLITE_DONE) {
+				std::cerr << "SQL error: " << sqlite3_errmsg(db) << std::endl;
+				sqlite3_finalize(update_stmt);
+				sqlite3_close(db);
+				return crow::response(500, "Failed to update player points");
+			}
+
+			sqlite3_finalize(update_stmt);
+			sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+			sqlite3_close(db);
+
+			crow::json::wvalue response;
+			response["status"] = "success";
+			response["name"] = playerName;
+			response["remaining_points"] = playerPoints - cost;
+
+			return crow::response(200, response);
+
+		}
+		catch (const std::exception& e) {
+			return crow::response(500, e.what());
+		}
+		});
+
 
 	//CROW_ROUTE(app, "/shoot_bullet").methods("POST"_method)([](const crow::request& req) {
 	//	auto json = crow::json::load(req.body);
@@ -424,7 +555,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		});
 	CROW_ROUTE(app, "/get_players").methods("GET"_method)([&storage]() {
 		try {
-			auto players = storage.get_all<http::Player>();
+			auto players = storage.get_all<http::PlayersDatabase>();
 			crow::json::wvalue response;
 
 

@@ -1,9 +1,11 @@
 ﻿#include "Player.h"
+
 #include<iostream>
 #include<chrono>
 #include<cstdlib>
 #include<thread>
 #include<sstream>
+#include<cpr/cpr.h>
 
 Player::Player(std::string_view  name, std::pair<uint16_t, uint16_t> position, double velocity, DirectionType direction) :m_name{ name },
 GameObject{ position, velocity,direction }, m_health{ 3 }, m_points(1000), m_score{ 0 }, m_startPosition{ position } {}
@@ -157,20 +159,29 @@ void Player::BuyPowerUp(PowerUpType powerUpType) {
         cost = 500;
         if (m_fireRatePurchased)
         {
-            std::cout << "You already buy it!" <<std::endl;
+            std::cout << "You already buy it!" << std::endl;
             return;
         }
         break;
     default:
         break;
     }
-    
+
     if (CanAffordPowerUp(cost)) {
         m_points -= cost;
+        std::string url = "http://localhost:18080/purchase";
+
+        std::string payloadStr = "{\"name\":\"" + m_name + "\",\"cost\":" + std::to_string(cost) + "}";
+
+        cpr::Response response = cpr::Post(
+            cpr::Url{ url },
+            cpr::Header{ {"Content-Type", "application/json"} },
+            cpr::Body{ payloadStr }
+        );
         m_powerUpQueue.push(powerUpType);
 
         if (powerUpType == PowerUpType::FireRate) {
-            m_fireRatePurchased = true; 
+            m_fireRatePurchased = true;
         }
     }
     else {
