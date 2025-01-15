@@ -1,3 +1,4 @@
+import Weapon;
 #pragma once
 #include<iostream>
 #include<string_view>
@@ -5,9 +6,9 @@
 #include <conio.h>
 #include"GameMap.h"
 #include"GameObject.h"
-#include"Weapon.h"
 #include"PowerUps.h"
 #include<queue>
+#include<chrono>
 
 class Player :public GameObject
 {

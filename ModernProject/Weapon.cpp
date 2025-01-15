@@ -1,4 +1,4 @@
-#include "Weapon.h"
+module Weapon;
 
 Weapon::Weapon() :m_fireRate(500),m_bulletSpeed(m_speed + 5.0f), m_lastFire(std::chrono::steady_clock::now()), GameObject({ 0,0 }, 0,DirectionType::Up)
 {

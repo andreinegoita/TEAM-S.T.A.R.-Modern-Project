@@ -593,9 +593,9 @@ bool GameWindow::canMoveTo(float newX, float newY)
     }
 
     auto isBlocked = [this](int x, int y) {
-        return m_mapData[y][x] == "Wall" ||
-            m_mapData[y][x] == "Unbreakable" ||
-            m_mapData[y][x] == "Bomb";
+        return m_mapData[x][y] == "Wall" ||
+            m_mapData[x][y] == "Unbreakable" ||
+            m_mapData[x][y] == "Bomb";
         };
 
     if (isBlocked(gridY1, gridX1) || isBlocked(gridY1, gridX2) ||
