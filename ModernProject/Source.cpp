@@ -64,12 +64,11 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		std::cout << "Received player position: x = " << x << ", y = " << y << std::endl;
 		return crow::response(200);
 		});
-	CROW_ROUTE(app, "/bullets_position").methods("POST"_method)([&map](const crow::request& req) {
+	CROW_ROUTE(app, "/bullets_position").methods("POST"_method)([&map, &player](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 		if (!body) {
 			return crow::response(400, "Invalid JSON");
 		}
-
 
 		for (const auto& bullet : body) {
 			int x = bullet["x"].i();
@@ -77,13 +76,52 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 			int prevx = bullet["prev_x"].i();
 			int prevy = bullet["prev_y"].i();
 			int direction = bullet["direction"].i();
-			map.UpdateCell(y, x, 4U);
-			map.UpdateCell(prevy, prevx, 0U);
+
+			try {
+				CellType currentCellType = map.getCellType(y, x);
+
+				if (currentCellType == CellType::UNBREAKABLE_WALL) {
+					std::cout << "Bullet hit an unbreakable wall at (" << x << ", " << y << ")\n";
+					map.UpdateCell(prevy, prevx, 0U); 
+					continue; 
+				}
+
+
+				if (currentCellType == CellType::Player) {
+					if (player.HasShield()) {
+						std::cout << "Bullet hit player with shield at (" << x << ", " << y << "), shield absorbed the bullet\n";
+						map.UpdateCell(prevy, prevx, 0U);  
+					}
+					else {
+						std::cout << "Bullet hit player at (" << x << ", " << y << "), player damaged!\n";
+						map.UpdateCell(y, x, 0U);  
+						map.UpdateCell(prevy, prevx, 0U);  
+					}
+					continue; 
+				}
+
+
+				if (currentCellType == CellType::Bullet) {
+					std::cout << "Bullet collided with another bullet at (" << x << ", " << y << ")\n";
+					map.UpdateCell(y, x, 0U);
+					map.UpdateCell(prevy, prevx, 0U);  
+					continue; 
+				}
+
+				if (currentCellType == CellType::EMPTY) {
+					map.UpdateCell(y, x, 4U);
+					map.UpdateCell(prevy, prevx, 0U);
+				}
+
+			}
+			catch (const std::out_of_range& e) {
+				std::cerr << "Out of bounds: " << e.what() << "\n";
+			}
 
 			std::cout << "Bullet at (" << x << ", " << y << ", " << prevx << ", " << prevy << "), direction: " << direction << std::endl;
 		}
 
-		return crow::response(200);
+		return crow::response(200);  // Răspuns de succes
 		});
 
 	CROW_ROUTE(app, "/players").methods("GET"_method)

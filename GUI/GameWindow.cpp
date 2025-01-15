@@ -667,8 +667,8 @@ void GameWindow::updateServerBulletsPosition() {
 
     for (const m_bulletData& bullet : bullets) {
         QJsonObject bulletObject;
-        int currentX = static_cast<int>((bullet.x + 10) / 64);
-        int currentY = static_cast<int>((bullet.y + 10) / 64);
+        int currentX = static_cast<int>((bullet.x + 32) / 64);
+        int currentY = static_cast<int>((bullet.y + 32) / 64);
         if (currentX != lastX || currentY != lastY)
         {
             if (lastX != -1 && lastY != -1)
