@@ -273,6 +273,11 @@ void Player::setName(const std::string& name)
     this->m_name = name;
 }
 
+bool Player::IsAlive() const
+{
+    return m_health > 0;
+}
+
 void Player::setPoints(int points)
 {
     this->m_points = points;

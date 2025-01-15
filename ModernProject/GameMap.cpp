@@ -52,25 +52,49 @@ void GameMap::generateMap()
 	std::mt19937 mt(time(nullptr));
 	std::uniform_int_distribution<int> dist(1, 100);
 
-	for (size_t row = 0;row < m_rows;row++) {
-		for (size_t col = 0;col < m_cols;col++) {
+	for (size_t row = 0; row < m_rows; row++) {
+		for (size_t col = 0; col < m_cols; col++) {
 			if (row == 0 || row == m_rows - 1 || col == 0 || col == m_cols - 1)
-				setCellType(row, col, static_cast<CellType>(0));
+				setCellType(row, col, static_cast<CellType>(0)); 
 			else {
 				int randomPercent = dist(mt);
 				if (randomPercent <= 10)
-					setCellType(row, col, static_cast<CellType>(2));
+					setCellType(row, col, static_cast<CellType>(2)); 
 				else {
 					uint16_t randomVal = mt() % 3;
-					setCellType(row, col, static_cast<CellType>(randomVal));
+					setCellType(row, col, static_cast<CellType>(randomVal)); 
 				}
 			}
-			if (((col == 0 || col == m_cols - 1) && row == (m_rows - 1) / 2) || (row == 0 || row == m_rows - 1) && col == (m_cols - 1) / 2) {
+
+			if (((col == 0 || col == m_cols - 1) && row == (m_rows - 1) / 2) ||
+				(row == 0 || row == m_rows - 1) && col == (m_cols - 1) / 2) {
 				setCellType(row, col, static_cast<CellType>(2));
 			}
 		}
 	}
+
+	if (getCellType(0, (m_cols - 1) / 2) == static_cast<CellType>(2)) {
+		setCellType(0, (m_cols - 1) / 2 - 1, static_cast<CellType>(0));
+		setCellType(0, (m_cols - 1) / 2 + 1, static_cast<CellType>(0));
+	}
+
+	if (getCellType(m_rows - 1, (m_cols - 1) / 2) == static_cast<CellType>(2)) {
+		setCellType(m_rows - 1, (m_cols - 1) / 2 - 1, static_cast<CellType>(0));
+		setCellType(m_rows - 1, (m_cols - 1) / 2 + 1, static_cast<CellType>(0));
+	}
+
+	if (getCellType((m_rows - 1) / 2, 0) == static_cast<CellType>(2)) {
+		setCellType((m_rows - 1) / 2 - 1, 0, static_cast<CellType>(0));
+		setCellType((m_rows - 1) / 2 + 1, 0, static_cast<CellType>(0));
+	}
+
+	if (getCellType((m_rows - 1) / 2, m_cols - 1) == static_cast<CellType>(2)) {
+		setCellType((m_rows - 1) / 2 - 1, m_cols - 1, static_cast<CellType>(0));
+		setCellType((m_rows - 1) / 2 + 1, m_cols - 1, static_cast<CellType>(0));
+	}
 }
+
+
 
 bool GameMap::isValidMap() const
 {

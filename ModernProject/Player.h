@@ -45,6 +45,7 @@ public:
 	int GetPoints();
 	void setPoints(int points);
 	void setName(const std::string& name);
+	bool IsAlive() const;
 
 private:
 	std::chrono::steady_clock::time_point m_lastShootTime;

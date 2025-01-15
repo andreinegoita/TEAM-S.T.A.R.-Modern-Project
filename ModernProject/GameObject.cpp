@@ -50,6 +50,8 @@ void GameObject::Move(GameMap& gameMap)
         m_position.first = newX;
         m_position.second = newY;
         gameMap.setCellType(newX, newY, CellType::Player);
+
+        
     }
 }
 

@@ -32,6 +32,7 @@ void initializeSpawnPositions(GameMap& map, std::set<std::pair<int, int>> availa
 void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<std::pair<int, int>> availableSpawnPositions)
 {
 	crow::SimpleApp app;
+	app.loglevel(crow::LogLevel::Critical);
 	CROW_ROUTE(app, "/map").methods("GET"_method)([&map]() {
 		return crow::response(map.GetMapState());
 		});

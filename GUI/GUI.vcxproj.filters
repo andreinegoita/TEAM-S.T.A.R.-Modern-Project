@@ -61,6 +61,9 @@
     <ClCompile Include="GameControler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h">
@@ -140,6 +143,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ShopWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="WinWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="LobbyWindow.h">
