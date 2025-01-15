@@ -35,7 +35,8 @@ public:
     void displayMap(const QJsonArray& mapArray);
     void updateMap(const QJsonArray& mapArray);
     void increaseVisibility();
-    void returnToMainMenu();
+    void sendPlayerSpawn(int row, int col);
+    void setPlayerStartPosition(int x,int y);
 
 private slots:
     void updateGraphics();
@@ -73,7 +74,6 @@ private:
     void displayPlayerPosition(int x, int y);
     void updateServerBulletsPosition();
     void updateServerMapCell(int row, int col);
-    void setPlayerStartPosition();
     void updatePlayerUI(double speed, int lives, bool hasShield,double fireRate);
     void fetchPowerUpQueue();
     void applyNextPowerUp();

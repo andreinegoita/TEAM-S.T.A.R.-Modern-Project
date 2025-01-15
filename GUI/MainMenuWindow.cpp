@@ -1,14 +1,14 @@
 ﻿#include "MainMenuWindow.h"
 #include "GameWindow.h"
 #include <QFile>
-
+#include"LobbyWindow.h"
 MainMenuWindow::MainMenuWindow(QWidget* parent) : QMainWindow(parent) {
     setupUI();
 }
 
 void MainMenuWindow::setPlayerName(const QString& playerName)
 {
-    welcomeLabel->setText("Hello " + playerName);
+    welcomeLabel->setText(playerName);
 }
 
 void MainMenuWindow::setupUI() {
@@ -99,12 +99,18 @@ void MainMenuWindow::setupUI() {
 
 }
 
-void MainMenuWindow::startGame()
-{
-    GameWindow* gameWindow = new GameWindow();
-    gameWindow->show();
+void MainMenuWindow::startGame() {
+    LobbyWindow* lobbyWindow = new LobbyWindow();
+    lobbyWindow->addPlayer(welcomeLabel->text());
+
+    cpr::Post(
+        cpr::Url{ "http://localhost:18080/join_lobby" },
+        cpr::Body{ "{\"name\": \"" + welcomeLabel->text().toStdString() + "\"}" },
+        cpr::Header{ { "Content-Type", "application/json" } }
+    );
+
+    lobbyWindow->show();
     this->close();
 }
-
 
 

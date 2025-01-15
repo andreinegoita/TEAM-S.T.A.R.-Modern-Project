@@ -60,8 +60,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <OutDir>$(SolutionDir)..\GUI\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutDir>$(SolutionDir)..\GUI\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -108,7 +110,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameControler.cpp" />
     <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="LobbyWindow.cpp" />
     <ClCompile Include="MainMenuWindow.cpp" />
     <ClCompile Include="RegisterWindow.cpp" />
     <ClCompile Include="ShopWindow.cpp" />
@@ -126,6 +130,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Celltype.h" />
+    <ClInclude Include="GameControler.h" />
+    <QtMoc Include="LobbyWindow.h" />
     <QtMoc Include="ShopWindow.h" />
     <QtMoc Include="MainMenuWindow.h" />
     <QtMoc Include="RegisterWindow.h" />

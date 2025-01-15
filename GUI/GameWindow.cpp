@@ -37,7 +37,7 @@ GameWindow::GameWindow(QWidget* parent)
     fetchMap();
     updateMap(m_mapArray);
     // fetchPlayerPosition();
-    setPlayerStartPosition();
+    //setPlayerStartPosition();
     FetchPlayersFromServer();
 
     QTimer* powerUpTimer = new QTimer(this);
@@ -57,8 +57,20 @@ GameWindow::GameWindow(QWidget* parent)
     messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     messageLabel->setStyleSheet("QLabel { color : red; font-size: 30px; }");
     messageLabel->hide();
-   // updatePlayerUI(m_speed, m_playerLives, m_shield, m_fireRate);
+   
 }
+void GameWindow::setPlayerStartPosition(int x, int y) {
+    m_x = x * 64;
+    m_y = y * 64;
+
+    
+    playerLabel->move(m_x, m_y);
+    playerLabel->show();
+
+    sendPlayerSpawn(x, y);  
+    qDebug() << "Player set at position: (" << x << ", " << y << ")";
+}
+
 
 
 void GameWindow::keyPressEvent(QKeyEvent* event)
@@ -109,9 +121,6 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
     }
     if (event->key() == Qt::Key_Space) {
         shootBullet();
-    }
-    if (event->key() == Qt::Key_Escape) {
-        returnToMainMenu();
     }
     if (event->key() == Qt::Key_E) {
         qDebug() << "Press E!";
@@ -241,6 +250,46 @@ void GameWindow::applyNextPowerUp() {
     }
 }
 
+void GameWindow::FetchPlayersFromServer() {
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+
+
+    QNetworkRequest request(QUrl(base_url_Q + "/get_players"));
+    QNetworkReply* reply = manager->get(request);
+
+
+    connect(reply, &QNetworkReply::finished, this, [reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+
+            QByteArray responseData = reply->readAll();
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+
+            if (jsonDoc.isObject()) {
+                QJsonObject jsonObj = jsonDoc.object();
+                QJsonArray playersArray = jsonObj["players"].toArray();
+
+
+                for (const QJsonValue& playerValue : playersArray) {
+                    QJsonObject playerObj = playerValue.toObject();
+                    int playerId = playerObj["id"].toInt();
+                    QString playerName = playerObj["name"].toString();
+                    int playerPoints = playerObj["points"].toInt();
+
+
+                    qDebug() << "Received player: " << playerName
+                        << ", ID: " << playerId
+                        << ", Points: " << playerPoints;
+                }
+            }
+        }
+        else {
+            qDebug() << "Error fetching players: " << reply->errorString();
+        }
+
+        reply->deleteLater();
+        });
+}
+
 void GameWindow::resetPowerOffEfects()
 {
     m_bulletSpeed = 5.0f;
@@ -250,15 +299,6 @@ void GameWindow::resetPowerOffEfects()
     qDebug() << "Shield effect deactivated!";
 }
 
-void GameWindow::returnToMainMenu()
-{
-
-    MainMenuWindow* mainMenuWindow = new MainMenuWindow();
-    mainMenuWindow->show();
-
-
-    this->close();
-}
 
 void GameWindow::keyReleaseEvent(QKeyEvent* event)
 {
@@ -309,6 +349,69 @@ void GameWindow::fetchMap() {
         QLabel* errorLabel = new QLabel("Failed to fetch map from server!", this);
         gridLayout->addWidget(errorLabel, 0, 0);
     }
+}
+
+void GameWindow::fetchPlayerPosition() {
+    cpr::Response response = cpr::Get(cpr::Url{ base_url + "/player_position" });
+
+    if (response.status_code == 200) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        if (!jsonDoc.isArray()) {
+            qDebug() << "Error: Expected a JSON array but received different data!";
+            qDebug() << "Parsed JSON:" << jsonDoc.toJson();
+            return;
+        }
+        QJsonObject playerPosition = jsonDoc.object();
+
+        int x = playerPosition.value("x").toInt();
+        int y = playerPosition.value("y").toInt();
+
+        displayPlayerPosition(x, y);
+    }
+    else {
+        QLabel* errorLabel = new QLabel("Failed to fetch player position from server!", this);
+        gridLayout->addWidget(errorLabel, 0, 0);
+    }
+}
+void GameWindow::updateServerPlayerPosition() {
+    static int lastX = -1;
+    static int lastY = -1;
+
+    int currentX = static_cast<int>((m_x + 10) / 64);
+    int currentY = static_cast<int>((m_y + 10) / 64);
+
+
+    if (currentX != lastX || currentY != lastY) {
+        if (lastX != -1 && lastY != -1)
+        {
+            int lx = lastX;
+            int ly = lastY;
+
+            QtConcurrent::run([&lx, &ly, currentX, currentY, this]() {
+                std::string payload = "{\"x\":" + std::to_string(currentX) + ",\"y\":" + std::to_string(currentY) +
+                    ",\"lx\":" + std::to_string(lx) + ",\"ly\":" + std::to_string(ly) + "}";
+
+
+
+                cpr::Response response = cpr::Post(
+                    cpr::Url{ base_url + "/player_position" },
+                    cpr::Body{ payload },
+                    cpr::Header{ { "Content-Type", "application/json" } }
+                );
+
+                if (response.status_code != 200) {
+                    qDebug() << "Failed to update player position on server! Status code:" << response.status_code;
+                    qDebug() << "Error message:" << QString::fromStdString(response.error.message);
+                }
+                });
+        }
+        lastX = currentX;
+        lastY = currentY;
+
+
+        updateMap(m_mapArray);
+    }
+
 }
 
 void GameWindow::updateGraphics() {
@@ -476,7 +579,6 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
 
 bool GameWindow::canMoveTo(float newX, float newY)
 {
-
     int blockSize = 64;
     int collisionOffset = 10;
 
@@ -485,23 +587,23 @@ bool GameWindow::canMoveTo(float newX, float newY)
     int gridX2 = static_cast<int>((newX + blockSize - collisionOffset) / blockSize);
     int gridY2 = static_cast<int>((newY + blockSize - collisionOffset) / blockSize);
 
+    // Prevent movement only for obstacles, but not the player's current tile
     if (gridX1 < 0 || gridY1 < 0 || gridX2 >= m_mapWidth || gridY2 >= m_mapHeight) {
         return false;
     }
 
-    if (m_mapData[gridY1][gridX1] == "Wall" || m_mapData[gridY1][gridX1] == "Unbreakable" ||
-        m_mapData[gridY1][gridX1] == "Player" || m_mapData[gridY1][gridX1] == "Bomb" ||
-        m_mapData[gridY1][gridX2] == "Wall" || m_mapData[gridY1][gridX2] == "Unbreakable" ||
-        m_mapData[gridY1][gridX2] == "Player" || m_mapData[gridY1][gridX2] == "Bomb" ||
-        m_mapData[gridY2][gridX1] == "Wall" || m_mapData[gridY2][gridX1] == "Unbreakable" ||
-        m_mapData[gridY2][gridX1] == "Player" || m_mapData[gridY2][gridX1] == "Bomb" ||
-        m_mapData[gridY2][gridX2] == "Wall" || m_mapData[gridY2][gridX2] == "Unbreakable" ||
-        m_mapData[gridY2][gridX2] == "Player" || m_mapData[gridY2][gridX2] == "Bomb") {
+    auto isBlocked = [this](int x, int y) {
+        return m_mapData[y][x] == "Wall" ||
+            m_mapData[y][x] == "Unbreakable" ||
+            m_mapData[y][x] == "Bomb";
+        };
+
+    if (isBlocked(gridY1, gridX1) || isBlocked(gridY1, gridX2) ||
+        isBlocked(gridY2, gridX1) || isBlocked(gridY2, gridX2)) {
         return false;
     }
 
     return true;
-
 }
 
 void GameWindow::updatePlayerTexture(const QString& direction) {
@@ -614,56 +716,6 @@ void GameWindow::updateServerMapCell(int row, int col)
         qDebug() << "Error: " << response.status_code << " - " << "map could not be updated";
     }
 }
-
-void GameWindow::setPlayerStartPosition()
-{
-    if (m_mapData[0][0] == "Empty")
-    {
-        m_x = 0;
-        m_y = 0;
-
-    }
-    else if (m_mapData[0][m_mapWidth - 1] == "Empty")
-    {
-        m_y = 0;
-        m_x = 64 * (m_mapWidth - 1);
-    }
-    else if (m_mapData[m_mapHeight - 1][m_mapWidth - 1] == "Empty")
-    {
-        m_y = 64 * (m_mapHeight - 1);
-        m_x = 64 * (m_mapWidth - 1);
-    }
-    else if (m_mapData[m_mapHeight - 1][0] == "Empty")
-    {
-        m_y = 64 * (m_mapHeight - 1);
-        m_x = 0;
-    }
-}
-
-
-void GameWindow::fetchPlayerPosition() {
-    cpr::Response response = cpr::Get(cpr::Url{base_url+"/player_position" });
-
-    if (response.status_code == 200) {
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
-        if (!jsonDoc.isArray()) {
-            qDebug() << "Error: Expected a JSON array but received different data!";
-            qDebug() << "Parsed JSON:" << jsonDoc.toJson();
-            return;
-        }
-        QJsonObject playerPosition = jsonDoc.object();
-
-        int x = playerPosition.value("x").toInt();
-        int y = playerPosition.value("y").toInt();
-
-        displayPlayerPosition(x, y);
-    }
-    else {
-        QLabel* errorLabel = new QLabel("Failed to fetch player position from server!", this);
-        gridLayout->addWidget(errorLabel, 0, 0);
-    }
-}
-
 QPointer<QLabel> positionLabel;
 
 void GameWindow::displayPlayerPosition(int x, int y) {
@@ -685,8 +737,9 @@ void GameWindow::displayPlayerPosition(int x, int y) {
     }
 
     if (positionLabel) {
-        /*qDebug() << "Updating positionLabel with coordinates: (" << x << ", " << y << ")";*/
+        
         positionLabel->setText(QString("(%1, %2)").arg(x).arg(y));
+       
     }
     else {
         qDebug() << "Unexpected error: positionLabel is still null.";
@@ -790,87 +843,9 @@ void GameWindow::destroyCells(int x, int y)
     }
 }
 
-void GameWindow::updateServerPlayerPosition() {
-    static int lastX = -1;
-    static int lastY = -1;
-
-    int currentX = static_cast<int>((m_x + 10) / 64);
-    int currentY = static_cast<int>((m_y + 10) / 64);
-
-
-    if (currentX != lastX || currentY != lastY) {
-        if (lastX != -1 && lastY != -1)
-        {
-            int lx = lastX;
-            int ly = lastY;
-
-            QtConcurrent::run([&lx, &ly, currentX, currentY,this]() {
-                std::string payload = "{\"x\":" + std::to_string(currentX) + ",\"y\":" + std::to_string(currentY) +
-                    ",\"lx\":" + std::to_string(lx) + ",\"ly\":" + std::to_string(ly) + "}";
 
 
 
-                cpr::Response response = cpr::Post(
-                    cpr::Url{base_url+"/player_position" },
-                    cpr::Body{ payload },
-                    cpr::Header{ { "Content-Type", "application/json" } }
-                );
-
-                if (response.status_code != 200) {
-                    qDebug() << "Failed to update player position on server! Status code:" << response.status_code;
-                    qDebug() << "Error message:" << QString::fromStdString(response.error.message);
-                }
-                });
-        }
-        lastX = currentX;
-        lastY = currentY;
-
-
-        updateMap(m_mapArray);
-    }
-
-}
-
-
-void GameWindow::FetchPlayersFromServer() {
-    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-
-
-    QNetworkRequest request(QUrl(base_url_Q+"/get_players"));
-    QNetworkReply* reply = manager->get(request);
-
-
-    connect(reply, &QNetworkReply::finished, this, [reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-
-            QByteArray responseData = reply->readAll();
-            QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
-
-            if (jsonDoc.isObject()) {
-                QJsonObject jsonObj = jsonDoc.object();
-                QJsonArray playersArray = jsonObj["players"].toArray();
-
-
-                for (const QJsonValue& playerValue : playersArray) {
-                    QJsonObject playerObj = playerValue.toObject();
-                    int playerId = playerObj["id"].toInt();
-                    QString playerName = playerObj["name"].toString();
-                    int playerPoints = playerObj["points"].toInt();
-
-
-                    qDebug() << "Received player: " << playerName
-                        << ", ID: " << playerId
-                        << ", Points: " << playerPoints;
-                }
-            }
-        }
-        else {
-            qDebug() << "Error fetching players: " << reply->errorString();
-        }
-
-        reply->deleteLater();
-        });
-}
 void GameWindow::displayPlayerDeathMessage(const std::string& playerName)
 {
     messageLabel->setText(QString::fromStdString(playerName + " died"));
@@ -885,20 +860,20 @@ void GameWindow::increaseVisibility() {
     updateMap(m_mapArray); 
    
 }
+void GameWindow::sendPlayerSpawn(int row, int col)
+{
+    cpr::Response response = cpr::Post(
+        cpr::Url{ base_url + "/map/player/" + std::to_string(row) + "/" + std::to_string(col) },
+        cpr::Header{ {"Content-Type", "application/json"} }
+    );
 
-//void GameWindow::paintEvent(QPaintEvent* event) {
-//    QMainWindow::paintEvent(event);
-//
-//    QPainter painter(this);
-//    painter.setPen(QPen(Qt::green, 2, Qt::DashLine));
-//    painter.setBrush(QBrush(QColor(0, 255, 0, 50)));  
-//
-//    int centerX = static_cast<int>(m_x + 32);  
-//    int centerY = static_cast<int>(m_y + 32);
-//
-//    painter.drawEllipse(centerX - visibilityRadius * 64, centerY - visibilityRadius * 64,
-//        visibilityRadius * 128, visibilityRadius * 128);
-//}
+    if (response.status_code != 200) {
+        qDebug() << "Error: " << response.status_code << " - Could not update map position for the player.";
+    }
+}
+
+
+
 
 
 

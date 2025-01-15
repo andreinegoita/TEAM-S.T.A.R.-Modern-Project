@@ -11,16 +11,27 @@
 #include<stdexcept>
 #include "PlayersDatabase.h"
 #include <windows.h>
+#include<mutex>
 
 
 #include "../PowerUps/PowerUps.h"
 //#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
 //#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
 
-void RunServer(GameMap &map, Player &player, http::Storage& storage)
+void initializeSpawnPositions(GameMap& map, std::set<std::pair<int, int>> availableSpawnPositions) {
+	availableSpawnPositions.clear();
+	for (int row = 0; row < map.getRows(); ++row) {
+		for (int col = 0; col < map.getCols(); ++col) {
+			if (map.getCellType(row, col) ==CellType::EMPTY) { // Check for empty cell
+				availableSpawnPositions.insert({ row, col });
+			}
+		}
+	}
+}
+
+void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<std::pair<int, int>> availableSpawnPositions)
 {
 	crow::SimpleApp app;
-
 	CROW_ROUTE(app, "/map").methods("GET"_method)([&map]() {
 		return crow::response(map.GetMapState());
 		});
@@ -406,6 +417,68 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage)
 		return crow::response(points);
 
 		});
+	std::vector<std::string> lobbyPlayers;
+	std::mutex lobbyMutex;
+
+	CROW_ROUTE(app, "/join_lobby").methods("POST"_method)([&lobbyMutex,&lobbyPlayers](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+		std::string playerName = body["name"].s();
+
+		std::lock_guard<std::mutex> lock(lobbyMutex);
+		if (std::find(lobbyPlayers.begin(), lobbyPlayers.end(), playerName) == lobbyPlayers.end()) {
+			lobbyPlayers.push_back(playerName);
+		}
+
+		crow::json::wvalue response;
+		response["players_in_lobby"] = lobbyPlayers.size();
+		return crow::response(200, response);
+		});
+
+	CROW_ROUTE(app, "/get_lobby_players").methods("GET"_method)([&lobbyMutex, &lobbyPlayers]() {
+		crow::json::wvalue response;
+		std::lock_guard<std::mutex> lock(lobbyMutex);
+
+		
+		crow::json::wvalue::list playersList;
+		for (const auto& player : lobbyPlayers) {
+			playersList.emplace_back(player);
+		}
+		response["players"] = std::move(playersList);  
+
+		return crow::response(200, response);
+		});
+
+	CROW_ROUTE(app, "/map/player/<int>/<int>").methods("POST"_method)
+		([&map](int row, int col) {
+		map.UpdateCell(row, col, 3U);
+		return crow::response("Cell updated");
+			});
+	std::mutex positionMutex;
+	CROW_ROUTE(app, "/request_spawn").methods("POST"_method)([&map,&positionMutex,&availableSpawnPositions](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+		std::string playerName = body["name"].s();
+
+		if (!body) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+		std::lock_guard<std::mutex> lock(positionMutex);
+
+		// If there are no available positions, return error
+		if (availableSpawnPositions.empty()) {
+			return crow::response(400, "No available spawn points");
+		}
+
+		// Select a free position and remove it from the set
+		auto pos = *availableSpawnPositions.begin();
+		availableSpawnPositions.erase(pos);
+		map.UpdateCell(pos.first, pos.second, 3U);  // Mark as occupied
+
+		crow::json::wvalue response;
+		response["x"] = pos.first;
+		response["y"] = pos.second;
+		return crow::response(200, response);
+		});
 
 
 	app.port(18080).multithreaded().run();
@@ -421,11 +494,13 @@ int main()
 		GameMap map(randValRows, randValCols);
 
 		map.generateMap();
-
+		std::set<std::pair<int, int>> availableSpawnPosition = { {0,0},{0,randValCols - 1},{randValRows - 1,0 },{randValRows - 1,randValCols - 1} };
 		if (map.isValidMap()) {
 			std::cout << map;
-			Player player("Hero", { 0, 0 }, 3, DirectionType::Up);
-			Player player2("Hero2", { 0, randValCols-1 }, 3, DirectionType::Up);
+			Player player("Hero", { (randValRows/2)-1,0}, 3, DirectionType::Up);
+			map.setCellType(0, 0, CellType::EMPTY);
+			map.setCellType((randValRows/2)-1, 0, CellType::Player);
+			//Player player2("Hero2", { 0, randValCols-1 }, 3, DirectionType::Up);
 			//Player player3("Hero3", { randValRows-1, 0 }, 3, DirectionType::Up);
 			//Player player4("Hero4", { randValRows-1,randValCols-1 }, 3, DirectionType::Up);
 			system("cls");
@@ -433,8 +508,8 @@ int main()
 			player.GetStartPosition();
 			map.setCellType(player.GetStartPosition().first, player.GetStartPosition().second, CellType::Player);
 
-			player2.GetStartPosition();
-			map.setCellType(player2.GetStartPosition().first, player2.GetStartPosition().second, CellType::Player);
+			//player2.GetStartPosition();
+			//map.setCellType(player2.GetStartPosition().first, player2.GetStartPosition().second, CellType::Player);
 
 			/*player3.GetStartPosition();
 			map.setCellType(player3.GetStartPosition().first, player3.GetStartPosition().second, CellType::Player);*/
@@ -451,7 +526,7 @@ int main()
 
 			auto storage = http::createStorage("game.db");
 			storage.sync_schema(true);
-			RunServer(map,player, storage);
+			RunServer(map,player, storage, availableSpawnPosition);
 
 			while (true)
 			{
