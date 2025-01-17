@@ -37,6 +37,7 @@ public:
     void increaseVisibility();
     void sendPlayerSpawn(int row, int col);
     void setPlayerStartPosition(int x,int y);
+    void removeDisconnectedPlayers(const QJsonObject& currentPlayers);
 
 private slots:
     void updateGraphics();
@@ -63,7 +64,8 @@ private:
         float x;
         float y;
         uint8_t direction;
-        int previousCellX = -1, previousCellY = -1;
+        int previousCellX = -1;
+        int previousCellY = -1;
     };
 private:
     void setupUI();
@@ -79,6 +81,9 @@ private:
     void applyNextPowerUp();
     void FetchPlayersFromServer();
     void displayPlayerDeathMessage(const std::string& playerName);
+    void fetchAllPlayersPositions();
+    QString getPlayerTexture(uint8_t direction);
+    void returnToMainMenu();
 
 
 private:
@@ -100,4 +105,5 @@ private:
 
     std::string base_url = "http://localhost:18080";
     const QString base_url_Q = "http://localhost:18080";
+    QMap<QString, QLabel*> otherPlayerLabels;
 };

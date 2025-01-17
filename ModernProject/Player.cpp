@@ -289,6 +289,14 @@ bool Player::IsAlive() const
     return m_health > 0;
 }
 
+void Player::DecreaseHealth(int health)
+{
+    if (IsAlive())
+    {
+        m_health-=health;
+   }
+}
+
 void Player::setPoints(int points)
 {
     this->m_points = points;

@@ -47,6 +47,7 @@ public:
 	void setPoints(int points);
 	void setName(const std::string& name);
 	bool IsAlive() const;
+	void DecreaseHealth(int health);
 
 private:
 	std::chrono::steady_clock::time_point m_lastShootTime;

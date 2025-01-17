@@ -22,7 +22,7 @@ void initializeSpawnPositions(GameMap& map, std::set<std::pair<int, int>> availa
 	availableSpawnPositions.clear();
 	for (int row = 0; row < map.getRows(); ++row) {
 		for (int col = 0; col < map.getCols(); ++col) {
-			if (map.getCellType(row, col) ==CellType::EMPTY) { // Check for empty cell
+			if (map.getCellType(row, col) ==CellType::EMPTY) { 
 				availableSpawnPositions.insert({ row, col });
 			}
 		}
@@ -32,7 +32,7 @@ void initializeSpawnPositions(GameMap& map, std::set<std::pair<int, int>> availa
 void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<std::pair<int, int>> availableSpawnPositions)
 {
 	crow::SimpleApp app;
-	//app.loglevel(crow::LogLevel::Critical);
+	app.loglevel(crow::LogLevel::Critical);
 	CROW_ROUTE(app, "/map").methods("GET"_method)([&map]() {
 		return crow::response(map.GetMapState());
 		});
@@ -46,25 +46,50 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		([&player]() {
 		return crow::response(player.GetPositionState());
 			});
-	CROW_ROUTE(app, "/player_position").methods("POST"_method)([&map](const crow::request& req) {
+
+	std::map<std::string, std::tuple<int, int, int>> playerPositions;
+	std::mutex playerPositionsMutex;
+
+	CROW_ROUTE(app, "/player_position").methods("POST"_method)([&map, &playerPositions, &playerPositionsMutex](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 		if (!body) {
 			return crow::response(400, "Invalid JSON");
 		}
 
-
-
+		std::string playerName = body["name"].s();
 		int x = body["x"].i();
 		int y = body["y"].i();
-		int lastx = body["lx"].i();
-		int lasty = body["ly"].i();
+		int direction = body["direction"].i(); 
+		int lastX = body["lx"].i();
+		int lastY = body["ly"].i();
 
-		map.UpdateCell(lasty, lastx, 0U);
-		map.UpdateCell(y, x, 3U);
+		{
+			std::lock_guard<std::mutex> lock(playerPositionsMutex);
+			map.UpdateCell(lastY, lastX, 0U); 
+			map.UpdateCell(y, x, 3U);         
+			playerPositions[playerName] = std::make_tuple(x, y, direction); 
+		}
 
-		std::cout << "Received player position: x = " << x << ", y = " << y << std::endl;
 		return crow::response(200);
 		});
+	CROW_ROUTE(app, "/get_all_players_positions").methods("GET"_method)([&playerPositions, &playerPositionsMutex]() {
+		std::lock_guard<std::mutex> lock(playerPositionsMutex);
+
+		crow::json::wvalue response;
+		for (const auto& [playerName, position] : playerPositions) {
+			int x = std::get<0>(position); 
+			int y = std::get<1>(position);
+			int direction = std::get<2>(position);
+
+			response[playerName] = crow::json::wvalue{
+				{"x", x},
+				{"y", y},
+				{"direction", direction} 
+			};
+		}
+		return crow::response(200, response);
+		});
+
 	CROW_ROUTE(app, "/bullets_position").methods("POST"_method)([&map, &player](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 		if (!body) {
@@ -83,30 +108,31 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 
 				if (currentCellType == CellType::UNBREAKABLE_WALL) {
 					std::cout << "Bullet hit an unbreakable wall at (" << x << ", " << y << ")\n";
-					map.UpdateCell(prevy, prevx, 0U); 
-					continue; 
+					map.UpdateCell(prevy, prevx, 0U);
+					continue;
 				}
-
 
 				if (currentCellType == CellType::Player) {
 					if (player.HasShield()) {
 						std::cout << "Bullet hit player with shield at (" << x << ", " << y << "), shield absorbed the bullet\n";
-						map.UpdateCell(prevy, prevx, 0U);  
 					}
 					else {
 						std::cout << "Bullet hit player at (" << x << ", " << y << "), player damaged!\n";
-						map.UpdateCell(y, x, 0U);  
-						map.UpdateCell(prevy, prevx, 0U);  
+						player.DecreaseHealth(1);
+						if (player.GetLives() <= 0) {
+							std::cout << "Player at (" << x << ", " << y << ") has died.\n";
+							map.UpdateCell(y, x, 0U); 
+						}
 					}
-					continue; 
+					map.UpdateCell(prevy, prevx, 0U); 
+					continue;
 				}
-
 
 				if (currentCellType == CellType::Bullet) {
 					std::cout << "Bullet collided with another bullet at (" << x << ", " << y << ")\n";
 					map.UpdateCell(y, x, 0U);
-					map.UpdateCell(prevy, prevx, 0U);  
-					continue; 
+					map.UpdateCell(prevy, prevx, 0U);
+					continue;
 				}
 
 				if (currentCellType == CellType::EMPTY) {
@@ -122,8 +148,9 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 			std::cout << "Bullet at (" << x << ", " << y << ", " << prevx << ", " << prevy << "), direction: " << direction << std::endl;
 		}
 
-		return crow::response(200);  // Răspuns de succes
+		return crow::response(200);
 		});
+
 
 	CROW_ROUTE(app, "/players").methods("GET"_method)
 		([&storage]() {
@@ -135,73 +162,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		return crow::response("Process worked");
 		return crow::response(os.str());
 	});
-		/*CROW_ROUTE(app, "/add_player").methods("POST"_method)
-		([&storage](const crow::request& req) {
-		auto x = crow::json::load(req.body);
-		if (!x)
-			return crow::response(400);
-		http::Player new_player{ -1, x["name"].s(), x["points"].i() };
-		storage.insert(new_player);
-		return crow::response("Player added");
-			});*/
-	CROW_ROUTE(app, "/games").methods("GET"_method)
-		([&storage]() {
-		auto games = storage.get_all<http::Game>();
-		std::ostringstream os;
-		for (const auto& game : games) {
-			os << "ID: " << game.id << ", Player ID: " << game.playerId << ", Score: " << game.score << "\n";
-		}
-		return crow::response("Process Game Worked");
-		return crow::response(os.str());
-	});
-		/*CROW_ROUTE(app, "/add_game").methods("POST"_method) ([&storage]
-		(const crow::request& req) {
-			auto x = crow::json::load(req.body);
-			if (!x)
-				return crow::response(400);
-			http::Game new_game{ -1, x["playerId"].i(), x["score"].i() };
-			storage.insert(new_game);
-			return crow::response("Game added");
-		});*/
-
-	//CROW_ROUTE(app, "/register").methods("POST"_method)([&storage](const crow::request& req) {
-	//	auto body = crow::json::load(req.body);
-
-	//	// Verificare validitate JSON
-	//	if (!body) {
-	//		return crow::response(400, "Invalid JSON payload");
-	//	}
-
-	//	// Extrage datele din JSON
-	//	std::string playerName = body["name"].s();
-	//	if (playerName.empty()) {
-	//		return crow::response(400, "Player name cannot be empty");
-	//	}
-
-	//	int playerPoints = body["points"].i(); // Opțional, poate avea un număr implicit
-	//	if (playerPoints <= 0) {
-	//		playerPoints = 300; // Valoare implicită
-	//	}
-
-	//	try {
-	//		
-	//		http::populateStorage(storage, playerName);
-
-	//		// Răspuns JSON către client
-	//		crow::json::wvalue response;
-	//		response["status"] = "success";
-	//		response["name"] = playerName;
-	//		response["points"] = playerPoints;
-
-	//		return crow::response(200, response);
-	//	}
-	//	catch (const std::exception& e) {
-	//		return crow::response(500, e.what());
-	//	}
-	//	});
-
-
-	CROW_ROUTE(app, "/register").methods("POST"_method)([&storage](const crow::request& req) {
+		CROW_ROUTE(app, "/register").methods("POST"_method)([&storage](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 
 
@@ -219,7 +180,6 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		//if (playerPoints <= 0) {
 		//	playerPoints = 1000;
 		//}
-
 		try {
 
 			sqlite3* db;
@@ -434,66 +394,6 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		}
 		});
 
-
-	//CROW_ROUTE(app, "/shoot_bullet").methods("POST"_method)([](const crow::request& req) {
-	//	auto json = crow::json::load(req.body);
-
-	//	if (!json) {
-	//		return crow::response(400, "Invalid JSON");
-	//	}
-
-	//	// Extract bullet data from JSON
-	//	float x = json["x"].d();
-	//	float y = json["y"].d();
-	//	int direction = json["direction"].i();
-	//	float speed = json["speed"].d();
-
-	//	// Process the bullet
-	//	handleIncomingBullet(x, y, direction, speed);
-
-	//	return crow::response(200, "Bullet received and processed");
-	//});
-
-
-
-	// Bullet update endpoint
-	/*CROW_ROUTE(app, "/get_bullets").methods("GET"_method)([&activeBullets] {
-		crow::json::wvalue response;
-		response["bullets"] = crow::json::wvalue::list();
-		for (const auto& bullet : activeBullets) {
-			crow::json::wvalue bulletJson;
-			bulletJson["x"] = bullet.x;
-			bulletJson["y"] = bullet.y;
-			bulletJson["direction"] = bullet.direction;
-			bulletJson["speed"] = bullet.speed;
-			response["bullets"].push_back(bulletJson);
-		}
-		return crow::response(response);
-		});*/
-
-//	CROW_ROUTE(app, "/remove_bullet").methods("POST"_method)([&activeBullets](const crow::request& req) {
-//		auto jsonReq = crow::json::load(req.body);
-//		if (!jsonReq) {
-//			return crow::response(400, "Invalid JSON");
-//		}
-//
-//		float x = jsonReq["x"].d();
-//		float y = jsonReq["y"].d();
-//
-//		// Find and remove the bullet that matches the position
-//		auto it = std::remove_if(activeBullets.begin(), activeBullets.end(),
-//			[x, y](const m_bulletData& bullet) {
-//				return std::abs(bullet.x - x) < 10 && std::abs(bullet.y - y) < 10;  // 10-pixel threshold
-//			});
-//
-//		if (it != activeBullets.end()) {
-//			activeBullets.erase(it, activeBullets.end());
-//			return crow::response(200, "Bullet removed");
-//		}
-//		return crow::response(404, "Bullet not found");
-//		});
-//
-//
 	CROW_ROUTE(app, "/buyPowerUp").methods("POST"_method)([&player](const crow::request& req) {
 		std::cout << "Received POST request at /buyPowerUp\n";
 
@@ -634,15 +534,15 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 
 		std::lock_guard<std::mutex> lock(positionMutex);
 
-		// If there are no available positions, return error
+		
 		if (availableSpawnPositions.empty()) {
 			return crow::response(400, "No available spawn points");
 		}
 
-		// Select a free position and remove it from the set
+		
 		auto pos = *availableSpawnPositions.begin();
 		availableSpawnPositions.erase(pos);
-		map.UpdateCell(pos.first, pos.second, 3U);  // Mark as occupied
+		map.UpdateCell(pos.first, pos.second, 3U);  
 
 		crow::json::wvalue response;
 		response["x"] = pos.first;
@@ -656,7 +556,7 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 
 int main()
 {
-	//std::vector<m_bulletData> activeBullets;
+	
 	try {
 		std::mt19937 mt(time(nullptr));
 		int randValRows = 10 + mt() % 6;

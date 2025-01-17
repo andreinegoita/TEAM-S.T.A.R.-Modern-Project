@@ -3,7 +3,8 @@
 #include<QTimer>
 #include"MainMenuWindow.h"
 #include <QPainter>  
-#include <QPaintEvent> 
+#include <QPaintEvent>
+#include<qmessagebox.h>
 
 
 
@@ -15,10 +16,13 @@ GameWindow::GameWindow(QWidget* parent)
     resize(400, 400);
 
     playerLabel = new QLabel(this);
-    updatePlayerTexture("Up");
+    playerLabel->setPixmap(QPixmap("Empty.png")); 
     playerLabel->setScaledContents(true);
     playerLabel->resize(64, 64);
 
+   
+    playerLabel->setAttribute(Qt::WA_TranslucentBackground);
+    playerLabel->setStyleSheet("background: transparent;");
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &GameWindow::updateGraphics);
     timer->start(16);
@@ -57,7 +61,16 @@ GameWindow::GameWindow(QWidget* parent)
     messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     messageLabel->setStyleSheet("QLabel { color : red; font-size: 30px; }");
     messageLabel->hide();
-   
+
+    QTimer* syncTimer = new QTimer(this);
+    connect(syncTimer, &QTimer::timeout, this, &GameWindow::fetchAllPlayersPositions);
+    syncTimer->start(200);
+
+    connect(this, &GameWindow::returnToMainMenu, [this]() {
+        this->hide();
+        MainMenuWindow* menu = new MainMenuWindow();
+        menu->show();
+        });
 }
 void GameWindow::setPlayerStartPosition(int x, int y) {
     m_x = x * 64;
@@ -380,38 +393,30 @@ void GameWindow::updateServerPlayerPosition() {
     int currentX = static_cast<int>((m_x + 10) / 64);
     int currentY = static_cast<int>((m_y + 10) / 64);
 
-
     if (currentX != lastX || currentY != lastY) {
-        if (lastX != -1 && lastY != -1)
-        {
-            int lx = lastX;
-            int ly = lastY;
+        int direction = m_direction; 
+        std::string payload = "{\"name\":\"" + m_playerName + "\","
+            "\"x\":" + std::to_string(currentX) + ","
+            "\"y\":" + std::to_string(currentY) + ","
+            "\"direction\":" + std::to_string(direction) + ","
+            "\"lx\":" + std::to_string(lastX) + ","
+            "\"ly\":" + std::to_string(lastY) + "}";
 
-            QtConcurrent::run([&lx, &ly, currentX, currentY, this]() {
-                std::string payload = "{\"x\":" + std::to_string(currentX) + ",\"y\":" + std::to_string(currentY) +
-                    ",\"lx\":" + std::to_string(lx) + ",\"ly\":" + std::to_string(ly) + "}";
+        QtConcurrent::run([payload, this]() {
+            cpr::Response response = cpr::Post(
+                cpr::Url{ base_url + "/player_position" },
+                cpr::Body{ payload },
+                cpr::Header{ {"Content-Type", "application/json"} }
+            );
 
+            if (response.status_code != 200) {
+                qDebug() << "Failed to update player position on server! Status code:" << response.status_code;
+            }
+            });
 
-
-                cpr::Response response = cpr::Post(
-                    cpr::Url{ base_url + "/player_position" },
-                    cpr::Body{ payload },
-                    cpr::Header{ { "Content-Type", "application/json" } }
-                );
-
-                if (response.status_code != 200) {
-                    qDebug() << "Failed to update player position on server! Status code:" << response.status_code;
-                    qDebug() << "Error message:" << QString::fromStdString(response.error.message);
-                }
-                });
-        }
         lastX = currentX;
         lastY = currentY;
-
-
-        updateMap(m_mapArray);
     }
-
 }
 
 void GameWindow::updateGraphics() {
@@ -468,14 +473,12 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
    
     QPixmap wallTexture("Breakable.png");
     QPixmap unbreakableTexture("Unbreakable.png");
-    QPixmap playerTexture("PlayerUp.png");
     QPixmap emptyTexture("Empty.png");
-
-   
+    QPixmap bulletTexture("BulletUpDown.png");
     wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
-    playerTexture = playerTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    bulletTexture = bulletTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
 
     
     for (int row = 0; row < mapArray.size(); ++row) {
@@ -495,9 +498,11 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
             else if (cellType == "Unbreakable") {
                 texture = unbreakableTexture;
             }
-            else if (cellType == "Player") {
-                texture = playerTexture;
+            else if (cellType == "Bullet")
+            {
+                texture = bulletTexture;
             }
+        
             else if (cellType == "Empty") {
                 texture = emptyTexture;
             }
@@ -530,12 +535,12 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
     int blockSize = 64;
     QPixmap wallTexture("Breakable.png");
     QPixmap unbreakableTexture("Unbreakable.png");
-    QPixmap playerTexture("PlayerUp.png");
     QPixmap emptyTexture("Empty.png");
+    QPixmap bulletTexture("BulletUpDown.png");
     wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
-    playerTexture = playerTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    bulletTexture = bulletTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
 
     int playerGridX = static_cast<int>(m_x / 64);
     int playerGridY = static_cast<int>(m_y / 64);
@@ -558,12 +563,14 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
                 else if (cellType == "Unbreakable") {
                     texture = unbreakableTexture;
                 }
-                else if (cellType == "Player") {
-                    texture = playerTexture;
+                else if (cellType == "Bullet")
+                {
+                    texture = bulletTexture;
                 }
                 else if (cellType == "Empty") {
                     texture = emptyTexture;
                 }
+           
 
                 cellLabel->setPixmap(texture);
             }
@@ -587,7 +594,7 @@ bool GameWindow::canMoveTo(float newX, float newY)
     int gridX2 = static_cast<int>((newX + blockSize - collisionOffset) / blockSize);
     int gridY2 = static_cast<int>((newY + blockSize - collisionOffset) / blockSize);
 
-    // Prevent movement only for obstacles, but not the player's current tile
+    
     if (gridX1 < 0 || gridY1 < 0 || gridX2 >= m_mapWidth || gridY2 >= m_mapHeight) {
         return false;
     }
@@ -613,34 +620,49 @@ void GameWindow::updatePlayerTexture(const QString& direction) {
     playerLabel->setPixmap(playerTexture);
 }
 
-void GameWindow::addBullet(float x, float y, int direction)
-{
-    m_bulletData bullet = { x, y, direction };
-    bullets.push_back(bullet);
+void GameWindow::addBullet(float x, float y, int direction) {
+    m_bulletData bullet;
 
-    QLabel* bulletLabel = new QLabel(this);
+    
+    bullet.direction = direction;
     QPixmap bulletPixmap;
 
-    if (direction == 0 || direction == 1) {
+   
+    switch (direction) {
+    case 0: 
+        bullet.x = x;
+        bullet.y = y - 64;
         bulletPixmap.load("BulletUpDown.png");
-    }
-    else if (direction == 2 || direction == 3) {
+        break;
+    case 1: 
+        bullet.x = x;
+        bullet.y = y + 64;
+        bulletPixmap.load("BulletUpDown.png");
+        break;
+    case 2: 
+        bullet.x = x - 64;
+        bullet.y = y;
         bulletPixmap.load("BulletLeftRight.png");
+        break;
+    case 3: 
+        bullet.x = x + 64;
+        bullet.y = y;
+        bulletPixmap.load("BulletLeftRight.png");
+        break;
     }
 
-    if (bulletPixmap.isNull()) {
-        qDebug() << "Failed to load bullet texture!";
-        return;
-    }
+    bullet.previousCellX = static_cast<int>((bullet.y + 32) / 64);
+    bullet.previousCellY = static_cast<int>((bullet.x + 32) / 64);
 
-    bulletPixmap = bulletPixmap.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::FastTransformation);
-    bulletLabel->setPixmap(bulletPixmap);
-    bulletLabel->setFixedSize(64, 64);
-    bulletLabel->setScaledContents(true);
-    bulletLabel->move(static_cast<int>(x), static_cast<int>(y));
+  
+    bullets.append(bullet);
+
+   
+    QLabel* bulletLabel = new QLabel(this);
+    bulletLabel->setPixmap(bulletPixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    bulletLabel->setGeometry(static_cast<int>(bullet.x), static_cast<int>(bullet.y), 64, 64); 
     bulletLabel->show();
-
-    bulletLabels.push_back(bulletLabel);
+    bulletLabels.append(bulletLabel);
 }
 
 
@@ -720,7 +742,7 @@ QPointer<QLabel> positionLabel;
 
 void GameWindow::displayPlayerPosition(int x, int y) {
     if (!(x >= 0 && x < m_mapHeight && y >= 0 && y < m_mapWidth)) {
-        /* qDebug() << "Invalid coordinates: (" << x << ", " << y << ")";*/
+        
         return;
     }
 
@@ -747,35 +769,72 @@ void GameWindow::displayPlayerPosition(int x, int y) {
 }
 
 void GameWindow::updateBullets() {
-
-
     for (int i = 0; i < bullets.size(); ++i) {
         m_bulletData& bullet = bullets[i];
 
-
+       
         switch (bullet.direction) {
-        case 0: bullet.y -= m_bulletSpeed; break;
-        case 1: bullet.y += m_bulletSpeed; break;
-        case 2: bullet.x -= m_bulletSpeed; break;
-        case 3: bullet.x += m_bulletSpeed; break;
+        case 0: bullet.y -= m_bulletSpeed; break; 
+        case 1: bullet.y += m_bulletSpeed; break; 
+        case 2: bullet.x -= m_bulletSpeed; break; 
+        case 3: bullet.x += m_bulletSpeed; break; 
         }
+
         if (i >= bulletLabels.size() || i >= bullets.size()) {
             continue;
         }
+
         if (i < bulletLabels.size()) {
             bulletLabels[i]->move(static_cast<int>(bullet.x), static_cast<int>(bullet.y));
         }
+
         int ix = std::clamp(static_cast<int>((bullet.y + 32) / 64), 0, m_mapHeight - 1);
         int iy = std::clamp(static_cast<int>((bullet.x + 32) / 64), 0, m_mapWidth - 1);
 
+        
         if (ix != bullet.previousCellX || iy != bullet.previousCellY) {
             updateServerBulletsPosition();
         }
 
-        if (bullet.x < -16 || bullet.y < -16 || bullet.x >= (m_mapWidth * 63 - 32) || bullet.y >= (m_mapHeight * 63 - 32)
-            || (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth &&
-                (m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player"||m_mapData[ix][iy]=="Bullet")))
-        {
+        
+        for (int j = 0; j < bullets.size(); ++j) {
+            if (i != j &&
+                static_cast<int>((bullets[j].y + 32) / 64) == ix &&
+                static_cast<int>((bullets[j].x + 32) / 64) == iy) {
+               
+                delete bulletLabels[j];
+                bulletLabels.remove(j);
+                bullets.remove(j);
+                if (j < i) {
+                    --i; 
+                }
+                delete bulletLabels[i];
+                bulletLabels.remove(i);
+                bullets.remove(i);
+                --i;
+                break;
+            }
+        }
+
+        
+        if (ix == static_cast<int>((m_y + 32) / 64) && iy == static_cast<int>((m_x + 32) / 64)) {
+            if (!m_shield) {
+                --m_playerLives; 
+                if (m_playerLives <= 0) {
+                    displayPlayerDeathMessage(m_playerName);
+                }
+            }
+            delete bulletLabels[i];
+            bulletLabels.remove(i);
+            bullets.remove(i);
+            --i;
+            continue;
+        }
+
+        
+        if (bullet.x < -16 || bullet.y < -16 || bullet.x >= (m_mapWidth * 63 - 32) || bullet.y >= (m_mapHeight * 63 - 32) ||
+            (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth &&
+                (m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player" || m_mapData[ix][iy] == "Bullet"))) {
             if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
                 destroyCells(ix, iy);
             }
@@ -783,7 +842,9 @@ void GameWindow::updateBullets() {
             bulletLabels.remove(i);
             bullets.remove(i);
             --i;
+            continue;
         }
+
         if (ix < 0 || iy < 0 || ix >= m_mapHeight || iy >= m_mapWidth) {
             delete bulletLabels[i];
             bulletLabels.remove(i);
@@ -794,49 +855,90 @@ void GameWindow::updateBullets() {
 
         updateMap(m_mapArray);
     }
+}
 
+void GameWindow::returnToMainMenu()
+{
+
+    MainMenuWindow* mainMenuWindow = new MainMenuWindow();
+    mainMenuWindow->show();
+
+    this->close();
 }
 void GameWindow::destroyCells(int x, int y)
 {
     if (m_mapData[x][y] == "Unbreakable")
         return;
+
     if (m_mapData[x][y] == "Wall")
     {
         m_mapData[x][y] = "Empty";
         updateServerMapCell(x, y);
         fetchMap();
         return;
-
     }
+
     if (m_mapData[x][y] == "Player")
     {
         if (!m_shield)
         {
             m_playerLives--;
-            if (m_mapData[x][y] == "Player")
+            if (m_playerLives == 0)
             {
-                if (m_playerLives == 0)
+                displayPlayerDeathMessage(m_playerName);
+                m_mapData[x][y] = "Empty";
+
+                QString m_playerNameQString = QString::fromStdString(m_playerName);
+                if (otherPlayerLabels.contains(m_playerNameQString))
                 {
-                    displayPlayerDeathMessage(m_playerName);
-                    m_mapData[x][y] = "Empty";
-                    updateServerMapCell(x, y);
-                    fetchMap();
-                    return;
+                    otherPlayerLabels[m_playerNameQString]->deleteLater();
+                    otherPlayerLabels.remove(m_playerNameQString);
                 }
+
+                updateServerMapCell(x, y);
+                fetchMap();
+                return;
             }
         }
     }
+
     if (m_mapData[x][y] == "Bomb")
     {
         m_mapData[x][y] = "Empty";
-        for (int i = x - 1; i <= x + 1; i++)
-            for (int j = y - 1; j <= y + 1; j++)
-                if (m_mapData[i][j] == "Wall" || m_mapData[i][j] == "Player")
-                {
-                    updateServerMapCell(i, j);
-                    m_mapData[i][j] = "Empty";
 
+        for (int i = x - 1; i <= x + 1; i++)
+        {
+            for (int j = y - 1; j <= y + 1; j++)
+            {
+
+                if (m_mapData[i][j] == "Wall")
+                {
+                    m_mapData[i][j] = "Empty";
+                    updateServerMapCell(i, j);
                 }
+                else if (m_mapData[i][j] == "Player")
+                {
+                    if (!m_shield)
+                    {
+                        m_playerLives--;
+                        if (m_playerLives == 0)
+                        {
+                            displayPlayerDeathMessage(m_playerName);
+                            m_mapData[i][j] = "Empty";
+
+                            QString m_playerNameQString = QString::fromStdString(m_playerName);
+                            if (otherPlayerLabels.contains(m_playerNameQString))
+                            {
+                                otherPlayerLabels[m_playerNameQString]->deleteLater();
+                                otherPlayerLabels.remove(m_playerNameQString);
+                            }
+
+                            updateServerMapCell(i, j);
+                        }
+                    }
+                }
+            }
+        }
 
         updateServerMapCell(x, y);
         fetchMap();
@@ -858,6 +960,7 @@ void GameWindow::increaseVisibility() {
     visibilityRadius++;
     qDebug() << "Visibility increased to radius: " << visibilityRadius;
     updateMap(m_mapArray); 
+    fetchAllPlayersPositions();
    
 }
 void GameWindow::sendPlayerSpawn(int row, int col)
@@ -871,9 +974,78 @@ void GameWindow::sendPlayerSpawn(int row, int col)
         qDebug() << "Error: " << response.status_code << " - Could not update map position for the player.";
     }
 }
+void GameWindow::fetchAllPlayersPositions() {
+    cpr::Response response = cpr::Get(cpr::Url{ base_url + "/get_all_players_positions" });
+
+    if (response.status_code == 200) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        if (!jsonDoc.isObject()) {
+            qDebug() << "Error: Invalid JSON format received for player positions!";
+            return;
+        }
+
+        QJsonObject positionsObj = jsonDoc.object();
+        int playerGridX = static_cast<int>(m_x / 64);
+        int playerGridY = static_cast<int>(m_y / 64);
+
+        for (auto it = positionsObj.begin(); it != positionsObj.end(); ++it) {
+            QString playerName = it.key();
+            QJsonObject position = it.value().toObject();
+            int x = position["x"].toInt();
+            int y = position["y"].toInt();
+            int direction = position["direction"].toInt();
+
+            int distance = std::max(abs(playerGridX - x), abs(playerGridY - y));
+            if (distance <= visibilityRadius) {
+                if (!otherPlayerLabels.contains(playerName)) {
+                    QLabel* playerLabel = new QLabel(this);
+                    playerLabel->setPixmap(QPixmap(getPlayerTexture(direction)).scaled(64, 64));
+                    playerLabel->setGeometry(x * 64, y * 64, 64, 64);
+                    playerLabel->show();
+                    otherPlayerLabels[playerName] = playerLabel;
+                }
+                else {
+                    otherPlayerLabels[playerName]->setPixmap(QPixmap(getPlayerTexture(direction)).scaled(64, 64));
+                    otherPlayerLabels[playerName]->move(x * 64, y * 64);
+                    otherPlayerLabels[playerName]->show();
+                }
+            }
+            else {
+                if (otherPlayerLabels.contains(playerName)) {
+                    otherPlayerLabels[playerName]->hide();
+                }
+            }
+        }
+
+        removeDisconnectedPlayers(positionsObj);
+    }
+    else {
+        qDebug() << "Failed to fetch player positions. Status code:" << response.status_code;
+    }
+}
 
 
 
+void GameWindow::removeDisconnectedPlayers(const QJsonObject& currentPlayers) {
+    for (auto it = otherPlayerLabels.begin(); it != otherPlayerLabels.end();) {
+        if (!currentPlayers.contains(it.key())) {
+            it.value()->deleteLater();
+            it = otherPlayerLabels.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+}
+QString GameWindow::getPlayerTexture(uint8_t direction) {
+    switch (direction) {
+    case 0: return "PlayerUp.png";
+    case 1: return "PlayerDown.png";
+    case 2: return "PlayerLeft.png";
+    case 3: return "PlayerRight.png";
+    default: return "PlayerLeft.png";
+    }
+}
 
 
 

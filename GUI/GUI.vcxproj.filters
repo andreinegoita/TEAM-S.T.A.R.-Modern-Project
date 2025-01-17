@@ -113,9 +113,6 @@
     <Image Include="BattleMenu.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Empty.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="PlayerDownShield.png">
       <Filter>Resource Files</Filter>
     </Image>
