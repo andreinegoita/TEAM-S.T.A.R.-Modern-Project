@@ -61,7 +61,7 @@ void LobbyWindow::onPlayerJoined() {
     updatePlayerList();  
 
    
-    if (playerCount >= 2 && (countdownTime == 0 || playerCount == 4)) {
+    if (playerCount >= 0 && (countdownTime == 0 || playerCount == 4)) {
         startGame();
     }
 

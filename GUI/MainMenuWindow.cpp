@@ -100,7 +100,7 @@ void MainMenuWindow::setupUI() {
 }
 
 void MainMenuWindow::startGame() {
-    LobbyWindow* lobbyWindow = new LobbyWindow();
+    /*LobbyWindow* lobbyWindow = new LobbyWindow();
     lobbyWindow->addPlayer(welcomeLabel->text());
 
     cpr::Post(
@@ -109,7 +109,9 @@ void MainMenuWindow::startGame() {
         cpr::Header{ { "Content-Type", "application/json" } }
     );
 
-    lobbyWindow->show();
+    lobbyWindow->show();*/
+    GameWindow* gameWindow = new GameWindow{};
+    gameWindow->show();
     this->close();
 }
 

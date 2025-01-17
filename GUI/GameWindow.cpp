@@ -41,7 +41,7 @@ GameWindow::GameWindow(QWidget* parent)
     fetchMap();
     updateMap(m_mapArray);
     // fetchPlayerPosition();
-    //setPlayerStartPosition();
+    setPlayerStartPosition(0,0);
     FetchPlayersFromServer();
 
     QTimer* powerUpTimer = new QTimer(this);
@@ -73,6 +73,21 @@ GameWindow::GameWindow(QWidget* parent)
         });
 }
 void GameWindow::setPlayerStartPosition(int x, int y) {
+    if (m_mapData[0][0] == "Player")
+    {
+        x = 0;
+        y = m_mapWidth - 1;
+    }
+    else if(m_mapData[0][m_mapWidth - 1]=="Player")
+    {
+        x = m_mapHeight - 1;
+        y = 0;
+    }
+    else if (m_mapData[m_mapHeight - 1][0] == "Player")
+    {
+        x = m_mapHeight - 1;
+        y = m_mapWidth - 1;
+    }
     m_x = x * 64;
     m_y = y * 64;
 

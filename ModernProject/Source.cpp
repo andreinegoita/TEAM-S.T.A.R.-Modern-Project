@@ -14,7 +14,7 @@
 #include<mutex>
 
 
-#include "../PowerUps/PowerUps.h"
+#include "../PowerUps/PowerUps/PowerUps.h"
 //#include"D:/ModernProject/PowerUps/PowerUps/PowerUps.h"
 //#include "C:/Users/onetr/TeamStar/PowerUps/PowerUps/PowerUps.h"
 
@@ -183,8 +183,8 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 		try {
 
 			sqlite3* db;
-			const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			
+			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -256,7 +256,8 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 
 		try {
 			sqlite3* db;
-			const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -325,7 +326,8 @@ void RunServer(GameMap &map, Player &player, http::Storage& storage, std::set<st
 
 		try {
 			sqlite3* db;
-			const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");

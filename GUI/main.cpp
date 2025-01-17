@@ -70,15 +70,15 @@ int main(int argc, char* argv[]) {
     QObject::connect(&loginWindow, &LoginWindow::loginSuccessful, [&](const QString& playerName) {
         mainMenuWindow.setPlayerName(playerName);
         mainMenuWindow.show();
-        lobbyWindow.show();
+        //lobbyWindow.show();
         loginWindow.close();
 
         
-        QTimer* gameStartTimer = new QTimer(&app);
+       /* QTimer* gameStartTimer = new QTimer(&app);
         QObject::connect(gameStartTimer, &QTimer::timeout, [&]() {
             gameController.checkStartCondition(lobbyWindow, playerName);
             });
-        gameStartTimer->start(1000);
+        gameStartTimer->start(1000);*/
         });
 
     loginWindow.show();

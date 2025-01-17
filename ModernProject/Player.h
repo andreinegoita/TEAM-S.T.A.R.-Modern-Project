@@ -6,7 +6,7 @@
 #include <conio.h>
 #include"GameMap.h"
 #include"GameObject.h"
-#include"PowerUps.h"
+#include"../PowerUps/PowerUps/PowerUps.h"
 #include<queue>
 #include<chrono>
 
