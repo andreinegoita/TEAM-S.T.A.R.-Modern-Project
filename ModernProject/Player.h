@@ -1,5 +1,5 @@
-import Weapon;
 #pragma once
+#include"Weapon.h"
 #include<iostream>
 #include<string_view>
 #include<cstdint>
