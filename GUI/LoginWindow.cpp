@@ -113,6 +113,10 @@ void LoginWindow::onLoginClicked() {
             emit loginSuccessful(playerName);
             this->close();
         }
+		else if (response.status_code == 409) {
+			qDebug() << "Player already logged in!";
+			QMessageBox::warning(this, "Eroare autentificare", "Utilizatorul este deja autentificat.");
+		}
         else {
             qDebug() << "Error logging in: " << response.text.c_str();
             QMessageBox::critical(this, "Eroare server", "Nu s-a putut autentifica utilizatorul.");

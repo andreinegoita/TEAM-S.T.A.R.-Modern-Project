@@ -155,8 +155,8 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 
 			sqlite3* db;
 			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
-			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
+			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -215,7 +215,9 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 			return crow::response(500, e.what());
 		}
 		});
-	CROW_ROUTE(app, "/login").methods("GET"_method)([&player](const crow::request& req) {
+
+	std::vector<std::string> playersNames;
+	CROW_ROUTE(app, "/login").methods("GET"_method)([&player,&playersNames](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 		if (!body) {
 			return crow::response(400, "Invalid JSON body");
@@ -229,8 +231,8 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 		try {
 			sqlite3* db;
 			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
-			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
+			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -250,6 +252,13 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 			std::string playerName;
 			int points = 0;
 
+			if (std::find(playersNames.begin(), playersNames.end(), name) != playersNames.end())
+			{
+				std::cout << "Player already logged in\n";
+				sqlite3_finalize(stmt);
+				sqlite3_close(db);
+				return crow::response(409, "Player already logged in");
+			}
 			if (sqlite3_step(stmt) == SQLITE_ROW) {
 				playerName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
 				points = sqlite3_column_int(stmt, 1);
@@ -265,6 +274,7 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 			sqlite3_close(db);
 
 			player.setName(playerName);
+			playersNames.push_back(playerName);
 			player.setPoints(points);
 
 			crow::json::wvalue response;
@@ -300,8 +310,8 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 		try {
 			sqlite3* db;
 			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
-			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
+			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
