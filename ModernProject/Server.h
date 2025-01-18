@@ -6,6 +6,6 @@
 class Server
 {
 public:
-	void RunServer(GameMap& map, Player& player, http::Storage& storage, std::set<std::pair<int, int>> availableSpawnPositions);
+	void RunServer(GameMap& map, Player& player, http::Storage& storage);
 };
 

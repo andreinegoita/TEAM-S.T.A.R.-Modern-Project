@@ -16,7 +16,7 @@ void MainMenuWindow::setupUI() {
 
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
-   
+
     QString backgroundImagePath = "battleCity.jpg";
     QFile file(backgroundImagePath);
     if (!file.exists()) {
@@ -46,19 +46,19 @@ void MainMenuWindow::setupUI() {
         "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
-        "    background-color: white;"  
-        "    color: #1E3A5F;"  
-        "    border: 2px solid #1E3A5F;"  
-        "    box-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;" 
-        "    transition: all 0.3s ease;"
-        "    text-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"  
-        "}"
-        "QPushButton:hover {"
-        "    background-color: rgba(255, 255, 255, 0.8);"  
+        "    background-color: white;"
         "    color: #1E3A5F;"
         "    border: 2px solid #1E3A5F;"
-        "    box-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;" 
-        "    text-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"  
+        "    box-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"
+        "    transition: all 0.3s ease;"
+        "    text-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: rgba(255, 255, 255, 0.8);"
+        "    color: #1E3A5F;"
+        "    border: 2px solid #1E3A5F;"
+        "    box-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"
+        "    text-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"
         "}"
     );
 
@@ -67,19 +67,19 @@ void MainMenuWindow::setupUI() {
         "    font-size: 24px;"
         "    padding: 12px 20px;"
         "    border-radius: 15px;"
-        "    background-color: white;" 
-        "    color: #1E3A5F;"  
-        "    border: 2px solid #1E3A5F;"  
-        "    box-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"  
-        "    transition: all 0.3s ease;"
-        "    text-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;" 
-        "}"
-        "QPushButton:hover {"
-        "    background-color: rgba(255, 255, 255, 0.8);" 
+        "    background-color: white;"
         "    color: #1E3A5F;"
         "    border: 2px solid #1E3A5F;"
-        "    box-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"  
-        "    text-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"  
+        "    box-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"
+        "    transition: all 0.3s ease;"
+        "    text-shadow: 0 0 10px #1E3A5F, 0 0 20px #1E3A5F, 0 0 30px #1E3A5F;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: rgba(255, 255, 255, 0.8);"
+        "    color: #1E3A5F;"
+        "    border: 2px solid #1E3A5F;"
+        "    box-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"
+        "    text-shadow: 0 0 15px #1E3A5F, 0 0 25px #1E3A5F, 0 0 35px #1E3A5F;"
         "}"
     );
 
@@ -100,19 +100,16 @@ void MainMenuWindow::setupUI() {
 }
 
 void MainMenuWindow::startGame() {
-    /*LobbyWindow* lobbyWindow = new LobbyWindow();
-    lobbyWindow->addPlayer(welcomeLabel->text());
+    LobbyWindow* lobbyWindow = new LobbyWindow();
+    lobbyWindow->addPlayer(welcomeLabel->text()); 
 
+   
     cpr::Post(
         cpr::Url{ "http://localhost:18080/join_lobby" },
         cpr::Body{ "{\"name\": \"" + welcomeLabel->text().toStdString() + "\"}" },
         cpr::Header{ { "Content-Type", "application/json" } }
     );
 
-    lobbyWindow->show();*/
-    GameWindow* gameWindow = new GameWindow{};
-    gameWindow->show();
+    lobbyWindow->show();
     this->close();
 }
-
-

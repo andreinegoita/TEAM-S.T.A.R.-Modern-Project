@@ -26,8 +26,6 @@ void initializeSpawnPositions(GameMap& map, std::set<std::pair<int, int>> availa
 	}
 }
 
-
-
 int main()
 {
 	
@@ -38,12 +36,12 @@ int main()
 		GameMap map(randValRows, randValCols);
 
 		map.generateMap();
-		std::set<std::pair<int, int>> availableSpawnPosition = { {0,0},{0,randValCols - 1},{randValRows - 1,0 },{randValRows - 1,randValCols - 1} };
+		//std::set<std::pair<int, int>> availableSpawnPosition = { {0,0},{0,randValCols - 1},{randValRows - 1,0 },{randValRows - 1,randValCols - 1} };
 		if (map.isValidMap()) {
 			std::cout << map;
-			Player player("Hero", { (randValRows/2)-1,0}, 3, DirectionType::Up);
+			Player player("", { (randValRows / 2),0 }, 3, DirectionType::Up);
 			map.setCellType(0, 0, CellType::EMPTY);
-			map.setCellType((randValRows/2)-1, 0, CellType::Player);
+			map.setCellType((randValRows / 2), 0, CellType::UNBREAKABLE_WALL);
 			system("cls");
 			Weapon weapon(23, 54, 4.3, 2.4, DirectionType::Up);
 			player.GetStartPosition();
@@ -59,22 +57,9 @@ int main()
 			auto storage = http::createStorage<http::PlayersDatabase<int, std::string, int>, http::Game<int, int, int>>("game.db");
 			storage.sync_schema(true);  // Sync the schema with the database
 			Server m_server;
-			m_server.RunServer(map, player, storage, availableSpawnPosition);
-
-			while (true)
-			{
-				if (_kbhit())
-				{
-					player.HandleInput(map);
-					system("cls");
-					std::cout << map;
-				}
-				player.UpdateBullets(map);
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			}
+			m_server.RunServer(map, player, storage);
 		}
-		else
-			throw std::runtime_error("Map is not valid");
+			
 	}
 	catch (const std::exception& e){
 		std::cerr << "An error occured: " << e.what() << std::endl;

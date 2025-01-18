@@ -1,77 +1,91 @@
 ﻿#include "LobbyWindow.h"
 #include "GameWindow.h"
+#include <cpr/cpr.h>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QDebug>
 
-
-LobbyWindow::LobbyWindow(QWidget* parent) : QMainWindow(parent), playerCount(0), countdownTime(60) {
+LobbyWindow::LobbyWindow(QWidget* parent)
+    : QMainWindow(parent), playerCount(0), countdownTime(10), gameStarted(false) {
     QVBoxLayout* layout = new QVBoxLayout(this);
     lobbyLabel = new QLabel("Waiting for players...", this);
     startButton = new QPushButton("Start Game", this);
-    startButton->setEnabled(false);  
-    countdownTimer = new QTimer(this);
+    startButton->setEnabled(false);
 
     layout->addWidget(lobbyLabel);
     layout->addWidget(startButton);
+
+    setCentralWidget(new QWidget);
+    centralWidget()->setLayout(layout);
+
 
     QTimer* playerUpdateTimer = new QTimer(this);
     connect(playerUpdateTimer, &QTimer::timeout, this, &LobbyWindow::updatePlayerList);
     playerUpdateTimer->start(5000);
 
-    setCentralWidget(new QWidget);
-    centralWidget()->setLayout(layout);
+
+    countdownTimer = new QTimer(this);
+    connect(countdownTimer, &QTimer::timeout, this, &LobbyWindow::onCountdownTick);
 
     connect(startButton, &QPushButton::clicked, this, &LobbyWindow::startGame);
-    connect(countdownTimer, &QTimer::timeout, this, &LobbyWindow::onPlayerJoined);
 }
 
 void LobbyWindow::addPlayer(const QString& playerName) {
-    players.push_back(playerName);
-    playerCount++;
-    lobbyLabel->setText("Players: " + QString::number(playerCount));
-
-    
-    if (playerCount >= 2) {
-        countdownTime = 60;
-        startButton->setEnabled(true);
-        countdownTimer->start(1000);  
+    if (!playerName.isEmpty()&&std::find(players.begin(),players.end(),playerName)==players.end())
+    {
+        players.push_back(playerName);
+        playerCount++;
+        lobbyLabel->setText("Players: " + QString::number(playerCount));
     }
 }
 
 void LobbyWindow::updatePlayerList() {
-    cpr::Response response = cpr::Get(cpr::Url{ base_url+"/get_lobby_players" });
+    if (gameStarted) return; 
+
+    cpr::Response response = cpr::Get(cpr::Url{ base_url + "/get_lobby_players" });
     if (response.status_code == 200) {
         QJsonDocument doc = QJsonDocument::fromJson(response.text.c_str());
         QJsonArray playersArray = doc["players"].toArray();
 
-        
-        if (playersArray.size() != playerCount) {
-            players.clear();
-            for (const auto& player : playersArray) {
+
+        players.clear();
+        for (const auto& player : playersArray) {
+            if (!player.toString().isEmpty() && std::find(players.begin(), players.end(), player.toString()) == players.end())
                 players.push_back(player.toString());
-            }
-            playerCount = players.size();
-            lobbyLabel->setText("Players: " + QString::number(playerCount));
+        }
+        playerCount = players.size();
+        lobbyLabel->setText("Players: " + QString::number(playerCount));
+
+
+        if (playerCount >= 2 && playerCount <= 4 && !countdownTimer->isActive()) {
+            countdownTime = 10;
+            countdownTimer->start(1000);
         }
     }
     else {
-        qDebug() << "Failed to fetch player data!";
+        qDebug() << "Failed to fetch player list!";
     }
 }
 
-void LobbyWindow::onPlayerJoined() {
-    updatePlayerList();  
-
-   
-    if (playerCount >= 0 && (countdownTime == 0 || playerCount == 4)) {
-        startGame();
-    }
+void LobbyWindow::onCountdownTick() {
+    if (gameStarted) return; 
 
     countdownTime--;
     lobbyLabel->setText("Game starting in: " + QString::number(countdownTime) + " seconds");
+
+    if (countdownTime <= 0) {
+        countdownTimer->stop();
+        startGame();
+    }
 }
 
 void LobbyWindow::startGame() {
-    countdownTimer->stop();
+    if (gameStarted) return; 
+
+    gameStarted = true; 
+
     GameWindow* gameWindow = new GameWindow();
+
     gameWindow->show();
     this->close();
 }

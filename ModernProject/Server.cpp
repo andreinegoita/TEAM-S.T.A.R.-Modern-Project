@@ -1,9 +1,9 @@
 #include "Server.h"
 
-void Server::RunServer(GameMap& map, Player& player, http::Storage& storage, std::set<std::pair<int, int>> availableSpawnPositions)
+void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 {
 	crow::SimpleApp app;
-	app.loglevel(crow::LogLevel::Critical);
+	//app.loglevel(crow::LogLevel::Critical);
 	CROW_ROUTE(app, "/map").methods("GET"_method)([&map]() {
 		return crow::response(map.GetMapState());
 		});
@@ -155,8 +155,8 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage, std
 
 			sqlite3* db;
 			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			/*const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";*/
-			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -229,8 +229,8 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage, std
 		try {
 			sqlite3* db;
 			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			/*const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";*/
-			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -300,8 +300,8 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage, std
 		try {
 			sqlite3* db;
 			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			/*const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";*/
-			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -500,31 +500,7 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage, std
 		return crow::response("Cell updated");
 			});
 	std::mutex positionMutex;
-	CROW_ROUTE(app, "/request_spawn").methods("POST"_method)([&map, &positionMutex, &availableSpawnPositions](const crow::request& req) {
-		auto body = crow::json::load(req.body);
-		std::string playerName = body["name"].s();
-
-		if (!body) {
-			return crow::response(400, "Invalid JSON");
-		}
-
-		std::lock_guard<std::mutex> lock(positionMutex);
-
-
-		if (availableSpawnPositions.empty()) {
-			return crow::response(400, "No available spawn points");
-		}
-
-
-		auto pos = *availableSpawnPositions.begin();
-		availableSpawnPositions.erase(pos);
-		map.UpdateCell(pos.first, pos.second, 3U);
-
-		crow::json::wvalue response;
-		response["x"] = pos.first;
-		response["y"] = pos.second;
-		return crow::response(200, response);
-		});
+	
 
 
 	app.port(18080).multithreaded().run();

@@ -40,13 +40,11 @@ GameWindow::GameWindow(QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
     fetchMap();
     updateMap(m_mapArray);
-    // fetchPlayerPosition();
     setPlayerStartPosition(0,0);
-    FetchPlayersFromServer();
-
     QTimer* powerUpTimer = new QTimer(this);
     connect(powerUpTimer, &QTimer::timeout, this, &GameWindow::fetchPowerUpQueue);
     powerUpTimer->start(5000);
+
 
     visibilityTimer = new QTimer(this);
     connect(visibilityTimer, &QTimer::timeout, this, &GameWindow::increaseVisibility);
@@ -72,32 +70,39 @@ GameWindow::GameWindow(QWidget* parent)
         menu->show();
         });
 }
-void GameWindow::setPlayerStartPosition(int x, int y) {
-    if (m_mapData[0][0] == "Player")
-    {
-        x = 0;
-        y = m_mapWidth - 1;
-    }
-    else if(m_mapData[0][m_mapWidth - 1]=="Player")
-    {
-        x = m_mapHeight - 1;
-        y = 0;
-    }
-    else if (m_mapData[m_mapHeight - 1][0] == "Player")
-    {
-        x = m_mapHeight - 1;
-        y = m_mapWidth - 1;
-    }
-    m_x = x * 64;
-    m_y = y * 64;
 
-    
+void GameWindow::setPlayerStartPosition(int x, int y) {
+   
+    QList<QPair<int, int>> possiblePositions = {
+        {0, 0},                                 
+        {0, m_mapWidth - 1},                     
+        {m_mapHeight - 1, 0},                    
+        {m_mapHeight - 1, m_mapWidth - 1}     
+    };
+
+
+    for (const auto& position : possiblePositions) {
+        int px = position.first;
+        int py = position.second;
+
+        if (m_mapData[px][py] != "Player") { 
+            x = px;
+            y = py;
+            m_mapData[px][py] = "Player";
+            break;
+        }
+    }
+
+    m_x = y * 64;
+    m_y = x * 64;
+
     playerLabel->move(m_x, m_y);
     playerLabel->show();
 
-    sendPlayerSpawn(x, y);  
+    sendPlayerSpawn(x, y);
     qDebug() << "Player set at position: (" << x << ", " << y << ")";
 }
+
 
 
 
@@ -364,14 +369,13 @@ void GameWindow::fetchMap() {
         }
         m_mapArray = jsonDoc.array();
 
-        if (m_mapHeight == 0 && m_mapWidth == 0)
-        {
+        
             m_mapHeight = m_mapArray.size();
             if (m_mapHeight > 0)
             {
                 m_mapWidth = m_mapArray[0].toArray().size();
             }
-        }
+        
     }
     else {
         QLabel* errorLabel = new QLabel("Failed to fetch map from server!", this);

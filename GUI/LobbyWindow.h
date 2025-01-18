@@ -13,9 +13,9 @@ public:
     explicit LobbyWindow(QWidget* parent = nullptr);
     void addPlayer(const QString& playerName);
     void startGame();
+    void onCountdownTick();
 
 private slots:
-    void onPlayerJoined();
     void updatePlayerList();
 
 private:
@@ -25,5 +25,6 @@ private:
     int playerCount;
     int countdownTime;
     std::vector<QString> players;
+    bool gameStarted;
     std::string base_url = "http://localhost:18080";
 };
