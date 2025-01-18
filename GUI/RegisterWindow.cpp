@@ -50,7 +50,14 @@ void RegisterWindow::setupUI()
 bool RegisterWindow::validateInputs()
 {
     if (usernameEdit->text().isEmpty()) {
-        QMessageBox::warning(this, "Eroare", "Toate campurile trebuie completate!");
+        QMessageBox::warning(this, "Eroare", "Toate câmpurile trebuie completate!");
+        return false;
+    }
+
+    QRegularExpression usernameRegex("^[A-Za-z][A-Za-z0-9]*$");
+    QRegularExpressionMatch match = usernameRegex.match(usernameEdit->text());
+    if (!match.hasMatch()) {
+        QMessageBox::warning(this, "Eroare", "Numele utilizatorului trebuie să înceapă cu o literă și să nu conțină caractere speciale!");
         return false;
     }
 

@@ -2,6 +2,9 @@
 #define REGISTERWINDOW_H
 #include<string>
 #include <QMainWindow>
+#include <QRegularExpression>
+#include <QMessageBox>
+
 
 class QLineEdit;
 class QPushButton;
