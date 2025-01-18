@@ -125,7 +125,7 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage, std
 
 	CROW_ROUTE(app, "/players").methods("GET"_method)
 		([&storage]() {
-		auto players = storage.get_all<http::PlayersDatabase>();
+		auto players = storage.get_all<http::PlayersDatabase<int, std::string, int>>();
 		std::ostringstream os;
 		for (const auto& player : players) {
 			os << "ID: " << player.id << ", Name: " << player.name << ", Points: " << player.points << "\n";
@@ -431,7 +431,7 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage, std
 		});
 	CROW_ROUTE(app, "/get_players").methods("GET"_method)([&storage]() {
 		try {
-			auto players = storage.get_all<http::PlayersDatabase>();
+			auto players = storage.get_all<http::PlayersDatabase<int, std::string, int>>();
 			crow::json::wvalue response;
 
 

@@ -3,7 +3,7 @@
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 void http::populateStorage(Storage& storage, const std::string& playerName)
 {
-	PlayersDatabase newPlayer;
+	PlayersDatabase<int,std::string,int> newPlayer;
 	newPlayer.name = playerName;
 	newPlayer.points = 3000;
 
@@ -12,13 +12,13 @@ void http::populateStorage(Storage& storage, const std::string& playerName)
 
 void http::recordGame(Storage& storage, int playerId, int gameScore)
 {
-	Game newGame;
+	Game<int,int,int> newGame;
 	newGame.playerId = playerId;
 	newGame.score = gameScore;
 
 	storage.insert(newGame);
 
-	auto player = storage.get<PlayersDatabase>(playerId);
+	auto player = storage.get<http::PlayersDatabase<int, std::string, int>>(playerId);
 	player.points += gameScore;
 	storage.update(player);
 }

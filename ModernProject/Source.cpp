@@ -56,8 +56,8 @@ int main()
 				bomb.SetCoordinates(map);
 			}
 
-			auto storage = http::createStorage("game.db");
-			storage.sync_schema(true);
+			auto storage = http::createStorage<http::PlayersDatabase<int, std::string, int>, http::Game<int, int, int>>("game.db");
+			storage.sync_schema(true);  // Sync the schema with the database
 			Server m_server;
 			m_server.RunServer(map, player, storage, availableSpawnPosition);
 

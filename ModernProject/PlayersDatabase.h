@@ -4,23 +4,27 @@
 #include<crow.h>
 #include<string>
 #include<sqlite_orm/sqlite_orm.h>
+#include<type_traits>
 
 namespace sql = sqlite_orm;
 
 namespace http
 {
+	template <typename IdType, typename NameType, typename PointsType>
 	struct PlayersDatabase {
-		int id;
-		std::string name;
-		int points;
+		IdType id;
+		NameType name;
+		PointsType points;
 	};
 
+	template <typename IdType, typename PlayerIdType, typename ScoreType>
 	struct Game {
-		int id;
-		int playerId;
-		int score;
+		IdType id;
+		PlayerIdType playerId;
+		ScoreType score;
 	};
 
+	template <typename PlayersDatabase, typename Game>
 	inline auto createStorage(const std::string& filename) {
 		return sql::make_storage(
 			filename,
@@ -39,7 +43,8 @@ namespace http
 		);
 	}
 
-	using Storage = decltype(createStorage(""));
+	using Storage = decltype(createStorage<PlayersDatabase<int, std::string, int>, Game<int, int, int>>(""));
+
 
 	void populateStorage(Storage& storage, const std::string& playerName);
 
