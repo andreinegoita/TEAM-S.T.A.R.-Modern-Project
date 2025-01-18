@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bomb.cpp" />
+    <ClCompile Include="Bomb.cppm" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Bullet.h" />
     <ClCompile Include="CellType.cpp" />

@@ -1,9 +1,9 @@
-﻿#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
+﻿import Bomb;
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #include<iostream>
 #include<random>
 #include"GameMap.h"
 #include"Player.h"
-#include "Bomb.h"
 #include<crow.h>
 #include<chrono>
 #include<thread>
