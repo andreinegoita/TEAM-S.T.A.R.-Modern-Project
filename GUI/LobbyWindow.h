@@ -10,7 +10,7 @@ class LobbyWindow : public QMainWindow {
     Q_OBJECT  
 
 public:
-    explicit LobbyWindow(QWidget* parent = nullptr);
+    explicit LobbyWindow(const QString& playerName,QWidget* parent = nullptr);
     void addPlayer(const QString& playerName);
     void startGame();
     void onCountdownTick();
@@ -19,6 +19,7 @@ private slots:
     void updatePlayerList();
 
 private:
+    QString playerName;
     QLabel* lobbyLabel;
     QPushButton* startButton;
     QTimer* countdownTimer;

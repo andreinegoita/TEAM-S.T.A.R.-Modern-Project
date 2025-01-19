@@ -5,8 +5,8 @@
 #include <QJsonArray>
 #include <QDebug>
 
-LobbyWindow::LobbyWindow(QWidget* parent)
-    : QMainWindow(parent), playerCount(0), countdownTime(10), gameStarted(false) {
+LobbyWindow::LobbyWindow(const QString& player,QWidget* parent)
+    : QMainWindow(parent), playerName(player), playerCount(0), countdownTime(10), gameStarted(false) {
     QVBoxLayout* layout = new QVBoxLayout(this);
     lobbyLabel = new QLabel("Waiting for players...", this);
     startButton = new QPushButton("Start Game", this);
@@ -28,6 +28,7 @@ LobbyWindow::LobbyWindow(QWidget* parent)
     connect(countdownTimer, &QTimer::timeout, this, &LobbyWindow::onCountdownTick);
 
     connect(startButton, &QPushButton::clicked, this, &LobbyWindow::startGame);
+    qDebug() << "Lobby initialized for player:" << playerName;
 }
 
 void LobbyWindow::addPlayer(const QString& playerName) {
@@ -57,7 +58,7 @@ void LobbyWindow::updatePlayerList() {
         lobbyLabel->setText("Players: " + QString::number(playerCount));
 
 
-        if (playerCount >= 2 && playerCount <= 4 && !countdownTimer->isActive()) {
+        if (playerCount >= 1 && playerCount <= 4 && !countdownTimer->isActive()) {
             countdownTime = 10;
             countdownTimer->start(1000);
         }
@@ -84,7 +85,7 @@ void LobbyWindow::startGame() {
 
     gameStarted = true; 
 
-    GameWindow* gameWindow = new GameWindow();
+    GameWindow* gameWindow = new GameWindow(playerName);
 
     gameWindow->show();
     this->close();

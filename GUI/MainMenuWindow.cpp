@@ -33,7 +33,7 @@ void MainMenuWindow::setupUI() {
         ).arg(backgroundImagePath));
     }
 
-    welcomeLabel = new QLabel("Hello PlayerName", this);
+    welcomeLabel = new QLabel("Hello", this);
     welcomeLabel->setAlignment(Qt::AlignRight | Qt::AlignTop);
     welcomeLabel->setStyleSheet("font-size:18px; color: black; padding: 10px;");
     welcomeLabel->setGeometry(width() - 310, 10, 300, 30);
@@ -100,7 +100,8 @@ void MainMenuWindow::setupUI() {
 }
 
 void MainMenuWindow::startGame() {
-    LobbyWindow* lobbyWindow = new LobbyWindow();
+    QString playerName = welcomeLabel->text();
+    LobbyWindow* lobbyWindow = new LobbyWindow(playerName);
     lobbyWindow->addPlayer(welcomeLabel->text()); 
 
    

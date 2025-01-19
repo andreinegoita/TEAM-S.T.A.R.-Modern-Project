@@ -27,7 +27,7 @@ class GameWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    GameWindow(QWidget* parent = nullptr);
+    GameWindow(const QString& playerName,QWidget* parent = nullptr);
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
@@ -38,6 +38,9 @@ public:
     void sendPlayerSpawn(int row, int col);
     void setPlayerStartPosition(int x,int y);
     void removeDisconnectedPlayers(const QJsonObject& currentPlayers);
+    void updatePlayerLivesFromServer();
+    void displayPlayerLives();
+    void updatePlayerLivesOnServer(const std::string& playerName, int lives);
 
 private slots:
     void updateGraphics();
@@ -59,11 +62,14 @@ private:
     bool m_shield;
     double m_bulletSpeed;
     double m_fireRate;
+    int lives = 3;
     float initialBulletSpeed = 5.0f;
     struct m_bulletData {
         float x;
         float y;
         uint8_t direction;
+        QString owner;
+        bool inCollision=false;
         int previousCellX = -1;
         int previousCellY = -1;
     };
@@ -83,7 +89,10 @@ private:
     void displayPlayerDeathMessage(const std::string& playerName);
     void fetchAllPlayersPositions();
     QString getPlayerTexture(uint8_t direction);
-    void returnToMainMenu();
+    void handleBulletCollision(int x, int y);
+    QString getPlayerAtPosition(int x, int y);
+    void addPlayerPoints(int pointsToAdd);
+    void fetchPlayerPoints();
 
 
 private:
@@ -102,8 +111,9 @@ private:
     int visibilityRadius = 1;
     QTimer* visibilityTimer;
     QTimer* updateTimer;
-
+    std::unordered_map<std::string, int> playerLives;
     std::string base_url = "http://localhost:18080";
     const QString base_url_Q = "http://localhost:18080";
     QMap<QString, QLabel*> otherPlayerLabels;
+    int m_playerPoints;
 };

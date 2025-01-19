@@ -188,6 +188,3 @@ std::string GameMap::GetMapState() const {
 	oss << "]";
 	return oss.str();
 }
-
-
-

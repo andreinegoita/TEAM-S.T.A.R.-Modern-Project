@@ -67,8 +67,8 @@ bool RegisterWindow::validateInputs()
 void RegisterWindow::onRegisterButtonClicked() {
     if (validateInputs()) {
         QString playerName = usernameEdit->text();
-        int playerPoints = 300; // Puncte implicite
-        int playerId = generateUniqueId(); // ID unic
+        int playerPoints = 300; 
+        int playerId = generateUniqueId();
 
         if (sendPlayerDataToServer(playerId, playerName, playerPoints)) {
             QMessageBox::information(this, "Success", "Utilizator înregistrat cu succes!");
@@ -83,22 +83,22 @@ int RegisterWindow::generateUniqueId()
 }
 
 bool RegisterWindow::sendPlayerDataToServer(int playerId, const QString& playerName, int playerPoints) {
-    // Construire JSON manual
+    
     QString jsonString = QString("{\"id\": %1, \"name\": \"%2\", \"points\": %3}")
         .arg(playerId)
         .arg(playerName)
         .arg(playerPoints);
 
-    // Trimitere cerere POST către server
+    
     cpr::Response response = cpr::Post(
         cpr::Url{ base_url+"/register" },
         cpr::Body{ jsonString.toStdString() },
         cpr::Header{ {"Content-Type", "application/json"} }
     );
 
-    // Verificare răspuns server
+    
     if (response.status_code == 200) {
-        // Procesare răspuns JSON primit de la server
+      
         auto responseText = QString::fromStdString(response.text);
         QJsonDocument responseDoc = QJsonDocument::fromJson(responseText.toUtf8());
         QJsonObject responseObj = responseDoc.object();

@@ -1,24 +1,19 @@
-#include "Server.h"
+﻿#include "Server.h"
 
 void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 {
 	crow::SimpleApp app;
-	//app.loglevel(crow::LogLevel::Critical);
+	app.loglevel(crow::LogLevel::Critical);
 	CROW_ROUTE(app, "/map").methods("GET"_method)([&map]() {
 		return crow::response(map.GetMapState());
 		});
 
-	CROW_ROUTE(app, "/map/empty/<int>/<int>").methods("POST"_method)
-		([&map](int row, int col) {
-		map.UpdateCell(row, col, 0U);
-		return crow::response("Cell updated");
-			});
 	CROW_ROUTE(app, "/player_position").methods("GET"_method)
 		([&player]() {
 		return crow::response(player.GetPositionState());
 			});
 
-	std::map<std::string, std::tuple<int, int, int>> playerPositions;
+	std::map<std::string, std::tuple<int, int, int, int>> playerPositions;
 	std::mutex playerPositionsMutex;
 
 	CROW_ROUTE(app, "/player_position").methods("POST"_method)([&map, &playerPositions, &playerPositionsMutex](const crow::request& req) {
@@ -38,7 +33,7 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 			std::lock_guard<std::mutex> lock(playerPositionsMutex);
 			map.UpdateCell(lastY, lastX, 0U);
 			map.UpdateCell(y, x, 3U);
-			playerPositions[playerName] = std::make_tuple(x, y, direction);
+			playerPositions[playerName] = std::make_tuple(x, y, direction,3);
 		}
 
 		return crow::response(200);
@@ -148,15 +143,12 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 		}
 
 		int playerPoints = body["points"].i();
-		//if (playerPoints <= 0) {
-		//	playerPoints = 1000;
-		//}
 		try {
 
 			sqlite3* db;
-			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
 			//const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
-			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -217,22 +209,26 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 		});
 
 	std::vector<std::string> playersNames;
-	CROW_ROUTE(app, "/login").methods("GET"_method)([&player,&playersNames](const crow::request& req) {
+	std::unordered_map<std::string, int> playerLives;
+	CROW_ROUTE(app, "/login").methods("POST"_method)([&player, &playersNames,&playerLives](const crow::request& req) {
 		auto body = crow::json::load(req.body);
 		if (!body) {
 			return crow::response(400, "Invalid JSON body");
 		}
 
 		std::string name = body["name"].s();
+
+		if (playerLives.find(name) == playerLives.end()) {
+			playerLives[name] = 3; 
+			std::cout << "Player " << name << " logged in with 3 lives.\n";
+		}
 		if (name.empty()) {
 			return crow::response(400, "Player name cannot be empty");
 		}
 
 		try {
 			sqlite3* db;
-			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
-			//const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
-			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -247,24 +243,21 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 			}
 
 			sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-			std::cout << "Executing query: " << select_sql << " with name: " << name << std::endl;
 
 			std::string playerName;
 			int points = 0;
 
-			if (std::find(playersNames.begin(), playersNames.end(), name) != playersNames.end())
-			{
-				std::cout << "Player already logged in\n";
+			if (std::find(playersNames.begin(), playersNames.end(), name) != playersNames.end()) {
 				sqlite3_finalize(stmt);
 				sqlite3_close(db);
 				return crow::response(409, "Player already logged in");
 			}
+
 			if (sqlite3_step(stmt) == SQLITE_ROW) {
 				playerName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
 				points = sqlite3_column_int(stmt, 1);
 			}
 			else {
-				std::cout << "No player found with name: " << name << std::endl;
 				sqlite3_finalize(stmt);
 				sqlite3_close(db);
 				return crow::response(404, "Player not found");
@@ -274,16 +267,15 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 			sqlite3_close(db);
 
 			player.setName(playerName);
-			playersNames.push_back(playerName);
 			player.setPoints(points);
+			playersNames.push_back(playerName);
 
 			crow::json::wvalue response;
 			response["status"] = "success";
-			response["message"] = "Player found";
+			response["message"] = "Player logged in successfully";
 			response["name"] = playerName;
 			response["points"] = points;
 			return crow::response(200, response);
-
 		}
 		catch (const std::exception& e) {
 			return crow::response(500, e.what());
@@ -309,9 +301,9 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 
 		try {
 			sqlite3* db;
-			//const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+			const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
 			//const char* db_name = "C:\\Users\\Sebi\\Desktop\\ModernProject\\ModernProject/game.db";
-			const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
+			//const char* db_name = "D:\\ModernProject\\ModernProject/game.db";
 
 			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
 				return crow::response(500, "Failed to connect to database");
@@ -503,15 +495,148 @@ void Server::RunServer(GameMap& map, Player& player, http::Storage& storage)
 
 		return crow::response(200, response);
 		});
-
-	CROW_ROUTE(app, "/map/player/<int>/<int>").methods("POST"_method)
+	
+	CROW_ROUTE(app, "/map/empty/<int>/<int>").methods("POST"_method)
 		([&map](int row, int col) {
-		map.UpdateCell(row, col, 3U);
+		std::cout << "Received request to update cell (" << row << ", " << col << ") to Empty.\n";
+		map.UpdateCell(row, col, 0U);
 		return crow::response("Cell updated");
 			});
-	std::mutex positionMutex;
-	
 
+	CROW_ROUTE(app, "/update_player_lives")
+		.methods("POST"_method)
+		([&playerLives](const crow::request& req) {
+		auto jsonData = crow::json::load(req.body);
+		if (!jsonData) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+		std::string playerName = jsonData["name"].s();
+		int lives = jsonData["lives"].i();
+
+	
+		if (playerLives.find(playerName) != playerLives.end()) {
+			playerLives[playerName] = lives;
+
+			if (playerLives[playerName] <= 0) {
+				playerLives.erase(playerName);
+				std::cout << "Player " << playerName << " has been removed from the game.\n";
+			}
+
+			return crow::response(200, "Player lives updated");
+		}
+
+		return crow::response(404, "Player not found");
+			});
+
+	CROW_ROUTE(app, "/get_player_lives")
+		.methods("GET"_method)
+		([&playerLives]() {
+		crow::json::wvalue jsonResponse;
+		for (const auto& [name, lives] : playerLives) {
+			jsonResponse[name] = lives;
+		}
+		return crow::response(jsonResponse);
+			});
+
+	CROW_ROUTE(app, "/add_player_points").methods("POST"_method)([](const crow::request& req) {
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			return crow::response(400, "Invalid JSON payload");
+		}
+
+		std::string playerName = body["name"].s();
+		int pointsToAdd = body["points"].i();
+
+		if (playerName.empty()) {
+			return crow::response(400, "Player name cannot be empty");
+		}
+
+		try {
+			sqlite3* db;
+			const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+
+			if (sqlite3_open(db_name, &db) != SQLITE_OK) {
+				return crow::response(500, "Failed to connect to database");
+			}
+
+			const char* update_sql = "UPDATE players SET points = points + ? WHERE name = ?;";
+			sqlite3_stmt* stmt;
+
+			if (sqlite3_prepare_v2(db, update_sql, -1, &stmt, nullptr) != SQLITE_OK) {
+				sqlite3_close(db);
+				return crow::response(500, "Failed to prepare UPDATE statement");
+			}
+
+			sqlite3_bind_int(stmt, 1, pointsToAdd);
+			sqlite3_bind_text(stmt, 2, playerName.c_str(), -1, SQLITE_STATIC);
+
+			if (sqlite3_step(stmt) != SQLITE_DONE) {
+				sqlite3_finalize(stmt);
+				sqlite3_close(db);
+				return crow::response(500, "Failed to update player points");
+			}
+
+			sqlite3_finalize(stmt);
+			sqlite3_close(db);
+
+			crow::json::wvalue response;
+			response["status"] = "success";
+			response["message"] = "Points added successfully";
+			response["name"] = playerName;
+			response["added_points"] = pointsToAdd;
+
+			return crow::response(200, response);
+		}
+		catch (const std::exception& e) {
+			return crow::response(500, e.what());
+		}
+		});
+
+	CROW_ROUTE(app, "/get_player_points/<string>").methods("GET"_method)([](const std::string& playerName) {
+    if (playerName.empty()) {
+        return crow::response(400, "Player name cannot be empty");
+    }
+
+    try {
+        sqlite3* db;
+        const char* db_name = "C:\\Users\\onetr\\TeamStar\\ModernProject/game.db";
+
+        if (sqlite3_open(db_name, &db) != SQLITE_OK) {
+            return crow::response(500, "Failed to connect to database");
+        }
+
+        const char* select_sql = "SELECT points FROM players WHERE name = ?;";
+        sqlite3_stmt* stmt;
+
+        if (sqlite3_prepare_v2(db, select_sql, -1, &stmt, nullptr) != SQLITE_OK) {
+            sqlite3_close(db);
+            return crow::response(500, "Failed to prepare SELECT statement");
+        }
+
+        sqlite3_bind_text(stmt, 1, playerName.c_str(), -1, SQLITE_STATIC);
+
+        int points = 0;
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            points = sqlite3_column_int(stmt, 0);
+        } else {
+            sqlite3_finalize(stmt);
+            sqlite3_close(db);
+            return crow::response(404, "Player not found");
+        }
+
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+
+        crow::json::wvalue response;
+        response["name"] = playerName;
+        response["points"] = points;
+
+        return crow::response(200, response);
+    } catch (const std::exception& e) {
+        return crow::response(500, e.what());
+    }
+});
 
 	app.port(18080).multithreaded().run();
 }

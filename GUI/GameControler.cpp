@@ -39,30 +39,8 @@ void GameController::checkStartCondition(LobbyWindow& lobbyWindow, const QString
 void GameController::startGame(LobbyWindow& lobbyWindow, const QString& playerName)
 {
 
-    GameWindow* gameWindow = new GameWindow();
+    GameWindow* gameWindow = new GameWindow(playerName);
 
-
-   /* cpr::Response response = cpr::Post(
-        cpr::Url{ "http://localhost:18080/request_spawn" },
-        cpr::Body{ "{\"name\": \"" + playerName.toStdString() + "\"}" },
-        cpr::Header{ {"Content-Type", "application/json"} }
-    );
-
-
-    if (response.status_code == 200) {
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(response.text.c_str());
-        QJsonObject jsonObject = jsonResponse.object();
-
-        int x = jsonObject["x"].toInt();
-        int y = jsonObject["y"].toInt();
-
-
-        gameWindow->setPlayerStartPosition(x, y);
-        qDebug() << "Player " << playerName << " spawned at position: " << x << ", " << y;
-    }
-    else {
-        qDebug() << "Failed to fetch spawn position from server!";
-    }*/
 
 
     gameWindow->show();

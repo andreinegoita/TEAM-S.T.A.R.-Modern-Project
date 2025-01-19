@@ -5,6 +5,7 @@
 #include<ctime>
 #include<random>
 #include"CellType.h"
+#include <unordered_map>
 
 class GameMap
 {
@@ -38,6 +39,10 @@ public:
 
 	std::string GetMapState() const;
 
+	void setPlayerPosition(const std::string& playerName, size_t row, size_t col);
+	std::pair<size_t, size_t> getPlayerPosition(const std::string& playerName) const;
+
+
 
 private:
 
@@ -46,6 +51,8 @@ private:
 	std::vector<std::vector<CellType>> m_map;
 	size_t m_playerX;
 	size_t m_playerY;
+
+	std::unordered_map<std::string, std::pair<size_t, size_t>> m_playerPositions;
 
 	std::string CellTypeToString(CellType cell) const {
 		switch (cell) {

@@ -36,12 +36,16 @@ int main()
 		GameMap map(randValRows, randValCols);
 
 		map.generateMap();
-		//std::set<std::pair<int, int>> availableSpawnPosition = { {0,0},{0,randValCols - 1},{randValRows - 1,0 },{randValRows - 1,randValCols - 1} };
+		
 		if (map.isValidMap()) {
 			std::cout << map;
 			Player player("", { (randValRows / 2),0 }, 3, DirectionType::Up);
 			map.setCellType(0, 0, CellType::EMPTY);
 			map.setCellType((randValRows / 2), 0, CellType::UNBREAKABLE_WALL);
+
+			map.setCellType(0, (randValCols / 2) + 1, CellType::EMPTY);
+			map.setCellType(0, (randValCols / 2), CellType::EMPTY);
+			map.setCellType(0, (randValCols / 2)-1, CellType::EMPTY);
 			system("cls");
 			Weapon weapon(23, 54, 4.3, 2.4, DirectionType::Up);
 			player.GetStartPosition();
@@ -55,7 +59,7 @@ int main()
 			}
 
 			auto storage = http::createStorage<http::PlayersDatabase<int, std::string, int>, http::Game<int, int, int>>("game.db");
-			storage.sync_schema(true);  // Sync the schema with the database
+			storage.sync_schema(true);  
 			Server m_server;
 			m_server.RunServer(map, player, storage);
 		}

@@ -1,7 +1,6 @@
 ﻿#include "GameWindow.h"
 #include<QGraphicsPixmapItem>
 #include<QTimer>
-#include"MainMenuWindow.h"
 #include <QPainter>  
 #include <QPaintEvent>
 #include<qmessagebox.h>
@@ -9,18 +8,17 @@
 
 
 
-GameWindow::GameWindow(QWidget* parent)
-    : QMainWindow(parent), m_x(0), m_y(m_mapWidth), m_targetX(0),
-    m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0), canShoot(true), m_bulletSpeed(5.0f),m_fireRate(500) {
+GameWindow::GameWindow(const QString& player,QWidget* parent)
+    :QMainWindow(parent), m_x(0), m_y(m_mapWidth), m_targetX(0),
+    m_targetY(0), m_speed(0.05f), m_currentSpeedX(0), m_currentSpeedY(0), canShoot(true),m_bulletSpeed(5.0f),m_fireRate(500),m_playerName(player.toStdString()) {
     setupUI();
     resize(400, 400);
-
+   
     playerLabel = new QLabel(this);
     playerLabel->setPixmap(QPixmap("Empty.png")); 
     playerLabel->setScaledContents(true);
     playerLabel->resize(64, 64);
 
-   
     playerLabel->setAttribute(Qt::WA_TranslucentBackground);
     playerLabel->setStyleSheet("background: transparent;");
     QTimer* timer = new QTimer(this);
@@ -41,9 +39,11 @@ GameWindow::GameWindow(QWidget* parent)
     fetchMap();
     updateMap(m_mapArray);
     setPlayerStartPosition(0,0);
+    QTimer* showLives = new QTimer(this);
     QTimer* powerUpTimer = new QTimer(this);
     connect(powerUpTimer, &QTimer::timeout, this, &GameWindow::fetchPowerUpQueue);
     powerUpTimer->start(5000);
+
 
 
     visibilityTimer = new QTimer(this);
@@ -64,12 +64,18 @@ GameWindow::GameWindow(QWidget* parent)
     connect(syncTimer, &QTimer::timeout, this, &GameWindow::fetchAllPlayersPositions);
     syncTimer->start(200);
 
-    connect(this, &GameWindow::returnToMainMenu, [this]() {
-        this->hide();
-        MainMenuWindow* menu = new MainMenuWindow();
-        menu->show();
-        });
+    
+    QTimer* syncLivesTimer = new QTimer(this);
+    connect(syncLivesTimer, &QTimer::timeout, this, &GameWindow::updatePlayerLivesFromServer);
+    syncLivesTimer->start(1000);
+    QTimer* pointsTimer = new QTimer(this);
+    connect(pointsTimer, &QTimer::timeout, this, &GameWindow::fetchPlayerPoints);
+    pointsTimer->start(5000);
+
+
+    qDebug() << "GAME AT " << m_playerName;
 }
+
 
 void GameWindow::setPlayerStartPosition(int x, int y) {
    
@@ -98,67 +104,134 @@ void GameWindow::setPlayerStartPosition(int x, int y) {
 
     playerLabel->move(m_x, m_y);
     playerLabel->show();
-
     sendPlayerSpawn(x, y);
     qDebug() << "Player set at position: (" << x << ", " << y << ")";
 }
 
+void GameWindow::updatePlayerLivesFromServer() {
+    cpr::Response response = cpr::Get(cpr::Url{ base_url + "/get_player_lives" });
 
+    if (response.status_code == 200) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        if (jsonDoc.isObject()) {
+            QJsonObject jsonObj = jsonDoc.object();
 
+            for (auto it = jsonObj.begin(); it != jsonObj.end(); ++it) {
+                QString playerName = it.key();
+                int lives = it.value().toInt();
 
+                if (playerName.toStdString() == m_playerName) {
+                   
+                    if (m_playerLives != lives) {
+                        m_playerLives = lives;
+                        displayPlayerLives();
+                        qDebug() << "Updated local lives for player" << playerName << ":" << lives;
+                    }
+                }
+                else {
+                   
+                    playerLives[playerName.toStdString()] = lives;
+                    qDebug() << "Updated lives for other player" << playerName << ":" << lives;
+                }
+            }
+        }
+        else {
+            qDebug() << "Failed to parse JSON object from server response.";
+        }
+    }
+    else {
+        qDebug() << "Failed to fetch player lives from server. Status code:" << response.status_code;
+    }
+}
+void GameWindow::displayPlayerLives() {
+    if (!playerLabel) {
+        return;
+    }
+
+    playerLabel->setText(QString::fromStdString(m_playerName) + ": " + QString::number(m_playerLives) + " Lives");
+    playerLabel->setStyleSheet("color: black; font-size: 16px;");
+    playerLabel->show();
+}
 void GameWindow::keyPressEvent(QKeyEvent* event)
 {
-    if (event->key() == Qt::Key_W)
-    {
-        m_targetY -= 0.1f;
-        m_currentSpeedY = -m_speed;
-        updatePlayerTexture("Up");
-        m_direction = 0;
-        if (m_shield)
+        if (event->key() == Qt::Key_W)
         {
-            updatePlayerTexture("UpShield");
-        }
-    }
-    else if (event->key() == Qt::Key_S)
-    {
-        m_targetY += 0.1f;
-        m_currentSpeedY = m_speed;
-        updatePlayerTexture("Down");
-        m_direction = 1;
-        if (m_shield)
-        {
-            updatePlayerTexture("DownShield");
-        }
-    }
-    else if (event->key() == Qt::Key_A)
-    {
-        m_targetX -= 0.1f;
-        m_currentSpeedX = -m_speed;
-        updatePlayerTexture("Left");
-        m_direction = 2;
-        if (m_shield)
-        {
-            updatePlayerTexture("LeftShield");
-        }
-    }
-    else if (event->key() == Qt::Key_D)
-    {
-        m_targetX += 0.1f;
-        m_currentSpeedX = m_speed;
-        updatePlayerTexture("Right");
-        m_direction = 3;
-        if (m_shield)
-        {
-            updatePlayerTexture("RightShield");
-        }
-    }
-    if (event->key() == Qt::Key_Space) {
-        shootBullet();
-    }
-    if (event->key() == Qt::Key_E) {
-        qDebug() << "Press E!";
+            m_targetY -= 0.1f;
+            m_currentSpeedY = -m_speed;
+            updatePlayerTexture("Up");
 
-        applyNextPowerUp();
+            m_direction = 0;
+            if (m_shield)
+            {
+                updatePlayerTexture("UpShield");
+            }
+        }
+        else if (event->key() == Qt::Key_S)
+        {
+            m_targetY += 0.1f;
+            m_currentSpeedY = m_speed;
+            updatePlayerTexture("Down");
+
+            m_direction = 1;
+            if (m_shield)
+            {
+                updatePlayerTexture("DownShield");
+            }
+        }
+        else if (event->key() == Qt::Key_A)
+        {
+            m_targetX -= 0.1f;
+            m_currentSpeedX = -m_speed;
+            updatePlayerTexture("Left");
+
+            m_direction = 2;
+            if (m_shield)
+            {
+                updatePlayerTexture("LeftShield");
+            }
+        }
+        else if (event->key() == Qt::Key_D)
+        {
+            m_targetX += 0.1f;
+            m_currentSpeedX = m_speed;
+            updatePlayerTexture("Right");
+
+            m_direction = 3;
+            if (m_shield)
+            {
+                updatePlayerTexture("RightShield");
+            }
+        }
+        if (event->key() == Qt::Key_Space) {
+            shootBullet();
+        }
+        if (event->key() == Qt::Key_E) {
+            qDebug() << "Press E!";
+
+            applyNextPowerUp();
+        }
+        if (event->key() == Qt::Key_I)
+        {
+        lives--;
+
+        }
+        if (event->key() == Qt::Key_L)
+        {
+        QTimer::singleShot(3000, this, [this]() {
+            QMessageBox::information(this, "Game Over", "You have 0 lives. You lose.");
+            });
+        
+        }
+        if (event->key() == Qt::Key_V)
+        {
+        QTimer::singleShot(3000, this, [this]() {
+            QMessageBox::information(this, "Game Over", "You are the last one on map.You Win");
+            });
+
+         }
+    if (event->key() == Qt::Key_P)
+    {
+        addPlayerPoints(100);
     }
 }
 
@@ -248,7 +321,10 @@ void GameWindow::applyNextPowerUp() {
 
     PowerUpType nextPowerUp = powerUpQueue.front();
     powerUpQueue.pop();
-
+    if (nextPowerUp == PowerUpType::ExtraLife) {
+        m_playerLives++;
+        qDebug() << "Extra life granted! Lives now:" << m_playerLives;
+    }
     std::string payload = "{\"powerUpType\": " + std::to_string(static_cast<int>(nextPowerUp)) + "}";
 
   
@@ -466,7 +542,6 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
         return;
     }
 
-   
     for (const QJsonValue& rowValue : mapArray) {
         if (!rowValue.isArray()) {
             qDebug() << "Error: Expected a row to be a JSON array!";
@@ -474,7 +549,6 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
         }
     }
 
-    
     while (QLayoutItem* item = gridLayout->takeAt(0)) {
         if (item->widget()) {
             item->widget()->deleteLater();
@@ -488,40 +562,34 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
     m_mapData.clear();
 
     int blockSize = 64;
-
-   
     QPixmap wallTexture("Breakable.png");
     QPixmap unbreakableTexture("Unbreakable.png");
     QPixmap emptyTexture("Empty.png");
     QPixmap bulletTexture("BulletUpDown.png");
+
     wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     bulletTexture = bulletTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
 
-    
     for (int row = 0; row < mapArray.size(); ++row) {
         QJsonArray rowArray = mapArray[row].toArray();
         QVector<QString> rowData;
 
-        
         for (int col = 0; col < rowArray.size(); ++col) {
             QString cellType = rowArray[col].toString();
             QLabel* cellLabel = new QLabel(this);
 
-           
             QPixmap texture;
-            if (cellType == "Wall" || cellType == "Bomb") {
+            if (cellType == "Wall") {
                 texture = wallTexture;
             }
             else if (cellType == "Unbreakable") {
                 texture = unbreakableTexture;
             }
-            else if (cellType == "Bullet")
-            {
+            else if (cellType == "Bullet") {
                 texture = bulletTexture;
             }
-        
             else if (cellType == "Empty") {
                 texture = emptyTexture;
             }
@@ -546,7 +614,6 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
     }
 
     if (m_mapData.isEmpty()) {
-        
         displayMap(mapArray);
         return;
     }
@@ -556,51 +623,82 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
     QPixmap unbreakableTexture("Unbreakable.png");
     QPixmap emptyTexture("Empty.png");
     QPixmap bulletTexture("BulletUpDown.png");
+
     wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     bulletTexture = bulletTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
 
-    int playerGridX = static_cast<int>(m_x / 64);
-    int playerGridY = static_cast<int>(m_y / 64);
+    
+    int playerGridX = static_cast<int>(m_x / blockSize);
+    int playerGridY = static_cast<int>(m_y / blockSize);
 
     for (int row = 0; row < mapArray.size(); ++row) {
         QJsonArray rowArray = mapArray[row].toArray();
 
         for (int col = 0; col < rowArray.size(); ++col) {
             QString cellType = rowArray[col].toString();
+
+           
             int distance = std::max(abs(row - playerGridY), abs(col - playerGridX));
 
             QLabel* cellLabel = qobject_cast<QLabel*>(gridLayout->itemAtPosition(row, col)->widget());
             if (!cellLabel) continue;
 
             if (distance <= visibilityRadius) {
+               
                 QPixmap texture;
-                if (cellType == "Wall" || cellType == "Bomb") {
+                if (cellType == "Wall") {
                     texture = wallTexture;
+                    m_mapData[row][col] = "Wall";
                 }
                 else if (cellType == "Unbreakable") {
                     texture = unbreakableTexture;
+                    m_mapData[row][col] = "Unbreakable";
                 }
-                else if (cellType == "Bullet")
-                {
+                else if (cellType == "Bullet") {
                     texture = bulletTexture;
+                    m_mapData[row][col] = "Bullet";
+
+                    qDebug() << "Found Bullet at (" << row << ", " << col << ")";
+
+                   
+                    QTimer::singleShot(5000, this, [=]() {
+                        qDebug() << "Timer triggered for Bullet at (" << row << ", " << col << ")";
+                        if (m_mapData[row][col] == "Bullet") {
+                            m_mapData[row][col] = "Empty";
+
+                            QLabel* cellLabel = qobject_cast<QLabel*>(gridLayout->itemAtPosition(row, col)->widget());
+                            if (cellLabel) {
+                                cellLabel->setPixmap(emptyTexture);
+                                qDebug() << "Cell updated to Empty at (" << row << ", " << col << ")";
+                            }
+
+                            updateServerMapCell(row, col);
+                        }
+                        else {
+                            qDebug() << "Bullet already removed at (" << row << ", " << col << ")";
+                        }
+                        });
                 }
                 else if (cellType == "Empty") {
                     texture = emptyTexture;
+                    m_mapData[row][col] = "Empty";
                 }
-           
 
                 cellLabel->setPixmap(texture);
             }
             else {
+             
                 cellLabel->setPixmap(emptyTexture);
+                m_mapData[row][col] = "Unknown"; 
             }
         }
     }
 
     setFixedSize(gridLayout->sizeHint());
 }
+
 
 
 bool GameWindow::canMoveTo(float newX, float newY)
@@ -644,6 +742,7 @@ void GameWindow::addBullet(float x, float y, int direction) {
 
     
     bullet.direction = direction;
+    bullet.owner = QString::fromStdString(m_playerName);
     QPixmap bulletPixmap;
 
    
@@ -745,16 +844,17 @@ void GameWindow::updateServerBulletsPosition() {
 }
 
 
-void GameWindow::updateServerMapCell(int row, int col)
-{
+void GameWindow::updateServerMapCell(int row, int col) {
     cpr::Response response = cpr::Post(
-        cpr::Url{ base_url+"/map/empty/" + std::to_string(row) + "/" + std::to_string(col) },
+        cpr::Url{ base_url + "/map/empty/" + std::to_string(row) + "/" + std::to_string(col) },
         cpr::Header{ {"Content-Type", "application/json"} }
     );
 
     if (response.status_code != 200) {
-
-        qDebug() << "Error: " << response.status_code << " - " << "map could not be updated";
+        qDebug() << "Error: Failed to update server for cell (" << row << ", " << col << ")";
+    }
+    else {
+        qDebug() << "Server updated cell (" << row << ", " << col << ") to Empty";
     }
 }
 QPointer<QLabel> positionLabel;
@@ -791,98 +891,129 @@ void GameWindow::updateBullets() {
     for (int i = 0; i < bullets.size(); ++i) {
         m_bulletData& bullet = bullets[i];
 
-       
+        
+        if (bullet.inCollision) {
+            continue;
+        }
+
+      
         switch (bullet.direction) {
-        case 0: bullet.y -= m_bulletSpeed; break; 
+        case 0: bullet.y -= m_bulletSpeed; break;
         case 1: bullet.y += m_bulletSpeed; break; 
         case 2: bullet.x -= m_bulletSpeed; break; 
         case 3: bullet.x += m_bulletSpeed; break; 
         }
 
-        if (i >= bulletLabels.size() || i >= bullets.size()) {
-            continue;
-        }
-
+       
         if (i < bulletLabels.size()) {
             bulletLabels[i]->move(static_cast<int>(bullet.x), static_cast<int>(bullet.y));
         }
 
+        
         int ix = std::clamp(static_cast<int>((bullet.y + 32) / 64), 0, m_mapHeight - 1);
         int iy = std::clamp(static_cast<int>((bullet.x + 32) / 64), 0, m_mapWidth - 1);
 
         
-        if (ix != bullet.previousCellX || iy != bullet.previousCellY) {
-            updateServerBulletsPosition();
+        for (int j = 0; j < bullets.size(); ++j) {
+            if (i != j && !bullets[j].inCollision) { 
+                m_bulletData& otherBullet = bullets[j];
+
+                
+                int otherIx = std::clamp(static_cast<int>((otherBullet.y + 32) / 64), 0, m_mapHeight - 1);
+                int otherIy = std::clamp(static_cast<int>((otherBullet.x + 32) / 64), 0, m_mapWidth - 1);
+
+                if (ix == otherIx && iy == otherIy) {
+                    qDebug() << "Coliziune între gloanțe la (" << ix << ", " << iy << ")";
+
+                    
+                    bullet.inCollision = true;
+                    otherBullet.inCollision = true;
+
+                    
+                    QTimer::singleShot(5000, this, [this, i, j]() {
+                        if (i < bullets.size()) {
+                            if (i < bulletLabels.size()) {
+                                delete bulletLabels[i];
+                                bulletLabels.remove(i);
+                            }
+                            bullets.remove(i);
+                        }
+                        if (j < bullets.size()) {
+                            if (j < bulletLabels.size()) {
+                                delete bulletLabels[j];
+                                bulletLabels.remove(j);
+                            }
+                            bullets.remove(j);
+                        }
+
+                        
+                        updateServerBulletsPosition();
+                        });
+                    break;
+                }
+            }
+        }
+
+       
+        if (bullet.x < 0 || bullet.y < 0 || bullet.x >= m_mapWidth * 64 || bullet.y >= m_mapHeight * 64) {
+            if (i < bulletLabels.size()) {
+                delete bulletLabels[i];
+                bulletLabels.remove(i);
+            }
+            bullets.remove(i);
+            --i;
+            continue;
         }
 
         
-        for (int j = 0; j < bullets.size(); ++j) {
-            if (i != j &&
-                static_cast<int>((bullets[j].y + 32) / 64) == ix &&
-                static_cast<int>((bullets[j].x + 32) / 64) == iy) {
-               
-                delete bulletLabels[j];
-                bulletLabels.remove(j);
-                bullets.remove(j);
-                if (j < i) {
-                    --i; 
+        if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
+            QString cellContent = m_mapData[ix][iy];
+            if (cellContent != "Empty") {
+                qDebug() << "Bullet hit: " << cellContent << " at (" << ix << ", " << iy << ")";
+
+                
+                destroyCells(ix, iy);
+
+                
+                updateMap(m_mapArray);
+
+                
+                if (i < bulletLabels.size()) {
+                    delete bulletLabels[i];
+                    bulletLabels.remove(i);
                 }
+                bullets.remove(i);
+                --i;
+                continue;
+            }
+        }
+        if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
+            QString cellContent = m_mapData[ix][iy];
+            if (cellContent == "Player") {
+                qDebug() << "Bullet hit a player at (" << ix << ", " << iy << ")";
+                handleBulletCollision(ix, iy); 
                 delete bulletLabels[i];
                 bulletLabels.remove(i);
                 bullets.remove(i);
                 --i;
-                break;
+                continue;
             }
         }
-
-        
-        if (ix == static_cast<int>((m_y + 32) / 64) && iy == static_cast<int>((m_x + 32) / 64)) {
-            if (!m_shield) {
-                --m_playerLives; 
-                if (m_playerLives <= 0) {
-                    displayPlayerDeathMessage(m_playerName);
-                }
-            }
-            delete bulletLabels[i];
-            bulletLabels.remove(i);
-            bullets.remove(i);
-            --i;
-            continue;
-        }
-
-        
-        if (bullet.x < -16 || bullet.y < -16 || bullet.x >= (m_mapWidth * 63 - 32) || bullet.y >= (m_mapHeight * 63 - 32) ||
-            (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth &&
-                (m_mapData[ix][iy] == "Wall" || m_mapData[ix][iy] == "Unbreakable" || m_mapData[ix][iy] == "Bomb" || m_mapData[ix][iy] == "Player" || m_mapData[ix][iy] == "Bullet"))) {
-            if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
-                destroyCells(ix, iy);
-            }
-            delete bulletLabels[i];
-            bulletLabels.remove(i);
-            bullets.remove(i);
-            --i;
-            continue;
-        }
-
-        if (ix < 0 || iy < 0 || ix >= m_mapHeight || iy >= m_mapWidth) {
-            delete bulletLabels[i];
-            bulletLabels.remove(i);
-            bullets.remove(i);
-            --i;
-            continue;
-        }
-
-        updateMap(m_mapArray);
     }
+    updateServerBulletsPosition();
 }
+void GameWindow::updatePlayerLivesOnServer(const std::string& playerName, int lives) {
+    std::string payload = "{\"name\": \"" + playerName + "\", \"lives\": " + std::to_string(lives) + "}";
+    QtConcurrent::run([payload]() {
+        cpr::Response response = cpr::Post(
+            cpr::Url{ "http://localhost:18080/update_player_lives" },
+            cpr::Body{ payload },
+            cpr::Header{ {"Content-Type", "application/json"} }
+        );
 
-void GameWindow::returnToMainMenu()
-{
-
-    MainMenuWindow* mainMenuWindow = new MainMenuWindow();
-    mainMenuWindow->show();
-
-    this->close();
+        if (response.status_code != 200) {
+        }
+        });
 }
 void GameWindow::destroyCells(int x, int y)
 {
@@ -902,6 +1033,11 @@ void GameWindow::destroyCells(int x, int y)
         if (!m_shield)
         {
             m_playerLives--;
+            displayPlayerLives();
+
+          
+            updatePlayerLivesOnServer(m_playerName, m_playerLives);
+
             if (m_playerLives == 0)
             {
                 displayPlayerDeathMessage(m_playerName);
@@ -929,7 +1065,6 @@ void GameWindow::destroyCells(int x, int y)
         {
             for (int j = y - 1; j <= y + 1; j++)
             {
-
                 if (m_mapData[i][j] == "Wall")
                 {
                     m_mapData[i][j] = "Empty";
@@ -940,6 +1075,11 @@ void GameWindow::destroyCells(int x, int y)
                     if (!m_shield)
                     {
                         m_playerLives--;
+                        displayPlayerLives();
+
+                       
+                        updatePlayerLivesOnServer(m_playerName, m_playerLives);
+
                         if (m_playerLives == 0)
                         {
                             displayPlayerDeathMessage(m_playerName);
@@ -964,20 +1104,8 @@ void GameWindow::destroyCells(int x, int y)
     }
 }
 
-
-
-
-void GameWindow::displayPlayerDeathMessage(const std::string& playerName)
-{
-    messageLabel->setText(QString::fromStdString(playerName + " died"));
-
-    messageLabel->show();
-
-    QTimer::singleShot(5000, messageLabel, &QLabel::hide);
-}
 void GameWindow::increaseVisibility() {
     visibilityRadius++;
-    qDebug() << "Visibility increased to radius: " << visibilityRadius;
     updateMap(m_mapArray); 
     fetchAllPlayersPositions();
    
@@ -990,7 +1118,6 @@ void GameWindow::sendPlayerSpawn(int row, int col)
     );
 
     if (response.status_code != 200) {
-        qDebug() << "Error: " << response.status_code << " - Could not update map position for the player.";
     }
 }
 void GameWindow::fetchAllPlayersPositions() {
@@ -999,7 +1126,6 @@ void GameWindow::fetchAllPlayersPositions() {
     if (response.status_code == 200) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
         if (!jsonDoc.isObject()) {
-            qDebug() << "Error: Invalid JSON format received for player positions!";
             return;
         }
 
@@ -1038,9 +1164,6 @@ void GameWindow::fetchAllPlayersPositions() {
 
         removeDisconnectedPlayers(positionsObj);
     }
-    else {
-        qDebug() << "Failed to fetch player positions. Status code:" << response.status_code;
-    }
 }
 
 
@@ -1066,5 +1189,84 @@ QString GameWindow::getPlayerTexture(uint8_t direction) {
     }
 }
 
+void GameWindow::handleBulletCollision(int x, int y) {
+    QString hitPlayerName = getPlayerAtPosition(x, y);
+    if (hitPlayerName.isEmpty()) {
+        return;
+    }
+
+    if (hitPlayerName == QString::fromStdString(m_playerName)) {
+        
+        if (!m_shield) {
+            m_playerLives--;
+            updatePlayerLivesOnServer(m_playerName, m_playerLives);
+            displayPlayerLives();
+
+            if (m_playerLives <= 0) {
+                displayPlayerDeathMessage(m_playerName);
+            }
+        }
+    }
+    else {
+        
+        std::string playerKey = hitPlayerName.toStdString();
+        if (playerLives.find(playerKey) != playerLives.end() && playerLives[playerKey] > 0) {
+            playerLives[playerKey]--;
+            updatePlayerLivesOnServer(playerKey, playerLives[playerKey]);
+        }
+    }
+}
 
 
+QString GameWindow::getPlayerAtPosition(int x, int y) {
+    for (const auto& player : otherPlayerLabels) {
+        QRect playerRect = player->geometry(); 
+        int gridX = playerRect.x() / 64;
+        int gridY = playerRect.y() / 64;
+
+        if (gridX == x && gridY == y) {
+            return otherPlayerLabels.key(player); 
+        }
+    }
+    return "";
+}
+void GameWindow::displayPlayerDeathMessage(const std::string& playerName) {
+    messageLabel->setText(QString::fromStdString(playerName + " died"));
+    messageLabel->show();
+
+    
+    if (playerName == m_playerName) {
+        QTimer::singleShot(5000, this, [this]() {
+            });
+    }
+    else {
+        QTimer::singleShot(5000, messageLabel, &QLabel::hide); 
+    }
+}
+
+void GameWindow::addPlayerPoints(int pointsToAdd) {
+    std::string payload = "{\"name\": \"" + m_playerName + "\", \"points\": " + std::to_string(pointsToAdd) + "}";
+    cpr::Response response = cpr::Post(
+        cpr::Url{ base_url + "/add_player_points" },
+        cpr::Body{ payload },
+        cpr::Header{ {"Content-Type", "application/json"} }
+    );
+
+    if (response.status_code == 200) {
+        fetchPlayerPoints(); 
+    }
+}
+
+void GameWindow::fetchPlayerPoints() {
+    cpr::Response response = cpr::Get(cpr::Url{ base_url + "/get_player_points/" + m_playerName });
+
+    if (response.status_code == 200) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        if (jsonDoc.isObject()) {
+            QJsonObject jsonObj = jsonDoc.object();
+            int points = jsonObj["points"].toInt();
+            m_playerPoints = points;          
+        }
+    }
+    
+}

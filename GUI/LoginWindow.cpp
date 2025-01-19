@@ -78,15 +78,15 @@ void LoginWindow::setupUI()
 }
 
 void LoginWindow::onLoginClicked() {
-    // TODO If valid, atutentificate logic
     QString playerName = usernameEdit->text().trimmed();
     if (playerName.isEmpty()) {
         qDebug() << "Numele de utilizator este gol. Introduceti un nume valid.";
+        QMessageBox::warning(this, "Eroare", "Numele de utilizator nu poate fi gol.");
         return;
     }
 
     QSqlQuery query;
-    query.prepare("SELECT id,points FROM players WHERE name = :name");
+    query.prepare("SELECT name, points FROM players WHERE name = :name");
     query.bindValue(":name", playerName);
 
     if (!query.exec()) {
@@ -94,36 +94,42 @@ void LoginWindow::onLoginClicked() {
         QMessageBox::critical(this, "Eroare", "Nu s-a putut verifica utilizatorul in baza de date.");
         return;
     }
-    if (query.next()) { // Găsește utilizatorul
-        int playerId = query.value(0).toInt(); // id-ul jucătorului
-        int playerPoints = query.value(1).toInt(); // punctele jucătorului
 
-        qDebug() << "Player found: ID=" << playerId << ", Points=" << playerPoints;
+    if (query.next()) {
+        QString fetchedName = query.value(0).toString();
+        int playerPoints = query.value(1).toInt();
 
-        // Trimite datele către server folosind CPR
-        cpr::Response response = cpr::Get(
-            cpr::Url{ base_url+"/login" }, // URL-ul serverului tău
-            cpr::Body{ R"({"id": ")" + std::to_string(playerId) + R"(", "name": ")" + playerName.toStdString() + R"(", "points": ")" + std::to_string(playerPoints) + R"("})" },
-            cpr::Header{ {"Content-Type", "application/json"} }
+        qDebug() << "Player found: Name=" << fetchedName << ", Points=" << playerPoints;
+
+        
+        std::string payload = R"({"name":")" + fetchedName.toStdString() + R"(","points":)" + std::to_string(playerPoints) + R"(})";
+
+      
+        cpr::Response response = cpr::Post(
+            cpr::Url{ base_url + "/login" },
+            cpr::Body{ payload },
+            cpr::Header{ { "Content-Type", "application/json" } }
         );
-
 
         if (response.status_code == 200) {
             qDebug() << "Player logged in successfully: " << response.text.c_str();
-            emit loginSuccessful(playerName);
+            emit loginSuccessful(fetchedName);
             this->close();
         }
-		else if (response.status_code == 409) {
-			qDebug() << "Player already logged in!";
-			QMessageBox::warning(this, "Eroare autentificare", "Utilizatorul este deja autentificat.");
-		}
+        else if (response.status_code == 409) {
+            qDebug() << "Player already logged in!";
+            QMessageBox::warning(this, "Eroare autentificare", "Utilizatorul este deja autentificat.");
+        }
+        else if (response.status_code == 404) {
+            qDebug() << "Player not found on server: " << response.text.c_str();
+            QMessageBox::warning(this, "Eroare autentificare", "Utilizatorul nu există pe server.");
+        }
         else {
             qDebug() << "Error logging in: " << response.text.c_str();
             QMessageBox::critical(this, "Eroare server", "Nu s-a putut autentifica utilizatorul.");
         }
     }
     else {
-        // Playerul nu există
         qDebug() << "Playerul nu a fost gasit in baza de date.";
         QMessageBox::warning(this, "Eroare autentificare", "Utilizatorul nu exista in baza de date.");
     }
