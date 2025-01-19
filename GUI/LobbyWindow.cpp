@@ -58,7 +58,7 @@ void LobbyWindow::updatePlayerList() {
         lobbyLabel->setText("Players: " + QString::number(playerCount));
 
 
-        if (playerCount >= 1 && playerCount <= 4 && !countdownTimer->isActive()) {
+        if (playerCount >= 2 && playerCount <= 4 && !countdownTimer->isActive()) {
             countdownTime = 10;
             countdownTimer->start(1000);
         }

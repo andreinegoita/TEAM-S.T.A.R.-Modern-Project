@@ -124,7 +124,6 @@ void GameWindow::updatePlayerLivesFromServer() {
                    
                     if (m_playerLives != lives) {
                         m_playerLives = lives;
-                        displayPlayerLives();
                         qDebug() << "Updated local lives for player" << playerName << ":" << lives;
                     }
                 }
