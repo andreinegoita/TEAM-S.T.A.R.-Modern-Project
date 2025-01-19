@@ -568,11 +568,13 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
     QPixmap unbreakableTexture("Unbreakable.png");
     QPixmap emptyTexture("Empty.png");
     QPixmap bulletTexture("BulletUpDown.png");
+    QPixmap bombTexture("DemoBomb.png");
 
     wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     bulletTexture = bulletTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    bombTexture = bombTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
 
     for (int row = 0; row < mapArray.size(); ++row) {
         QJsonArray rowArray = mapArray[row].toArray();
@@ -591,6 +593,10 @@ void GameWindow::displayMap(const QJsonArray& mapArray) {
             }
             else if (cellType == "Bullet") {
                 texture = bulletTexture;
+            }
+            else if (cellType == "Bomb")
+            {
+                texture = bombTexture;
             }
             else if (cellType == "Empty") {
                 texture = emptyTexture;
@@ -625,11 +631,13 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
     QPixmap unbreakableTexture("Unbreakable.png");
     QPixmap emptyTexture("Empty.png");
     QPixmap bulletTexture("BulletUpDown.png");
+    QPixmap bombTexture("DemoBomb.png");
 
     wallTexture = wallTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     unbreakableTexture = unbreakableTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     emptyTexture = emptyTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
     bulletTexture = bulletTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    bombTexture = bombTexture.scaled(blockSize, blockSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
 
     
     int playerGridX = static_cast<int>(m_x / blockSize);
@@ -682,6 +690,10 @@ void GameWindow::updateMap(const QJsonArray& mapArray) {
                             qDebug() << "Bullet already removed at (" << row << ", " << col << ")";
                         }
                         });
+                }
+                else if (cellType == "Bomb")
+                {
+                    texture = bombTexture;
                 }
                 else if (cellType == "Empty") {
                     texture = emptyTexture;
@@ -871,15 +883,15 @@ void GameWindow::updateBullets() {
             continue;
         }
 
-      
+        
         switch (bullet.direction) {
-        case 0: bullet.y -= m_bulletSpeed; break;
+        case 0: bullet.y -= m_bulletSpeed; break; 
         case 1: bullet.y += m_bulletSpeed; break; 
         case 2: bullet.x -= m_bulletSpeed; break; 
         case 3: bullet.x += m_bulletSpeed; break; 
         }
 
-       
+        
         if (i < bulletLabels.size()) {
             bulletLabels[i]->move(static_cast<int>(bullet.x), static_cast<int>(bullet.y));
         }
@@ -888,23 +900,19 @@ void GameWindow::updateBullets() {
         int ix = std::clamp(static_cast<int>((bullet.y + 32) / 64), 0, m_mapHeight - 1);
         int iy = std::clamp(static_cast<int>((bullet.x + 32) / 64), 0, m_mapWidth - 1);
 
-        
+      
         for (int j = 0; j < bullets.size(); ++j) {
-            if (i != j && !bullets[j].inCollision) { 
+            if (i != j && !bullets[j].inCollision) {
                 m_bulletData& otherBullet = bullets[j];
-
-                
                 int otherIx = std::clamp(static_cast<int>((otherBullet.y + 32) / 64), 0, m_mapHeight - 1);
                 int otherIy = std::clamp(static_cast<int>((otherBullet.x + 32) / 64), 0, m_mapWidth - 1);
 
                 if (ix == otherIx && iy == otherIy) {
                     qDebug() << "Coliziune între gloanțe la (" << ix << ", " << iy << ")";
 
-                    
                     bullet.inCollision = true;
                     otherBullet.inCollision = true;
 
-                    
                     QTimer::singleShot(5000, this, [this, i, j]() {
                         if (i < bullets.size()) {
                             if (i < bulletLabels.size()) {
@@ -921,7 +929,6 @@ void GameWindow::updateBullets() {
                             bullets.remove(j);
                         }
 
-                        
                         updateServerBulletsPosition();
                         });
                     break;
@@ -943,16 +950,13 @@ void GameWindow::updateBullets() {
         
         if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
             QString cellContent = m_mapData[ix][iy];
-            if (cellContent != "Empty") {
-                qDebug() << "Bullet hit: " << cellContent << " at (" << ix << ", " << iy << ")";
+            if (cellContent == "Bomb") {
+                qDebug() << "Bullet hit a bomb at (" << ix << ", " << iy << ")";
 
                 
-                destroyCells(ix, iy);
+                triggerBombExplosion(ix, iy);
 
-                
-                updateMap(m_mapArray);
-
-                
+               
                 if (i < bulletLabels.size()) {
                     delete bulletLabels[i];
                     bulletLabels.remove(i);
@@ -961,12 +965,23 @@ void GameWindow::updateBullets() {
                 --i;
                 continue;
             }
-        }
-        if (ix >= 0 && ix < m_mapHeight && iy >= 0 && iy < m_mapWidth) {
-            QString cellContent = m_mapData[ix][iy];
+            if (cellContent != "Empty") {
+                qDebug() << "Bullet hit: " << cellContent << " at (" << ix << ", " << iy << ")";
+                destroyCells(ix, iy);
+
+                updateMap(m_mapArray);
+
+                if (i < bulletLabels.size()) {
+                    delete bulletLabels[i];
+                    bulletLabels.remove(i);
+                }
+                bullets.remove(i);
+                --i;
+                continue;
+            }
             if (cellContent == "Player") {
                 qDebug() << "Bullet hit a player at (" << ix << ", " << iy << ")";
-                handleBulletCollision(ix, iy); 
+                handleBulletCollision(ix, iy);
                 delete bulletLabels[i];
                 bulletLabels.remove(i);
                 bullets.remove(i);
@@ -976,6 +991,27 @@ void GameWindow::updateBullets() {
         }
     }
     updateServerBulletsPosition();
+}
+
+void GameWindow::triggerBombExplosion(int x, int y) {
+    qDebug() << "Bomb exploded at (" << x << ", " << y << ")";
+
+   
+    for (int i = x - 1; i <= x + 1; ++i) {
+        for (int j = y - 1; j <= y + 1; ++j) {
+            if (i >= 0 && i < m_mapHeight && j >= 0 && j < m_mapWidth) {
+                if (m_mapData[i][j] == "Wall") {
+                    m_mapData[i][j] = "Empty";
+                    updateServerMapCell(i, j);
+                }
+            }
+        }
+    }
+
+    
+    m_mapData[x][y] = "Empty";
+    updateServerMapCell(x, y);
+    fetchMap(); 
 }
 void GameWindow::updatePlayerLivesOnServer(const std::string& playerName, int lives) {
     std::string payload = "{\"name\": \"" + playerName + "\", \"lives\": " + std::to_string(lives) + "}";
@@ -1008,11 +1044,6 @@ void GameWindow::destroyCells(int x, int y)
         if (!m_shield)
         {
             m_playerLives--;
-            displayPlayerLives();
-
-          
-            updatePlayerLivesOnServer(m_playerName, m_playerLives);
-
             if (m_playerLives == 0)
             {
                 displayPlayerDeathMessage(m_playerName);
@@ -1040,6 +1071,7 @@ void GameWindow::destroyCells(int x, int y)
         {
             for (int j = y - 1; j <= y + 1; j++)
             {
+
                 if (m_mapData[i][j] == "Wall")
                 {
                     m_mapData[i][j] = "Empty";
@@ -1050,11 +1082,6 @@ void GameWindow::destroyCells(int x, int y)
                     if (!m_shield)
                     {
                         m_playerLives--;
-                        displayPlayerLives();
-
-                       
-                        updatePlayerLivesOnServer(m_playerName, m_playerLives);
-
                         if (m_playerLives == 0)
                         {
                             displayPlayerDeathMessage(m_playerName);
@@ -1078,6 +1105,7 @@ void GameWindow::destroyCells(int x, int y)
         fetchMap();
     }
 }
+
 
 void GameWindow::increaseVisibility() {
     visibilityRadius++;

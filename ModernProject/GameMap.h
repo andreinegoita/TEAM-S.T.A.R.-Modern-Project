@@ -6,6 +6,8 @@
 #include<random>
 #include"CellType.h"
 #include <unordered_map>
+#include<ranges>
+
 
 class GameMap
 {
@@ -38,9 +40,6 @@ public:
 	void UpdateCell(int row, int col, int value);
 
 	std::string GetMapState() const;
-
-	void setPlayerPosition(const std::string& playerName, size_t row, size_t col);
-	std::pair<size_t, size_t> getPlayerPosition(const std::string& playerName) const;
 
 
 

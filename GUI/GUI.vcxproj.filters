@@ -125,6 +125,9 @@
     <Image Include="PlayerUpShield.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="DemoBomb.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GameWindow.h">

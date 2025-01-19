@@ -1,4 +1,4 @@
-#include "GameMap.h"
+﻿#include "GameMap.h"
 #include <crow.h>
 #include <string>
 #include <vector>
@@ -96,31 +96,31 @@ void GameMap::generateMap()
 
 
 
-bool GameMap::isValidMap() const
-{
-	for (size_t row = 0;row < m_rows;row++)
-		for (size_t col = 0;col < m_cols;col++) {
+bool GameMap::isValidMap() const {
+	auto cells = m_map | std::views::join;
 
-			CellType cell = m_map[row][col];
-			if (cell != CellType::EMPTY &&
-				cell != CellType::BREAKABLE_WALL &&
-				cell != CellType::Player &&
-				cell != CellType::UNBREAKABLE_WALL &&
-				cell != CellType::Bullet &&
-				cell != CellType::Bomb)
-			{
-				return false;
-			}
-
-			if (cell == CellType::Player)
-				if (!IsInBounds(row, col))
-					return false;
-		}
 	
+	std::vector<CellType> validCellTypes = {
+		CellType::EMPTY,
+		CellType::BREAKABLE_WALL,
+		CellType::Player,
+		CellType::UNBREAKABLE_WALL,
+		CellType::Bullet,
+		CellType::Bomb
+	};
 
-	return true;
+	
+	bool allCellsValid = std::ranges::all_of(cells, [&validCellTypes](CellType cell) {
+		return std::ranges::find(validCellTypes, cell) != validCellTypes.end();
+		});
+
+	
+	bool playersInBounds = std::ranges::all_of(cells, [this](CellType cell) {
+		return cell != CellType::Player || IsInBounds(m_playerX, m_playerY);
+		});
+
+	return allCellsValid && playersInBounds;
 }
-
 
 
 GameMap::GameMap(const GameMap& other) :m_rows(other.m_rows), m_cols(other.m_cols), m_playerX{ 0 }, m_playerY{ 0 } ,m_map(other.m_map)

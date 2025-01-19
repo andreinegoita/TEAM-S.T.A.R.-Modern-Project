@@ -41,6 +41,7 @@ public:
     void updatePlayerLivesFromServer();
     void displayPlayerLives();
     void updatePlayerLivesOnServer(const std::string& playerName, int lives);
+    void triggerBombExplosion(int x, int y);
 
 private slots:
     void updateGraphics();

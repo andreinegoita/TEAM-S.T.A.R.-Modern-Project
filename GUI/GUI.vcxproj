@@ -147,6 +147,7 @@
     <Image Include="Breakable.png" />
     <Image Include="BulletUpDown.png" />
     <Image Include="BulletLeftRight.png" />
+    <Image Include="DemoBomb.png" />
     <Image Include="menu.jpg" />
     <Image Include="Player.png" />
     <Image Include="PlayerDown.png" />
