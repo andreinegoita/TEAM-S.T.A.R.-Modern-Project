@@ -125,7 +125,6 @@ bool GameMap::isValidMap() const
 
 GameMap::GameMap(const GameMap& other) :m_rows(other.m_rows), m_cols(other.m_cols), m_playerX{ 0 }, m_playerY{ 0 } ,m_map(other.m_map)
 {
-	//Empty
 }
 
 uint16_t GameMap::getRows() const

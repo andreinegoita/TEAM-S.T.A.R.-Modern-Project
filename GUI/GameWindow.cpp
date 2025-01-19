@@ -154,6 +154,9 @@ void GameWindow::displayPlayerLives() {
 }
 void GameWindow::keyPressEvent(QKeyEvent* event)
 {
+    if (lives == 0) {
+        return;
+    }
         if (event->key() == Qt::Key_W)
         {
             m_targetY -= 0.1f;
@@ -217,7 +220,9 @@ void GameWindow::keyPressEvent(QKeyEvent* event)
         }
         if (event->key() == Qt::Key_L)
         {
+
         QTimer::singleShot(3000, this, [this]() {
+            lives--;
             QMessageBox::information(this, "Game Over", "You have 0 lives. You lose.");
             });
         
@@ -473,8 +478,6 @@ void GameWindow::fetchPlayerPosition() {
 
         int x = playerPosition.value("x").toInt();
         int y = playerPosition.value("y").toInt();
-
-        displayPlayerPosition(x, y);
     }
     else {
         QLabel* errorLabel = new QLabel("Failed to fetch player position from server!", this);
@@ -527,7 +530,6 @@ void GameWindow::updateGraphics() {
         updateServerPlayerPosition();
 
 
-        displayPlayerPosition(playerGridX, playerGridY);
     }
     m_x = std::max(0.0f, (((m_x) < (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)) ? (m_x) : (static_cast<float>(m_mapWidth) * 64.0f - 64.0f)));
     m_y = std::max(0.0f, (((m_y) < (static_cast<float>(m_mapHeight) * 64.0f - 64.0f)) ? (m_y) : (static_cast<float>(m_mapHeight) * 64.0f - 64.0f)));
@@ -859,33 +861,6 @@ void GameWindow::updateServerMapCell(int row, int col) {
 }
 QPointer<QLabel> positionLabel;
 
-void GameWindow::displayPlayerPosition(int x, int y) {
-    if (!(x >= 0 && x < m_mapHeight && y >= 0 && y < m_mapWidth)) {
-        
-        return;
-    }
-
-    if (!gridLayout) {
-        qDebug() << "gridLayout is null. Initializing.";
-        gridLayout = new QGridLayout(this);
-        setLayout(gridLayout);
-    }
-
-    if (!positionLabel) {
-        qDebug() << "positionLabel is null. Creating new QLabel.";
-        positionLabel = new QLabel(this);
-        gridLayout->addWidget(positionLabel, 0, 0);
-    }
-
-    if (positionLabel) {
-        
-        positionLabel->setText(QString("(%1, %2)").arg(x).arg(y));
-       
-    }
-    else {
-        qDebug() << "Unexpected error: positionLabel is still null.";
-    }
-}
 
 void GameWindow::updateBullets() {
     for (int i = 0; i < bullets.size(); ++i) {
@@ -1004,9 +979,9 @@ void GameWindow::updateBullets() {
 }
 void GameWindow::updatePlayerLivesOnServer(const std::string& playerName, int lives) {
     std::string payload = "{\"name\": \"" + playerName + "\", \"lives\": " + std::to_string(lives) + "}";
-    QtConcurrent::run([payload]() {
+    QtConcurrent::run([payload,this]() {
         cpr::Response response = cpr::Post(
-            cpr::Url{ "http://localhost:18080/update_player_lives" },
+            cpr::Url{ base_url+"/update_player_lives" },
             cpr::Body{ payload },
             cpr::Header{ {"Content-Type", "application/json"} }
         );

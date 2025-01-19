@@ -24,7 +24,7 @@ void http::recordGame(Storage& storage, int playerId, int gameScore)
 }
 
 void http::executePowerUpTransaction(int points,std::string playerName) {
-    std::string url = "http://localhost:18080/purchase";
+    std::string url = http::base_url+ "/purchase";
 
     
     std::string pointsStr = std::to_string(points);

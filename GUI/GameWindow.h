@@ -51,7 +51,6 @@ private slots:
     void destroyCells(int x, int y);
     void resetPowerOffEfects();
 private:
-    QLabel* positionLabel;
     QLabel* playerLabel;
     QGridLayout* gridLayout;
     float m_targetX, m_targetY;
@@ -79,7 +78,6 @@ private:
     void fetchMap();
     void fetchPlayerPosition();
     void updateServerPlayerPosition();
-    void displayPlayerPosition(int x, int y);
     void updateServerBulletsPosition();
     void updateServerMapCell(int row, int col);
     void updatePlayerUI(double speed, int lives, bool hasShield,double fireRate);

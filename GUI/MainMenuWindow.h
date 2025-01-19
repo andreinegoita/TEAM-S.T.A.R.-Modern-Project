@@ -19,6 +19,7 @@ private:
     QLabel* welcomeLabel;
     QPushButton* menuButton;
     QPushButton* startGameButton;
+    std::string base_url = "http://localhost:18080";
 
     void startGame();
 };

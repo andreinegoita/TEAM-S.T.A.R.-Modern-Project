@@ -106,7 +106,7 @@ void MainMenuWindow::startGame() {
 
    
     cpr::Post(
-        cpr::Url{ "http://localhost:18080/join_lobby" },
+        cpr::Url{ base_url+"/join_lobby" },
         cpr::Body{ "{\"name\": \"" + welcomeLabel->text().toStdString() + "\"}" },
         cpr::Header{ { "Content-Type", "application/json" } }
     );

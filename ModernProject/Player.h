@@ -63,6 +63,7 @@ private:
 	std::chrono::time_point<std::chrono::steady_clock> shieldStartTime;
 	std::chrono::time_point<std::chrono::steady_clock> speedBoostStartTime;
 	std::queue<PowerUpType> m_powerUpQueue;
+	std::string base_url = "http://localhost:18080";
 
 	bool m_fireRatePurchased=false;
 

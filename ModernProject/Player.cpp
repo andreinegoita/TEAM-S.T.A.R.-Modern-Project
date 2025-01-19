@@ -169,7 +169,7 @@ void Player::BuyPowerUp(PowerUpType powerUpType) {
 
     if (CanAffordPowerUp(cost)) {
         m_points -= cost;
-        std::string url = "http://localhost:18080/purchase";
+        std::string url = base_url+"/purchase";
 
         std::string payloadStr = "{\"name\":\"" + m_name + "\",\"cost\":" + std::to_string(cost) + "}";
 

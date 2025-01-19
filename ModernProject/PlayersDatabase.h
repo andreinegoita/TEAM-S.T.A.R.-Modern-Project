@@ -43,6 +43,8 @@ namespace http
 		);
 	}
 
+	
+
 	using Storage = decltype(createStorage<PlayersDatabase<int, std::string, int>, Game<int, int, int>>(""));
 
 
@@ -50,5 +52,7 @@ namespace http
 
 	void recordGame(Storage& storage, int playerId, int gameScore);
 	void executePowerUpTransaction(int points, std::string playerName);
+
+	inline std::string base_url = "http://localhost:18080";
 }
 

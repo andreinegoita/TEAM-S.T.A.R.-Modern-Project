@@ -29,13 +29,11 @@ bool initializeDatabase() {
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
-    // Conectează la baza de date
     if (!initializeDatabase()) {
         qDebug() << "Failed to connect to database. Exiting...";
         return -1;
     }
 
-    // Crează ferestrele aplicației
     LoginWindow loginWindow;
     loginWindow.setWindowTitle("Battle City Login");
 
@@ -44,14 +42,12 @@ int main(int argc, char* argv[]) {
 
     GameController gameController(app);
 
-    // Gestionează succesul logării
     QObject::connect(&loginWindow, &LoginWindow::loginSuccessful, [&](const QString& playerName) {
         mainMenuWindow.setPlayerName(playerName);
         mainMenuWindow.show();
         loginWindow.close();
         });
 
-    // Arată fereastra de login
     loginWindow.show();
     return app.exec();
 }
